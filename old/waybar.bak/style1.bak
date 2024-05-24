@@ -1,0 +1,95 @@
+* {
+	font-family: JetBrains Mono Nerd Font Mono, monospace;
+	font-weight: bold;
+	font-size: 18px;
+	border: none;
+	border-radius: 0;
+	min-height: 0;
+}
+
+window#waybar {
+	background: rgba(21, 18, 27, 0);
+	color: __FG__;
+}
+
+tooltip {
+	background: __BG__;
+	border-radius: 10px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: __DIMBG__;
+}
+
+#workspaces,
+#window,
+#wireplumber,
+#backlight,
+#cpu,
+#memory,
+#network,
+#battery,
+#custom-prayer,
+#network,
+#clock {
+	background: __BG__;
+	border-radius: 10px;
+	padding: 0px 10px;
+	margin: 3px 0px;
+	margin-top: 10px;
+}
+
+#window, #wireplumber, #backlight, #cpu, #memory, #network, #battery, #custom-prayer, #clock {
+	margin-right: 10px;
+}
+
+#workspaces {
+	margin-left: 10px;
+	margin-right: 10px;
+	padding-right: 0px;
+	padding-left: 5px;
+}
+
+#workspaces button label {
+  font-size: 22px;
+}
+
+#workspaces button {
+	color: __COL2__;
+}
+
+#workspaces button.empty {
+	color: __DIMCOL2__;
+}
+
+#workspaces button.active label {
+	text-decoration: underline;
+}
+
+#workspaces button.urgent {
+	color: __DIMBG__;
+	background: __COL4__;
+}
+
+#workspaces button:hover {
+	background: none;
+	border: none;
+	box-shadow: none;
+	text-shadow: none;
+}
+
+#memory, #clock {
+	color: __COL1__;
+}
+
+#wireplumber, #network {
+	color: __COL2__;
+}
+
+#backlight, #battery {
+	color: __COL4__;
+}
+
+#cpu, #custom-prayer {
+	color: __COL5__;
+}
+

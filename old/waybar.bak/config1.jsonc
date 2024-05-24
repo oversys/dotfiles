@@ -1,0 +1,111 @@
+{
+	"layer": "top",
+	"position": "top",
+	"mode": "dock",
+	"exclusive": true,
+	"passthrough": false,
+	"gtk-layer-shell": true,
+	"height": 0,
+	"fixed-center": false,
+	"modules-left": [
+		"hyprland/workspaces"
+	],
+	"modules-center": ["hyprland/window"],
+	"modules-right": [
+		"wireplumber",
+		"backlight",
+		"cpu",
+		"memory",
+		"network",
+		"battery",
+		"custom/prayer",
+		"clock"
+	],
+	"hyprland/workspaces": {
+		"disable-scroll": true,
+		"all-outputs": true,
+		"warp-on-scroll": false,
+		"on-click": "activate",
+		"format": "{icon}",
+		"format-icons": {
+			"1": "󰎤",
+			"2": "󰎧",
+			"3": "󰎪",
+			"4": "󰎭",
+			"5": "󰎱",
+			"6": "󰎳",
+			"7": "󰎶",
+			"8": "󰎹",
+			"9": "󰎼",
+			"urgent": "",
+			"focused": "",
+			"default": ""
+		},
+		"persistent-workspaces": { "*": 5, }, // 5 workspaces by default on every monitor  
+	},
+	"hyprland/window": {
+		"format": "{}",
+		"rewrite": {
+			"": "<span font='22' rise='-4000' color='#1793D1'>󰣇</span> Desktop",
+			"(.*) - Brave": "<span font='20' rise='-4000' color='#f05a22'></span> Brave",
+			"vim (.*)": "<span font='20' rise='-4000' color='#019632'></span> $1",
+		},
+		"separate-outputs": true
+	},
+	"wireplumber": {
+		"format": "<span font='22' rise='-4000'>{icon}</span> {volume}%",
+		"tooltip": false,
+		"format-muted": "<span font='20' rise='-4000'>婢</span> Muted",
+		"on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+		"on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+",
+		"on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
+		"scroll-step": 5,
+		"format-icons": ["󰖀", "󰕾"]
+	},
+	"backlight": {
+		"format": "<span font='20' rise='-4000'>{icon}</span> {percent}%",
+		"tooltip": false,
+		"on-scroll-up": "brightnessctl set 1%+",
+		"on-scroll-down": "brightnessctl set 1%-",
+		"format-icons": ["", "", "", "", "", "", "", "", ""]
+	},
+	"cpu": {
+		"interval": 10,
+		"format": "<span font='20' rise='-4000'></span> {}%",
+	},
+	"memory": {
+		"interval": 10,
+		"format": "RAM {used} GiB",
+		"tooltip-format": "{percentage}% used"
+	},
+	"network": {
+		"format": "{ifname}",
+		"format-wifi": "<span font='22' rise='-4000'></span> {essid} ({signalStrength}%)",
+		"format-ethernet": "<span font='22' rise='-4000'>󰈀</span> {ifname}",
+		"format-disconnected": "No Internet",
+		"tooltip-format": "{ifname}",
+		"tooltip-format-disconnected": "Disconnected",
+	},
+	"battery": {
+		"states": {
+			"good": 95,
+			"warning": 30,
+			"critical": 20
+		},
+		"format": "{icon} {capacity}%",
+		"format-alt": "{icon} {power:0.1f} W",
+		"format-charging": " {capacity}%",
+		"format-plugged": " {capacity}%",
+		"format-icons": ["", "", "", "", "", "", "", "", "", "", ""]
+	},
+	"custom/prayer" : {
+		"format" : "<span font='22' rise='-4000'>󰥹</span> {}",
+		"tooltip" : true,
+		"interval" : 30,
+		"exec" : "~/.config/hypr/scripts/prayer.sh -b",
+	},
+	"clock": {
+		"format": "<span font='20' rise='-4000'></span> {:%H:%M <span font='20' rise='-4000'></span> %a, %d %B %Y}",
+		"tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+	},
+}

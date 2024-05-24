@@ -1,0 +1,12 @@
+* {
+	col2: __COL2__;
+	dimcol2: __DIMCOL2__;
+	dimmercol2: __DIMMERCOL2__;
+    bg: __BG__;
+    fg: __FG__;
+    light-bg: __LIGHTBG__;
+    lighter-bg: __LIGHTERBG__;
+
+    width: 600;
+}
+
