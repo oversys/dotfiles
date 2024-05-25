@@ -25,8 +25,8 @@ map('n', "<A-c>", ":bdelete<CR>", false)
 
 -- Restore terminal cursor on exit
 vim.api.nvim_create_autocmd("VimLeave", {
-    pattern = '*',
-    command = "set guicursor=a:ver25-blinkon1"
+	pattern = '*',
+	command = "set guicursor=a:ver25-blinkon1"
 })
 
 -- Lazy.nvim
@@ -48,57 +48,48 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 	-- File tabs
-	{ "akinsho/bufferline.nvim", version = "*", dependencies = "nvim-tree/nvim-web-devicons", config = function ()
-		require("bufferline").setup({ options = {
-			separator_style = "slant",
-			indicator = { style = "none" },
-			buffer_close_icon = '',
-			close_icon = '',
-			modified_icon = '●',
-			left_trunc_marker = '',
-			right_trunc_marker = '',
-			diagnostics = "nvim_lsp",
-			show_buffer_icons = true,
-			show_buffer_close_icons = true,
-			show_close_icon = true,
-			persist_buffer_sort = true,
-			enforce_regular_tabs = true,
-			diagnostics_indicator = function(count, level)
-				local icon = level:match("error") and "" or ""
-				return icon .. " " .. count
-			end
-		}})
-	end },
+	{ "akinsho/bufferline.nvim", version = "*", dependencies = "nvim-tree/nvim-web-devicons",
+		opts = {
+			options = {
+				separator_style = "slant",
+				buffer_close_icon = '',
+				diagnostics = "nvim_lsp",
+				diagnostics_indicator = function(count, level)
+					local icon = level:match("error") and "" or ""
+					return icon .. " " .. count
+				end
+			}
+		}
+	},
 
 	-- Status line
-	{ "nvim-lualine/lualine.nvim", dependencies = "nvim-tree/nvim-web-devicons", config = function ()
-		require("lualine").setup({
+	{ "nvim-lualine/lualine.nvim", dependencies = "nvim-tree/nvim-web-devicons",
+		opts = {
 			options = {
 				theme = "monokai-pro",
 				section_separators = { left = '', right = '' },
+				component_separators = { left = '', right = '' },
 				disabled_filetypes = { -- Recommended filetypes to disable winbar
 					winbar = { "gitcommit", "neo-tree", "toggleterm", "fugitive" },
 				}
 			}
-		})
-	end },
+		}
+	},
 
 	-- File explorer
 	{ "nvim-neo-tree/neo-tree.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons", "nvim-lua/plenary.nvim", "MunifTanjim/nui.nvim" },
-		config = function ()
-			require("neo-tree").setup({
-				close_if_last_window = true,
-				window = { width = 25 },
-				filesystem = {
-					filtered_items = {
-					visible = true,
-					hide_dotfiles = false,
-					hide_gitignored = false,
-					}
+		opts = {
+			close_if_last_window = true,
+			window = { width = 25 },
+			filesystem = {
+				filtered_items = {
+				visible = true,
+				hide_dotfiles = false,
+				hide_gitignored = false,
 				}
-			})
-		end
+			}
+		}
 	},
 
 	-- Visualize hex colors
@@ -112,18 +103,13 @@ require("lazy").setup({
 
 	-- Syntax highlighting
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", config = function ()
-		require("nvim-treesitter.configs").setup {
+		require("nvim-treesitter.configs").setup({
 			ensure_installed = { "c", "lua", "rust", "python" },
 			sync_install = false,
 			auto_install = true,
-			ignore_install = {},
-
-			highlight = {
-				enable = true,
-				disable = {},
-				additional_vim_regex_highlighting = false
-			}
-		}
+			highlight = { enable = true },
+			indent = { enable = true },
+		})
 	end },
 
 	-- Scroll animation
