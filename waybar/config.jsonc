@@ -71,20 +71,22 @@
 		"format-icons": ["", "", "", "", "", "", "", "", ""]
 	},
 	"cpu": {
-		"interval": 10,
+		"interval": 3,
 		"format": "<span font='18' rise='-3000'></span> {}%",
 	},
 	"memory": {
-		"interval": 10,
+		"interval": 3,
 		"format": "RAM {used} GiB",
 		"tooltip-format": "{percentage}% used"
 	},
 	"network": {
+		"interval": 3,
 		"format": "{ifname}",
-		"format-wifi": "<span font='20' rise='-4000'></span> {essid} ({signalStrength}%)",
+		"format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
+		"format-wifi": "<span font='20' rise='-4000'>{icon}</span> {essid}",
 		"format-ethernet": "<span font='20' rise='-4000'>󰈀</span> {ifname}",
-		"format-disconnected": "No Internet",
-		"tooltip-format": "{ifname}",
+		"format-disconnected": "<span font='20' rise='-4000'>󰤮</span> No Internet",
+		"tooltip-format": "[{ifname}] UP: {bandwidthUpBytes} DOWN: {bandwidthDownBytes}",
 		"tooltip-format-disconnected": "Disconnected",
 	},
 	"battery": {
