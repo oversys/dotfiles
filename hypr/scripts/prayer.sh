@@ -27,7 +27,7 @@ while IFS= read -r line; do
 		CURRENT_PRAYER="$PRAYER_NAME"
 		
 		if [[ ! -f "$HOME/.config/prayerhistory/notified" ]]; then
-			dunstify --urgency=critical "Time for $PRAYER_NAME ($PRAYER_TIME)" -r 6
+			notify-send --urgency=critical "Time for $PRAYER_NAME ($PRAYER_TIME)" -r 3
 			touch "$HOME/.config/prayerhistory/notified"
 		fi
 	elif [[ "$CURRENT_TIME" > "$PRAYER_TIME" ]]; then
