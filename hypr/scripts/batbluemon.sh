@@ -18,9 +18,11 @@ while sleep 3; do
 	
 	if [[ $BAT_STAT == "Charging" && $PREV_BAT_STAT == "Discharging" && $CUR_BAT -le 20 ]]; then
 		swaync-client --close-latest
-	elif ((CUR_BAT <= 10)); then
-		notify-send --urgency=critical " $CUR_BAT%: Low Battery!" -r 2
-	elif ((CUR_BAT <= 20)); then
-		notify-send --urgency=critical " $CUR_BAT%: Low Battery!" -r 2
+	elif [[ $BAT_STAT == "Discharging" ]]; then
+		if ((CUR_BAT <= 10)) then BAT_ICON=""; elif ((CUR_BAT <= 20)) then BAT_ICON=""; fi
+
+		notify-send --urgency=critical "$BAT_ICON $CUR_BAT%: Low Battery!" -r 2
 	fi
+
+	PREV_BAT_STAT=$(cat /sys/class/power_supply/BAT*/status)
 done

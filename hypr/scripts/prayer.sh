@@ -55,11 +55,11 @@ elif [[ "$1" == "-n" ]]; then
 	printf "$CURRENT_PRAYER"
 elif [[ "$1" == "-h" ]]; then
 	today=$(curl -Ls "https://api.aladhan.com/v1/gToH/$CURRENT_DATE" | jq .data.hijri)
-	day=$(echo $today | jq .day)
-	month=$(echo $today | jq .month.en)
-	year=$(echo $today | jq .year)
+	day=$(echo $today | jq -r .day)
+	month=$(echo $today | jq -r .month.en)
+	year=$(echo $today | jq -r .year)
 	
-	printf "$(date +%a), ${day//\"/} ${month//\"/} ${year//\"/}"
+	printf "$(date +%a), $day $month $year"
 else
 	cat "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"
 	echo "Current prayer: $CURRENT_PRAYER"

@@ -50,9 +50,10 @@ WALLPAPER="$HOME/.config/wallpapers/$FOLDER/$WALLPAPER"
 wal -si $WALLPAPER
 hyprctl hyprpaper preload $WALLPAPER && hyprctl hyprpaper wallpaper ,$WALLPAPER
 
-# Waybar & rofi colors
+# Waybar, rofi, and swaync colors
 cp $HOME/.config/waybar/style.bak $HOME/.config/waybar/style.css
 cp $HOME/.config/rofi/theme.bak $HOME/.config/rofi/theme.rasi
+cp $HOME/.config/swaync/style.bak $HOME/.config/swaync/style.css
 
 FG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.foreground)
 BG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.background)
@@ -74,17 +75,13 @@ colors=("FG" "BG" "LIGHTBG" "LIGHTERBG" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "D
 for color in "${colors[@]}"; do
 	sed -i "s/__${color}__/${!color}/" $HOME/.config/waybar/style.css
 	sed -i "s/__${color}__/${!color}/" $HOME/.config/rofi/theme.rasi
+	sed -i "s/__${color}__/${!color}/" $HOME/.config/swaync/style.css
 done
 
 # Restart waybar
 killall waybar
 waybar &
 
-# Dunst colors
-cp $HOME/.config/dunst/dunstrc.bak $HOME/.config/dunst/dunstrc
-sed -i "s/__FRAME__/$COL2/" $HOME/.config/dunst/dunstrc
-sed -i "s/__BG__/$BG/" $HOME/.config/dunst/dunstrc
-sed -i "s/__HIGHLIGHT__/$COL4/" $HOME/.config/dunst/dunstrc
-sed -i "s/__FG__/$FG/" $HOME/.config/dunst/dunstrc
-killall dunst
+# Kill swaync
+killall swaync
 
