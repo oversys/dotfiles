@@ -17,8 +17,8 @@ while sleep 3; do
 	BAT_STAT=$(cat /sys/class/power_supply/BAT*/status)
 	
 	if [[ $BAT_STAT == "Charging" && $PREV_BAT_STAT == "Discharging" && $CUR_BAT -le 20 ]]; then
-		swaync-client --close-latest
-	elif [[ $BAT_STAT == "Discharging" ]]; then
+		dunstctl close
+	elif [[ $BAT_STAT == "Discharging" && $CUR_BAT -le 20 ]]; then
 		if ((CUR_BAT <= 10)) then BAT_ICON=""; elif ((CUR_BAT <= 20)) then BAT_ICON=""; fi
 
 		notify-send --urgency=critical "$BAT_ICON $CUR_BAT%: Low Battery!" -r 2

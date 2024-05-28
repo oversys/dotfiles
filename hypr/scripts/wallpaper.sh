@@ -50,10 +50,10 @@ WALLPAPER="$HOME/.config/wallpapers/$FOLDER/$WALLPAPER"
 wal -si $WALLPAPER
 hyprctl hyprpaper preload $WALLPAPER && hyprctl hyprpaper wallpaper ,$WALLPAPER
 
-# Waybar, rofi, and swaync colors
+# Waybar, rofi, and dunst colors
 cp $HOME/.config/waybar/style.bak $HOME/.config/waybar/style.css
 cp $HOME/.config/rofi/theme.bak $HOME/.config/rofi/theme.rasi
-cp $HOME/.config/swaync/style.bak $HOME/.config/swaync/style.css
+cp $HOME/.config/dunst/dunstrc.bak $HOME/.config/dunst/dunstrc
 
 FG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.foreground)
 BG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.background)
@@ -75,13 +75,12 @@ colors=("FG" "BG" "LIGHTBG" "LIGHTERBG" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "D
 for color in "${colors[@]}"; do
 	sed -i "s/__${color}__/${!color}/" $HOME/.config/waybar/style.css
 	sed -i "s/__${color}__/${!color}/" $HOME/.config/rofi/theme.rasi
-	sed -i "s/__${color}__/${!color}/" $HOME/.config/swaync/style.css
+	sed -i "s/__${color}__/${!color}/" $HOME/.config/dunst/dunstrc
 done
 
 # Restart waybar
 killall waybar
 waybar &
 
-# Kill swaync
-killall swaync
-
+# Kill dunst
+killall dunst
