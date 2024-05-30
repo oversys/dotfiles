@@ -13,7 +13,7 @@
 	height = 80
 	offset = 10x10
 		
-	font = JetBrainsMono Nerd Font Medium 12
+	font = JetBrainsMono Nerd Font Medium 10
 	
 	# Markup parsing
 	markup = full

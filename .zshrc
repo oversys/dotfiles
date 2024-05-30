@@ -7,18 +7,12 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
-# setopt SHARE_HISTORY
+setopt sharehistory
 
 # Aliases
 alias ls="exa -l"
 alias vim="nvim"
-alias build="make; sudo make clean install"
 alias rconf="source $HOME/.zshrc"
-
-# Key bindings
-bindkey "^[[Z" end-of-line 
-bindkey "^[[1;5C" forward-word
-bindkey "^[[1;5D" backward-word
 
 # Pacman aliases
 alias upd="sudo pacman -Syy"
@@ -27,6 +21,11 @@ alias purge="sudo pacman -Rsn $(pacman -Qdtq)"
 alias sp="pacman -Ss"
 alias gp="sudo pacman -S"
 alias rp="sudo pacman -Rs"
+
+# Key bindings
+bindkey "^[[Z" end-of-line 
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
 
 # Install from Arch User Repository
 auri() {
@@ -38,6 +37,21 @@ auri() {
 		cd ..
 		rm -rf $aurpkg
 	done
+}
+
+# Search for packages on the Arch User Repository
+saur() {
+    response=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=search&arg=$1")
+
+    if [ "$(echo "$response" | jq -r '.resultcount')" -eq 0 ]; then
+        echo "No results found for \"$1\"."
+        return 1
+    fi
+
+	RED=$'\033[4;31m'
+	GRAY=$'\033[3;37m'
+	NC=$'\033[0m'
+	echo "$response" | jq -r --arg RED "$RED" --arg GRAY "$GRAY" --arg NC "$NC" '.results[] | "\($RED)\(.Name)\($NC) \($GRAY)(\(.URL))\($NC)\n    \(.Description)"'
 }
 
 # Change time zone
