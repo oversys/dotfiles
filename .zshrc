@@ -12,6 +12,7 @@ setopt sharehistory
 # Aliases
 alias ls="exa -l"
 alias vim="nvim"
+alias ff="fastfetch"
 alias rconf="source $HOME/.zshrc"
 
 # Pacman aliases
@@ -41,12 +42,12 @@ auri() {
 
 # Search for packages on the Arch User Repository
 saur() {
-    response=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=search&arg=$1")
+	response=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=search&arg=$1")
 
-    if [ "$(echo "$response" | jq -r '.resultcount')" -eq 0 ]; then
-        echo "No results found for \"$1\"."
-        return 1
-    fi
+	if [ "$(echo "$response" | jq -r '.resultcount')" -eq 0 ]; then
+		echo "No results found for \"$1\"."
+		return 1
+	fi
 
 	RED=$'\033[4;31m'
 	GRAY=$'\033[3;37m'
