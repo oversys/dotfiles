@@ -46,17 +46,17 @@
 	"hyprland/window": {
 		"format": "{}",
 		"rewrite": {
-			"": "<span font='20' rise='-4000' color='#1793D1'>󰣇</span> Desktop",
-			"(.*) - Brave(.*)": "<span font='18' rise='-3000' color='#F05A22'></span> Brave",
-			"vim (.*)": "<span font='18' rise='-3000' color='#019632'></span> $1",
-			"git (.*)": "<span font='18' rise='-3000' color='#F05030'></span> $1"
+			"": "<span font='18' rise='-3000' color='#1793D1'>󰣇</span> Desktop",
+			"(.*) - Brave(.*)": "<span font='16' rise='-2000' color='#F05A22'></span> Brave",
+			"vim (.*)": "<span font='16' rise='-2000' color='#019632'></span> $1",
+			"git (.*)": "<span font='16' rise='-2000' color='#F05030'></span> $1"
 		},
 		"separate-outputs": true
 	},
 	"wireplumber": {
-		"format": "<span font='20' rise='-4000'>{icon}</span> {volume}%",
+		"format": "<span font='16' rise='-2000'>{icon}</span> {volume}%",
 		"tooltip": false,
-		"format-muted": "<span font='18' rise='-4000'>婢</span> Muted",
+		"format-muted": "<span font='16' rise='-2000'>󰖁</span> Muted",
 		"on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
 		"on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+",
 		"on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
@@ -64,7 +64,7 @@
 		"format-icons": ["󰖀", "󰕾"]
 	},
 	"backlight": {
-		"format": "<span font='18' rise='-3000'>{icon}</span> {percent}%",
+		"format": "<span font='16' rise='-2000'>{icon}</span> {percent}%",
 		"tooltip": false,
 		"on-scroll-up": "brightnessctl set 1%+",
 		"on-scroll-down": "brightnessctl set 1%-",
@@ -72,20 +72,20 @@
 	},
 	"cpu": {
 		"interval": 3,
-		"format": "<span font='18' rise='-3000'></span> {}%",
+		"format": "<span font='16' rise='-2000'>󰍛</span> {}%",
 	},
 	"memory": {
 		"interval": 3,
-		"format": "RAM {used} GiB",
+		"format": "<span font='18' rise='-3500'></span> {used} GiB",
 		"tooltip-format": "{percentage}% used"
 	},
 	"network": {
 		"interval": 3,
 		"format": "{ifname}",
 		"format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
-		"format-wifi": "<span font='20' rise='-4000'>{icon}</span> {essid}",
-		"format-ethernet": "<span font='20' rise='-4000'>󰈀</span> {ifname}",
-		"format-disconnected": "<span font='20' rise='-4000'>󰤮</span> No Internet",
+		"format-wifi": "<span font='18' rise='-3000'>{icon}</span> {essid}",
+		"format-ethernet": "<span font='18' rise='-3000'>󰈀</span> {ifname}",
+		"format-disconnected": "<span font='18' rise='-3000'>󰤮</span> No Internet",
 		"tooltip-format": "[{ifname}] UP: {bandwidthUpBytes} DOWN: {bandwidthDownBytes}",
 		"tooltip-format-disconnected": "Disconnected",
 	},
@@ -95,20 +95,21 @@
 			"warning": 30,
 			"critical": 20
 		},
+		"interval": 15,
 		"format": "{icon} {capacity}%",
 		"format-alt": "{icon} {power:0.1f} W",
 		"format-charging": " {capacity}%",
-		"format-plugged": "<span font='18' rise='-4000'></span> {capacity}%",
-		"format-icons": ["", "", "", "", "", "", "", "", "", "", ""]
+		"format-plugged": "<span font='15' rise='-2000'></span> {capacity}%",
+		"format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
 	},
 	"custom/prayer" : {
-		"format" : "<span font='20' rise='-4000'>󰥹</span> {}",
+		"format" : "<span font='16' rise='-2000'>󰥹</span> {}",
 		"tooltip" : true,
 		"interval" : 30,
 		"exec" : "~/.config/hypr/scripts/prayer.sh -b",
 	},
 	"clock": {
-		"format": "<span font='18' rise='-4000'></span> {:%H:%M <span font='20' rise='-4000'></span> %a, %d %B %Y}",
+		"format": "<span font='16' rise='-2000'></span> {:%H:%M <span font='16' rise='-2000'></span> %a, %d %B %Y}",
 		"tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
 	},
 }
