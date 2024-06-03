@@ -51,10 +51,6 @@ tooltip {
 	padding-left: 5px;
 }
 
-#workspaces button label {
-	font-size: 20px;
-}
-
 #workspaces button {
 	color: __COL2__;
 }
