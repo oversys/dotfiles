@@ -1,0 +1,4 @@
+map <Up> feedkeys <C-Up>
+map <Down> feedkeys <C-Down>
+
+set font "JetBrainsMono NFM Medium 10"
