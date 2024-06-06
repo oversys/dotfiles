@@ -19,7 +19,7 @@ while sleep 3; do
 	if [[ $BAT_STAT == "Charging" && $PREV_BAT_STAT == "Discharging" && $CUR_BAT -le 20 ]]; then
 		dunstctl close
 	elif [[ $BAT_STAT == "Discharging" && $CUR_BAT -le 20 ]]; then
-		if ((CUR_BAT <= 10)) then BAT_ICON=""; elif ((CUR_BAT <= 20)) then BAT_ICON=""; fi
+		if ((CUR_BAT <= 10)) then BAT_ICON="󰁺"; elif ((CUR_BAT <= 20)) then BAT_ICON="󰁻"; fi
 
 		notify-send --urgency=critical "$BAT_ICON $CUR_BAT%: Low Battery!" -r 2
 	fi
