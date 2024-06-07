@@ -8,7 +8,7 @@ CURRENT_DATE=$(date +"%d-%m-%Y")
 
 if [[ ! -f "$HOME/.config/prayerhistory/$CURRENT_DATE.txt" ]]; then
 	TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=4&adjustment=1" | jq ".data.timings" | sed "1d;6d;9,13d")
-	echo "$TIMINGS" > "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"
+	if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"; fi
 fi
 
 duration() {

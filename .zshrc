@@ -10,7 +10,7 @@ setopt appendhistory
 setopt sharehistory
 
 # Aliases
-alias ls="exa -l"
+alias ls="eza -l --icons"
 alias vim="nvim"
 alias ff="fastfetch"
 alias rconf="source $HOME/.zshrc"
@@ -30,8 +30,7 @@ bindkey "^[[1;5D" backward-word
 
 # Install from Arch User Repository
 auri() {
-	for aurpkg in $@
-	do
+	for aurpkg in $@; do
 		git clone https://aur.archlinux.org/$aurpkg.git
 		cd $aurpkg
 		makepkg -si
@@ -78,91 +77,68 @@ ctz() {
 	sudo timedatectl set-timezone $SELECTED_REGION/$SELECTED_CITY
 }
 
-# Downloading files
-wg() { 
-	for arg in $@
-	do
-		arr=(${(s. .)arg})
-		wget -O $arr[1] --user-agent="Mozilla" $arr[2]
-	done
-}
-
 # Mounting NAS
 mns() { 
-	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-		echo "Usage: mns (--options) SERVER_HOSTNAME SHARE_NAME"
-		echo ""
-		echo "options:"
-		echo "-h, --help	 Show this help message"
-		echo "-u, --username	 Mount with a username"
-		echo "-m, --mount	 Mount without a username (guest/anonymous)"
-		echo "-n, --unmount	 Unmount the NAS"
-		echo ""
-		echo "Examples:"
-		echo "	mns --username myusername 192.168.0.159 homeshare"
-		echo "	mns -m homeserver myshare"
-		echo "	mns -n"
+	HELPMSG="Usage:
+  mns (--options) SERVER_HOSTNAME SHARE_NAME
+
+Options:
+  -h, --help	    Show this help message
+  -u, --username    Mount with a username
+  -m, --mount	    Mount without a username (guest/anonymous)
+  -n, --unmount	    Unmount the NAS
+
+Examples:
+  mns --username myusername 192.168.0.159 homeshare
+  mns -m homeserver myshare
+  mns -n"
+
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then echo "$HELPMSG"
 	elif [ "$1" = "-u" ] || [ "$1" = "--username" ]; then
+		if [ $# -ne 4 ]; then echo "Error: Incorrect number of arguments." && return 1; fi
 		mkdir -p $HOME/shared/
 		sudo mount -t cifs -o username=$2,dir_mode=0777,file_mode=0777 //$3/$4 $HOME/shared/
 		cd $HOME/shared
 	elif [ "$1" = "-m" ] || [ "$1" = "--mount" ]; then
+		if [ $# -ne 3 ]; then echo "Error: Incorrect number of arguments." && return 1; fi
 		mkdir -p $HOME/shared/
 		sudo mount -t cifs -o guest,dir_mode=0777,file_mode=0777 //$2/$3 $HOME/shared/
 		cd $HOME/shared
 	elif [ "$1" = "-n" ] || [ "$1" = "--unmount" ]; then
-		cd
+		if [ ! -d "$HOME/shared" ]; then echo "Error: NAS is not mounted." && return 1; fi
+		if [[ "$(pwd)" =~ "$HOME/shared" ]]; then cd; fi
+
 		sudo umount $HOME/shared/
 		rmdir $HOME/shared/
-	else
-		echo "Usage: mns (--options) SERVER_HOSTNAME SHARE_NAME"
-		echo ""
-		echo "options:"
-		echo "-h, --help	 Show this help message"
-		echo "-u, --username	 Mount with a username"
-		echo "-m, --mount	 Mount without a username (guest/anonymous)"
-		echo "-n, --unmount	 Unmount the NAS"
-		echo ""
-		echo "Examples:"
-		echo "	mns --username myusername 192.168.0.159 homeshare"
-		echo "	mns -m homeserver myshare"
-		echo "	mns -n"
-	fi
+	else echo "$HELPMSG" && return 1; fi
 }
 
 # Mount Microsoft Windows Partition
 mwp() {
-	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-		echo "Usage: mwp (--options) /dev/sdXX"
-		echo ""
-		echo "options:"
-		echo "-h, --help	 Show this help message"
-		echo "-m, --mount	 Mount partition"
-		echo "-n, --unmount	 Unmount the partition"
-		echo ""
-		echo "Examples:"
-		echo "	mwp -m /dev/sda3"
-		echo "	mwp --unmount"
+	HELPMSG="Usage:
+  mwp (--options) /dev/sdXX
+
+Options:
+  -h, --help       Show this help message
+  -m, --mount      Mount partition
+  -n, --unmount    Unmount the partition
+
+Examples:
+  mwp -m /dev/sda3
+  mwp --unmount"
+
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then echo "$HELPMSG"
 	elif [ "$1" = "-m" ] || [ "$1" = "--mount" ]; then
+		if [ -z "$2" ]; then echo "Error: No partition specified." && return 1; fi
 		sudo mkdir -p /mnt/MSW/
-		sudo mount $2 /mnt/MSW/
+		sudo mount "$2" /mnt/MSW/
 		cd /mnt/MSW/
 	elif [ "$1" = "-n" ] || [ "$1" = "--unmount" ]; then
-		cd $HOME/
+		if [ ! -d "/mnt/MSW" ]; then echo "Error: Windows partition is not mounted." && return 1; fi
+		if [[ "$(pwd)" =~ "/mnt/MSW" ]]; then cd; fi
 		sudo umount /mnt/MSW/
 		sudo rmdir /mnt/MSW/
-	else
-		echo "Usage: mwp (--options) /dev/sdXX"
-		echo ""
-		echo "options:"
-		echo "-h, --help	 Show this help message"
-		echo "-m, --mount	 Mount partition"
-		echo "-n, --unmount	 Unmount the partition"
-		echo ""
-		echo "Examples:"
-		echo "	mwp -m /dev/sda3"
-		echo "	mwp --unmount"
-	fi
+	else echo "$HELPMSG" && return 1; fi
 }
 
 # Encrypt data
