@@ -5,6 +5,7 @@ CITY="__CITY__"
 
 CURRENT_TIME=$(date +"%H:%M")
 CURRENT_DATE=$(date +"%d-%m-%Y")
+NOTIFIED_FILE="$HOME/.config/prayerhistory/notified"
 
 if [[ ! -f "$HOME/.config/prayerhistory/$CURRENT_DATE.txt" ]]; then
 	TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=4&adjustment=1" | jq ".data.timings" | sed "1d;6d;9,13d")
@@ -20,19 +21,23 @@ duration() {
 }
 
 while IFS= read -r line; do 
-	PRAYER_NAME=$(echo $line | awk '{print $1}' | cut -d '"' -f2)
-	PRAYER_TIME=$(echo $line | awk '{print $2}' | cut -d '"' -f2)
+	PRAYER_NAME=$(echo $line | awk -F'"' '{print $2}')
+	PRAYER_TIME=$(echo $line | awk -F'"' '{print $4}')
 	
 	if [[ "$CURRENT_TIME" == "$PRAYER_TIME" ]]; then
 		CURRENT_PRAYER="$PRAYER_NAME"
 		
-		if [[ ! -f "$HOME/.config/prayerhistory/notified" ]]; then
+		if [[ ! -f "$NOTIFIED_FILE" ]]; then
 			notify-send --urgency=critical "Time for $PRAYER_NAME ($PRAYER_TIME)" -r 3
-			touch "$HOME/.config/prayerhistory/notified"
+			echo "$PRAYER_TIME" > "$NOTIFIED_FILE"
 		fi
 	elif [[ "$CURRENT_TIME" > "$PRAYER_TIME" ]]; then
 		CURRENT_PRAYER="$PRAYER_NAME"
-		if [[ -f "$HOME/.config/prayerhistory/notified" ]] then rm "$HOME/.config/prayerhistory/notified"; fi
+
+		if [[ -f "$NOTIFIED_FILE" ]]; then
+			NOTIFIED_PRAYER_TIME=$(cat "$NOTIFIED_FILE")
+			if [[ "$CURRENT_TIME" > "$NOTIFIED_PRAYER_TIME" ]]; then rm "$NOTIFIED_FILE"; fi
+		fi
 	elif [[ "$CURRENT_TIME" < "$PRAYER_TIME" ]]; then
 		NEXT_PRAYER="$PRAYER_NAME"
 		NEXT_PRAYER_TIME="$PRAYER_TIME"
