@@ -1,0 +1,68 @@
+@theme "theme.rasi"
+
+// Couldn't find a way to configure message text
+* {
+	background-color: transparent;
+    text-color: @fg;
+    font: "JetBrainsMono NFM Bold 12";
+}
+
+window {
+    width: 530px;
+    padding: 15px;
+    border: 0px 0px 8px 0px;
+    border-radius: 8px;
+    border-color: @light-bg;
+	background-color: @lighter-bg;
+}
+
+mainbox {
+    background-color: transparent;
+    children: [ "message", "listview" ];
+}
+
+message {
+    margin: 0px 0px 6px 0px;
+    padding: 12px;
+	border-radius: 8px;
+    border-color: @bg;
+    border: 0px 0px 8px 0px;
+    background-color: @light-bg;
+}
+
+listview {
+    columns: 5;
+    lines: 1;
+    spacing: 15px;
+    margin: 0px;
+    padding: 0px;
+    background-color: transparent;
+}
+
+element {
+    padding: 25px 0px;
+    border-radius: 8px;
+    border: 0px 0px 8px 0px;
+    text-color: @fg;
+    cursor: pointer;
+    border-color: @bg;
+    background-color: @light-bg;
+}
+
+element selected.normal {
+    background-color: @col2;
+    text-color: @bg;
+    border: 0px 0px 8px 0px;
+    border-color: @dimcol2;
+    background-color: @col2;
+}
+
+element-text {
+    font: "JetBrainsMono NFM 20";
+    background-color: transparent;
+    text-color: inherit;
+    cursor: inherit;
+    vertical-align: 0.5;
+    horizontal-align: 0.5;
+}
+
