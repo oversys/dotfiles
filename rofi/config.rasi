@@ -1,7 +1,7 @@
 configuration {
     modi: "drun,window,run";
     lines: 5;
-    font: "JetBrains Mono Nerd Font Bold 14";
+    font: "JetBrainsMono NFM Bold 14";
     show-icons: true;
     terminal: "kitty";
     drun-display-format: "{icon} {name} [<span weight='light' size='small'><i>({generic})</i></span>]";
@@ -22,7 +22,7 @@ element-text {
 }
 
 mode-switcher {
-    background-color: #00000000;
+    background-color: transparent;
 }
 
 window {
@@ -37,7 +37,7 @@ window {
 }
 
 mainbox {
-    background-color: #00000000;
+    background-color: transparent;
 }
 
 inputbar, prompt, entry, element, button {
