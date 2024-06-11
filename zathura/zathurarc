@@ -1,4 +1,11 @@
+# Smooth scrolling using arrow keys
 map <Up> feedkeys <C-Up>
 map <Down> feedkeys <C-Down>
 
+# Transparent Background
+set recolor "true"
+set default-bg rgba(0,0,0,0.7)
+set recolor-lightcolor rgba(0,0,0,0)
+
+# Set font
 set font "JetBrainsMono NFM Medium 10"
