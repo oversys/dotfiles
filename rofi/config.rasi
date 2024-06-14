@@ -47,14 +47,14 @@ inputbar, prompt, entry, element, button {
 prompt, element selected, button selected {
 	background-color: @col2;
 	border-color: @dimcol2;
-	border: 0px 0px 4px 0px;
+	border: 0px 0px 8px 0px;
     text-color: @bg;
 }
 
 element, entry, button {
     background-color: @light-bg;
 	border-color: @bg;
-	border: 0px 0px 4px 0px;
+	border: 0px 0px 8px 0px;
 }
 
 prompt {
