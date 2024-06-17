@@ -49,7 +49,9 @@
 			"": "<span font='18' rise='-3000' color='#1793D1'>󰣇</span> Desktop",
 			"(.*) - Brave(.*)": "<span font='16' rise='-2000' color='#F05A22'></span> Brave",
 			"vim (.*)": "<span font='16' rise='-2000' color='#019632'></span> $1",
-			"git (.*)": "<span font='16' rise='-2000' color='#F05030'></span> $1"
+			"git (.*)": "<span font='16' rise='-2000' color='#F05030'></span> $1",
+			"python3 (.*)": "<span font='16' rise='-2000' color='#4584B6'></span> $1",
+			"DB Browser for SQLite - (.*)": "<span font='16' rise='-2000' color='#C3C3C3'></span> $1" 
 		},
 		"separate-outputs": true
 	},
