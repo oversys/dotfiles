@@ -15,7 +15,7 @@ dimlightcol() {
 	printf "#$dim_color"
 }
 
-# Set random wallpaper based on time of day and generate colorscheme
+# Set wallpaper based on time of day and generate colorscheme
 TIME=$(date +"%-H")
 DATE=$(date +"%d-%m-%Y")
 
@@ -45,7 +45,13 @@ else
 	fi
 fi
 
-WALLPAPER=$(ls -1 $HOME/.config/wallpapers/$FOLDER/ | sort --random-sort | head -1)
+if [ "$1" == "-c" ]; then
+	WALLPAPER=$(ls $HOME/.config/wallpapers/$FOLDER/ | while read A; do echo -en "$A\x00icon\x1f$HOME/.config/wallpapers/$FOLDER/$A\n"; done | rofi -dmenu -p " Wallpaper")
+	if [ -z "$WALLPAPER" ]; then exit; fi
+else
+	WALLPAPER=$(ls -1 $HOME/.config/wallpapers/$FOLDER/ | sort --random-sort | head -1)
+fi
+
 WALLPAPER="$HOME/.config/wallpapers/$FOLDER/$WALLPAPER"
 wal -si $WALLPAPER
 hyprctl hyprpaper preload $WALLPAPER && hyprctl hyprpaper wallpaper ,$WALLPAPER
