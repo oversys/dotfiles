@@ -104,19 +104,7 @@ require("lazy").setup({
 	},
 
 	-- Scroll animation
-	{ "karb94/neoscroll.nvim",
-		config = function ()
-			require("neoscroll").setup({ easing_function = "quadratic" })
-
-			local t = {}
-			t["<ScrollWheelUp>"] = {"scroll", {"-vim.wo.scroll", "true", "200"}}
-			t["<ScrollWheelDown>"] = {"scroll", { "vim.wo.scroll", "true", "200"}}
-			t["gg"] = {"scroll", {"-vim.api.nvim_buf_line_count(0)", "true", "500"}}
-			t["G"] = {"scroll", {"vim.api.nvim_buf_line_count(0)", "true", "500"}}
-
-			require("neoscroll.config").set_mappings(t)
-		end
-	},
+	{ "karb94/neoscroll.nvim" },
 
 	-- Indent visualization
 	{ "lukas-reineke/indent-blankline.nvim",
@@ -324,4 +312,25 @@ map_key({ 'n', 'i' }, "<C-]>", function()
 		print("nvim-autopairs disabled")
 	end
 end)
+
+-- neoscroll
+local neoscroll = require("neoscroll")
+
+local function top_bot(keys)
+	local win_height = vim.api.nvim_win_get_height(0)
+	local buf_line_count = vim.api.nvim_buf_line_count(0)
+
+	if buf_line_count < win_height then
+		vim.cmd("normal! " .. keys)
+	else
+		local amount = (keys == 'G') and 1 or -1
+		neoscroll.scroll(amount * buf_line_count, true, 1, 5)
+	end
+end
+
+local modes = { 'n', 'v' }
+map_key(modes, "<ScrollWheelUp>", function() neoscroll.scroll(-4, true, 50, "sine") end)
+map_key(modes, "<ScrollWheelDown>", function() neoscroll.scroll(4, true, 50, "sine") end)
+map_key(modes, "gg", function() top_bot("gg") end)
+map_key(modes, 'G', function() top_bot('G') end)
 
