@@ -10,29 +10,6 @@ vim.opt.pumheight = 10
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
--- Key bindings
-local function map_key(mode, keys, command, noremap)
-	vim.api.nvim_set_keymap(mode, keys, command, { noremap = noremap, silent = true })
-end
-
--- Toggle file explorer
-map_key('n', "<C-t>", ":Neotree toggle<CR>", true)
-
--- Copy to system clipboard
-map_key('n', "<C-A-c>", '"+y$', false)
-map_key('v', "<C-A-c>", '"+y', false)
-
--- Manage Tabs
-map_key('n', "<A-.>", ":bnext<CR>", false)
-map_key('n', "<A-,>", ":bprev<CR>", false)
-map_key('n', "<A-c>", ":bdelete<CR>", false)
-
--- Telescope
-map_key('n', "tf", ":Telescope find_files<CR>", false)
-map_key('n', "tr", ":Telescope oldfiles<CR>", false)
-map_key('n', "th", ":Telescope help_tags<CR>", false)
-map_key('n', "tb", ":Telescope buffers<CR>", false)
-
 -- Restore terminal cursor on exit
 vim.api.nvim_create_autocmd("VimLeave", {
 	pattern = '*',
@@ -53,8 +30,8 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
---vim.g.mapleader = " "
---vim.g.maplocalleader = " "
+-- vim.g.mapleader = " "
+-- vim.g.maplocalleader = " "
 
 require("lazy").setup({
 	-- File tabs
@@ -94,9 +71,9 @@ require("lazy").setup({
 			window = { width = 25 },
 			filesystem = {
 				filtered_items = {
-				visible = true,
-				hide_dotfiles = false,
-				hide_gitignored = false,
+					visible = true,
+					hide_dotfiles = false,
+					hide_gitignored = false,
 				}
 			}
 		}
@@ -264,10 +241,10 @@ require("lazy").setup({
 			dashboard.section.header.val = ascii_art[random_key]
 
 			dashboard.section.buttons.val = {
-				dashboard.button( "e", "󰝒    New file" , ":ene <BAR> startinsert <CR>"),
-				dashboard.button( "f", "󰈞    Find file", ":Telescope find_files<CR>"),
-				dashboard.button( "r", "󱋡    Recent"   , ":Telescope oldfiles<CR>"),
-				dashboard.button( "q", "󰅚    Quit", ":qa<CR>"),
+				dashboard.button( "e", "󰝒    New file" , "<CMD>ene <BAR> startinsert<CR>"),
+				dashboard.button( "f", "󰈞    Find file", "<CMD>Telescope find_files<CR>"),
+				dashboard.button( "r", "󱋡    Recent"   , "<CMD>Telescope oldfiles<CR>"),
+				dashboard.button( "q", "󰅚    Quit", "<CMD>qa<CR>"),
 			}
 
 			-- dashboard.section.footer.val = require("alpha.fortune")
@@ -307,4 +284,44 @@ require("lazy").setup({
 		end
 	}
 })
+
+-- Key bindings
+local function map_key(mode, keys, command)
+	vim.keymap.set(mode, keys, command)
+end
+
+-- Toggle file explorer
+map_key('n', "<C-t>", "<CMD>Neotree toggle<CR>")
+
+-- Copy to system clipboard
+map_key('n', "<leader>y", '"+yy')
+map_key('v', "<leader>y", '"+y')
+
+-- Manage Tabs
+map_key('n', "<A-.>", "<CMD>bnext<CR>")
+map_key('n', "<A-,>", "<CMD>bprev<CR>")
+map_key('n', "<A-c>", "<CMD>bdelete<CR>")
+
+-- Telescope
+local builtin = require("telescope.builtin")
+map_key('n', "<leader>tf", builtin.find_files)
+map_key('n', "<leader>tr", builtin.oldfiles)
+map_key('n', "<leader>th", builtin.help_tags)
+map_key('n', "<leader>tb", builtin.buffers)
+map_key('n', "<leader>tg", builtin.live_grep)
+
+-- Go to definition
+map_key('n', "<leader>gd", vim.lsp.buf.definition)
+
+-- Toggle autopairs
+map_key({ 'n', 'i' }, "<C-]>", function()
+	local autopairs = require("nvim-autopairs")
+	if autopairs.state.disabled then
+		autopairs.enable()
+		print("nvim-autopairs enabled")
+	else
+		autopairs.disable()
+		print("nvim-autopairs disabled")
+	end
+end)
 
