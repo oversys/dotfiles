@@ -3,12 +3,15 @@ vim.cmd("filetype indent on")
 vim.cmd("syntax on")
 vim.wo.number = true
 vim.wo.signcolumn = "no"
+vim.opt.relativenumber = true
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.ttimeoutlen = 0
 vim.opt.pumheight = 10
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+vim.opt.cursorline = true
+vim.opt.scrolloff = 8
 
 -- Restore terminal cursor on exit
 vim.api.nvim_create_autocmd("VimLeave", {
@@ -39,7 +42,13 @@ require("lazy").setup({
 		opts = {
 			options = {
 				separator_style = "slant",
+				indicator = { style = "underline" },
 				buffer_close_icon = '',
+				offsets = {{
+					filetype = "neo-tree",
+					text = " Files",
+					text_align = "center",
+				}},
 				diagnostics = "nvim_lsp",
 				diagnostics_indicator = function(count, level)
 					local icon = level:match("error") and "" or ""
@@ -85,8 +94,20 @@ require("lazy").setup({
 	-- Colorscheme
 	{ "loctvl842/monokai-pro.nvim",
 		config = function ()
-			require("monokai-pro").setup({ filter = "spectrum" })
+			require("monokai-pro").setup({
+				devicons = true,
+				transparent_background = true,
+				filter = "spectrum",
+				plugins = {
+					bufferline = {
+						underline_selected = true,
+						underline_visible = false,
+					}
+				},
+			})
+
 			vim.cmd([[colorscheme monokai-pro]])
+			vim.api.nvim_set_hl(0, "Cursorline", { bg = "#3a3a3a", blend = 20 })
 		end
 	},
 
@@ -265,9 +286,6 @@ require("lazy").setup({
 				end
 			})
 
-			-- Open Alpha when there are no more buffers open
-			-- vim.cmd([[au BufDelete * if empty(filter(tabpagebuflist(), '!buflisted(v:val)')) | Alpha | endif]])
-
 			require("alpha").setup(dashboard.opts)
 		end
 	}
@@ -286,9 +304,16 @@ map_key('n', "<leader>y", '"+yy')
 map_key('v', "<leader>y", '"+y')
 
 -- Manage Tabs
-map_key('n', "<A-.>", "<CMD>bnext<CR>")
-map_key('n', "<A-,>", "<CMD>bprev<CR>")
-map_key('n', "<A-c>", "<CMD>bdelete<CR>")
+map_key('n', "<C-Tab>", "<CMD>bnext<CR>")
+map_key('n', "<C-S-Tab>", "<CMD>bprev<CR>")
+map_key('n', "<C-w>", "<CMD>bdelete<CR>")
+
+vim.api.nvim_del_keymap('n', "<C-W><C-D>")
+vim.api.nvim_del_keymap('n', "<C-W>d")
+
+for i = 1, 9 do
+	map_key('n', "<C-" .. i .. ">", "<CMD>BufferLineGoToBuffer " .. i .. "<CR>")
+end
 
 -- Telescope
 local builtin = require("telescope.builtin")
