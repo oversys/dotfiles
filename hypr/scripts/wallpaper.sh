@@ -49,7 +49,7 @@ if [ "$1" == "-c" ]; then
 	THEME="element-icon { size: 98px; margin: 0 22px; }\
 		listview { columns: 4; lines: 3; }\
 		element { padding: 0; }\
-		inputbar { enabled: false; }"
+		mainbox { children: [listview]; }"
 
 	WALLPAPER=$(ls $HOME/.config/wallpapers/$FOLDER/ | while read A; do echo -en "$A\x00icon\x1f$HOME/.config/wallpapers/$FOLDER/$A\n"; done | rofi -dmenu -p " Wallpaper" -theme-str "$THEME")
 	if [ -z "$WALLPAPER" ]; then exit; fi
