@@ -107,7 +107,7 @@ require("lazy").setup({
 			})
 
 			vim.cmd([[colorscheme monokai-pro]])
-			vim.api.nvim_set_hl(0, "Cursorline", { bg = "#3a3a3a", blend = 20 })
+			vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a3a", blend = 10 })
 		end
 	},
 
@@ -172,15 +172,29 @@ require("lazy").setup({
 			local cmp = require("cmp")
 			cmp.setup({
 				window = {
-					completion = cmp.config.window.bordered(),
-					documentation = cmp.config.window.bordered(),
+					completion = { border = "rounded" },
+					documentation = { border = "rounded" },
 				},
 
 				formatting = {
 					format = lspkind.cmp_format({
-						mode = "symbol_text",
-						maxwidth = 50,
-						ellipsis_char = "...",
+						before = function (_, vim_item)
+							-- Hide LSP `detail` content
+							if (vim_item.menu ~= nil and string.len(vim_item.menu) > 0) then
+								vim_item.menu = string.sub(vim_item.menu, 1, 0) .. ""
+							end
+
+							--[[ Truncate text longer than maxwidth
+							local maxwidth = 40
+							local ellipsis_char = "..."
+
+							if (vim_item.menu ~= nil and string.len(vim_item.menu) > maxwidth) then
+								vim_item.menu = string.sub(vim_item.menu, 1, maxwidth - 3) .. ellipsis_char
+							end
+							]]--
+
+							return vim_item
+						end
 					})
 				},
 
