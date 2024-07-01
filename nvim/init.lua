@@ -13,10 +13,19 @@ vim.opt.smartcase = true
 vim.opt.cursorline = true
 vim.opt.scrolloff = 8
 
--- Restore terminal cursor on exit
+-- Remove terminal padding on entry
+vim.api.nvim_create_autocmd("VimEnter", {
+	pattern = '*',
+	command = "silent !kitty @ set-spacing padding=0"
+})
+
+-- Restore terminal cursor and padding on exit
 vim.api.nvim_create_autocmd("VimLeave", {
 	pattern = '*',
-	command = "set guicursor=a:ver25-blinkon1"
+	callback = function ()
+		vim.cmd("set guicursor=a:ver25-blinkon1")
+		vim.cmd("silent !kitty @ set-spacing padding=default")
+	end
 })
 
 -- Lazy.nvim
@@ -317,6 +326,9 @@ map_key('n', "<C-t>", "<CMD>Neotree toggle<CR>")
 map_key('n', "<leader>y", '"+yy')
 map_key('v', "<leader>y", '"+y')
 
+-- Press escape to clear search pattern highlighting
+map_key('n', "<ESC>", "<CMD>nohlsearch<CR>")
+
 -- Manage Tabs
 map_key('n', "<C-Tab>", "<CMD>bnext<CR>")
 map_key('n', "<C-S-Tab>", "<CMD>bprev<CR>")
@@ -336,9 +348,18 @@ map_key('n', "<leader>tr", builtin.oldfiles)
 map_key('n', "<leader>th", builtin.help_tags)
 map_key('n', "<leader>tb", builtin.buffers)
 map_key('n', "<leader>tg", builtin.live_grep)
+map_key('n', "<leader>td", builtin.diagnostics)
+map_key('n', "<leader>tk", builtin.keymaps)
 
--- Go to definition
-map_key('n', "<leader>gd", vim.lsp.buf.definition)
+-- Go to definition/references
+map_key('n', "gd", vim.lsp.buf.definition)
+map_key('n', "gr", builtin.lsp_references)
+
+-- Diagnostics
+map_key('n', "<leader>dp", vim.diagnostic.goto_prev) -- Previous message
+map_key('n', "<leader>dn", vim.diagnostic.goto_next) -- Next message
+map_key('n', "<leader>dl", vim.diagnostic.open_float) -- Open diagnostic message(s) for current line
+map_key('n', "<leader>do", vim.diagnostic.setloclist) -- Open buffer diagnostics
 
 -- Toggle autopairs
 map_key({ 'n', 'i' }, "<C-]>", function()
