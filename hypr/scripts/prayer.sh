@@ -9,7 +9,7 @@ NOTIFIED_FILE="$HOME/.config/prayerhistory/notified"
 
 if [[ ! -f "$HOME/.config/prayerhistory/$CURRENT_DATE.txt" ]]; then
 	TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=4&adjustment=1" | jq ".data.timings" | sed "1d;6d;9,13d")
-	if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"; fi
+	if [ -n "$TIMINGS" ]; then echo "$TIMINGS" | awk '{$1=$1; print}' > "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"; fi
 fi
 
 duration() {
