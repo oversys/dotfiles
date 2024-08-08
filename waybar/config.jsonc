@@ -19,7 +19,7 @@
 		"network",
 		"battery",
 		"custom/prayer",
-		"clock"
+		"custom/time"
 	],
 	"hyprland/workspaces": {
 		"disable-scroll": true,
@@ -105,13 +105,20 @@
 		"format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
 	},
 	"custom/prayer" : {
-		"format" : "<span font='16' rise='-2000'>󰥹</span> {}",
-		"tooltip" : true,
-		"interval" : 30,
-		"exec" : "~/.config/hypr/scripts/prayer.sh -b",
+		// invisible 'a' is required to display icon on the right and not the left
+		"format": "<span font='0'>a</span>{} <span font='16' rise='-2000'>󰥹</span>",
+		"format-alt": "<span font='16' rise='-2000'>󰥹</span> {alt}",
+		"tooltip": true,
+		"interval": 30,
+		"return-type": "json",
+		"exec": "~/.config/hypr/scripts/prayer.sh -p"
 	},
-	"clock": {
-		"format": "<span font='16' rise='-2000'></span> {:%H:%M <span font='16' rise='-2000'></span> %a, %d %B %Y}",
-		"tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+	"custom/time" : {
+		"format": "{}",
+		"format-alt": "{alt}",
+		"tooltip": true,
+		"interval": 30,
+		"return-type": "json",
+		"exec": "~/.config/hypr/scripts/prayer.sh -t"
 	},
 }
