@@ -29,7 +29,7 @@ tooltip {
 #battery,
 #custom-prayer,
 #network,
-#clock {
+#custom-time {
 	color: __BG__;
 	border-radius: 8px;
 	padding: 0px 10px;
@@ -75,7 +75,7 @@ tooltip {
 	text-shadow: none;
 }
 
-#memory, #clock {
+#memory, #custom-time {
 	background: __COL1__;
 	border-bottom: 4px solid __DIMCOL1__;
 }
