@@ -27,7 +27,7 @@ if [[ -f "$HOME/.config/prayerhistory/$DATE.txt" ]]; then
 		"Dhuhr") FOLDER="noon";;
 		"Asr") FOLDER="afternoon";;
 		"Maghrib") FOLDER="sunset";;
-		"Isha" | "Qiyam") FOLDER="night";;
+		"Isha" | "Midnight" | "Last Third") FOLDER="night";;
 	esac
 else
 	if [[ $TIME -ge 4 && $TIME -lt 7 ]]; then
@@ -95,3 +95,4 @@ waybar &
 
 # Kill dunst
 killall dunst
+
