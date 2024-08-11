@@ -1,98 +1,170 @@
 #!/bin/bash
 
+## LOCATION - If country or city are not entered then location will be fetched automatically
+
 # Country name or ISO 3166 code (ex: Netherlands or NL)
 COUNTRY="__COUNTRY__"
+
+# City name (ex: Makkah)
 CITY="__CITY__"
 
 # 3 - Muslim World League
 # 4 - Umm Al-Qura University, Makkah
 # 8 - Gulf Region
 # 16 - Dubai (unofficial)
+# DEFAULT: 3 - Muslim World League
 METHOD="__METHOD__"
 
-CURRENT_TIME=$(date +"%H:%M")
+# Dates & Times
 CURRENT_DATE=$(date +"%d-%m-%Y")
-NOTIFIED_FILE="$HOME/.config/prayerhistory/notified"
-HIJRI_FILE="$HOME/.config/prayerhistory/hijri.txt"
+CURRENT_TIME=$(date +"%H:%M")
+YESTERDAY_DATE=$(date -d "yesterday" +"%d-%m-%Y")
 
-if [[ ! -f "$HOME/.config/prayerhistory/$CURRENT_DATE.txt" ]]; then
-	TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD&adjustment=1" | jq ".data.timings" | sed "1d;6d;9,13d")
-	if [ -n "$TIMINGS" ]; then echo "$TIMINGS" | awk '{$1=$1; print}' > "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"; fi
+# Files & Directories
+PRAYER_DIR="$HOME/.config/prayerhistory"
+PRAYER_FILE="$PRAYER_DIR/$CURRENT_DATE.txt"
+NOTIFIED_FILE="$PRAYER_DIR/notified"
+HIJRI_FILE="$PRAYER_DIR/hijri.txt"
+
+# Automatically detect location
+if [[ "$COUNTRY" == "__COUNTRY__" || -z "$COUNTRY" || "$CITY" == "__CITY__" || -z "$CITY" ]] && [[ ! -f "$PRAYER_FILE" ]]; then
+	LOCATION=$(curl -s https://ipinfo.io)
+	COUNTRY="$(echo $LOCATION | jq -r '.country')"
+	CITY="$(echo $LOCATION | jq -r '.city')"
 fi
 
-indo_arabic_numerals() {
+# Default method
+if [[ "$METHOD" == "__METHOD__" ]]; then METHOD=3; fi
+
+# Helper Functions
+
+to_arabic_num() {
 	read western_arabic
-	echo $western_arabic | sed -e 's/0/٠/g' -e 's/1/١/g' -e 's/2/٢/g' -e 's/3/٣/g' -e 's/4/٤/g' -e 's/5/٥/g' -e 's/6/٦/g' -e 's/7/٧/g' -e 's/8/٨/g' -e 's/9/٩/g'
+	echo $western_arabic | sed 'y/0123456789/٠١٢٣٤٥٦٧٨٩/'
 }
 
 arabic_prayer_name() {
+	local PRAYER_ARABIC
+
 	case "$1" in
 		"Fajr") PRAYER_ARABIC="الفجر";;
+		"Sunrise") PRAYER_ARABIC="الشروق";;
 		"Dhuhr") PRAYER_ARABIC="الظهر";;
 		"Asr") PRAYER_ARABIC="العصر";;
 		"Maghrib") PRAYER_ARABIC="المغرب";;
 		"Isha") PRAYER_ARABIC="العشاء";;
+		"Midnight") PRAYER_ARABIC="منتصف الليل";;
+		"Last Third") PRAYER_ARABIC="الثلث الأخير";;
 	esac
 
 	echo "$PRAYER_ARABIC"
 }
 
+to_mins() {
+	IFS=: read -r hour minute <<< "$1"
+	echo $((10#$hour * 60 + 10#$minute))
+}
+
 duration() {
-	time_diff=$(($(date -d "$2" +%s) - $(date -d "$1" +%s)))
-	hours=$((time_diff / 3600))
-	minutes=$(((time_diff % 3600) / 60))
+	local start_minutes=$(to_mins "$1")
+	local end_minutes=$(to_mins "$2")
+	local diff_minutes=$((end_minutes - start_minutes))
+
+	local hours=$((diff_minutes / 60))
+	local minutes=$((diff_minutes % 60))
 
 	if [[ "$3" == "ar" ]]; then
+		local minutes_text
+
 		if ((hours == 0)); then
-			if ((minutes == 2)); then minutes_text="دقيقتان";
-			elif ((minutes <= 10 && minutes >= 3)); then minutes_text="دقائق";
-			else minutes_text="دقيقة"; fi
+			case $minutes in
+				1) minutes_text="دقيقة واحدة";;
+				2) minutes_text="دقيقتان";;
+				3|4|5|6|7|8|9|10) minutes_text="دقائق";;
+				*) minutes_text="دقيقة";;
+			esac
 
 			if ((minutes <= 2)); then
-				printf "$minutes_text";
+				printf "$minutes_text"
 			else
-				printf "$(echo $minutes | indo_arabic_numerals) $minutes_text"; 
+				printf "$(echo $minutes | to_arabic_num) $minutes_text"
 			fi
 		else
-			printf '%02d:%02d\n' "$hours" "$minutes" | indo_arabic_numerals
+			printf '%02d:%02d\n' "$hours" "$minutes" | to_arabic_num
 		fi
 	else
 		if ((hours == 0)); then
-			if ((minutes == 1)); then printf "$minutes min"; else printf "$minutes mins"; fi
+			if ((minutes == 1)); then
+				printf "%d min" "$minutes"
+			else
+				printf "%d mins" "$minutes"
+			fi
 		else
 			printf '%02d:%02d\n' "$hours" "$minutes"
 		fi
 	fi
 }
 
-while IFS= read -r line; do 
-	PRAYER_NAME=$(echo $line | awk -F'"' '{print $2}')
-	PRAYER_TIME=$(echo $line | awk -F'"' '{print $4}')
+CURRENT_MINUTES=$(to_mins "$CURRENT_TIME")
 
-	if [[ "$CURRENT_TIME" == "$PRAYER_TIME" ]]; then
+if [[ ! -f "$PRAYER_FILE" ]]; then
+	TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Midnight, "Last Third": .Lastthird, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha} | to_entries | map("\(.key): \(.value)") | .[]')
+
+	if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$PRAYER_FILE"; fi
+fi
+
+FAJR_TIME=$(awk -F: '/Fajr/ {gsub(/[",]/, "", $0); gsub(/^[ \t]+/, "", $2); print $2 ":" $3}' "$PRAYER_FILE")
+FAJR_MINUTES=$(to_mins "$FAJR_TIME")
+
+if [[ $CURRENT_MINUTES -lt $FAJR_MINUTES ]]; then
+	CURRENT_DATE=$YESTERDAY_DATE
+	PRAYER_FILE="$PRAYER_DIR/$CURRENT_DATE.txt"
+
+	NEXT_PRAYER="Fajr"
+	NEXT_PRAYER_TIME="$FAJR_TIME"
+
+	if [[ ! -f "$PRAYER_FILE" ]]; then
+		TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity/$CURRENT_DATE?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Midnight, "Last Third": .Lastthird, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha} | to_entries | map("\(.key): \(.value)") | .[]')
+
+		if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$PRAYER_FILE"; fi
+	fi
+fi
+
+while IFS= read -r line; do 
+	PRAYER_NAME=$(echo "$line" | awk -F': ' '{print $1}')
+	PRAYER_TIME=$(echo "$line" | awk -F': ' '{print $2}')
+	PRAYER_MINUTES=$(to_mins "$PRAYER_TIME")
+
+	if [[ $CURRENT_MINUTES -eq $PRAYER_MINUTES ]]; then
 		CURRENT_PRAYER="$PRAYER_NAME"
 
 		if [[ ! -f "$NOTIFIED_FILE" ]]; then
-			notify-send --urgency=critical "Time for $PRAYER_NAME ($PRAYER_TIME)" -r 3
+			# notify-send --urgency=critical "Time for $PRAYER_NAME ($PRAYER_TIME)" -r 3
+
+			CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
+			if [[ "$CURRENT_PRAYER" =~ ^(Sunrise|Midnight|Last Third)$ ]]; then
+				notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($PRAYER_TIME)" -r 3
+			else
+				notify-send --urgency=critical "حان وقت صلاة $CURRENT_PRAYER_ARABIC ($PRAYER_TIME)" -r 3
+			fi
+
 			echo "$PRAYER_TIME" > "$NOTIFIED_FILE"
 		fi
-	elif [[ "$CURRENT_TIME" > "$PRAYER_TIME" ]]; then
+	elif [[ $CURRENT_MINUTES -gt $PRAYER_MINUTES ]]; then
 		CURRENT_PRAYER="$PRAYER_NAME"
 
 		if [[ -f "$NOTIFIED_FILE" ]]; then
 			NOTIFIED_PRAYER_TIME=$(cat "$NOTIFIED_FILE")
 			if [[ "$CURRENT_TIME" > "$NOTIFIED_PRAYER_TIME" ]]; then rm "$NOTIFIED_FILE"; fi
 		fi
-	elif [[ "$CURRENT_TIME" < "$PRAYER_TIME" ]]; then
+	elif [[ $CURRENT_MINUTES -lt $PRAYER_MINUTES && "$CURRENT_PRAYER" != "Last Third" ]]; then
 		NEXT_PRAYER="$PRAYER_NAME"
 		NEXT_PRAYER_TIME="$PRAYER_TIME"
 		break
 	fi
-done < "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"
+done < "$PRAYER_FILE"
 
-if [[ -z "$CURRENT_PRAYER" ]]; then
-	CURRENT_PRAYER="Qiyam"
-fi
+if [[ -z "$CURRENT_PRAYER" && "$NEXT_PRAYER" == "Midnight" ]]; then CURRENT_PRAYER="Isha"; fi
 
 # Options:
 # -p: _P_rayer module text
@@ -111,10 +183,16 @@ if [[ "$1" == "-p" ]]; then
 		TIME_REMAINING=$(duration $CURRENT_TIME $NEXT_PRAYER_TIME)
 		TIME_REMAINING_ARABIC=$(duration $CURRENT_TIME $NEXT_PRAYER_TIME "ar")
 
-		NEXT_PRAYER_TIME_ARABIC=$(echo $NEXT_PRAYER_TIME | indo_arabic_numerals)
+		NEXT_PRAYER_TIME_ARABIC=$(echo $NEXT_PRAYER_TIME | to_arabic_num)
 
 		# Arabic Tooltip
-		printf "{\"text\": \"$CURRENT_PRAYER_ARABIC\", \"alt\": \"$CURRENT_PRAYER\", \"tooltip\": \"صلاة $NEXT_PRAYER_ARABIC بعد $TIME_REMAINING_ARABIC ($NEXT_PRAYER_TIME_ARABIC)\" }"
+		if [[ "$NEXT_PRAYER" =~ ^(Sunrise|Midnight|Last Third)$ ]]; then
+			tooltip="$NEXT_PRAYER_ARABIC بعد $TIME_REMAINING_ARABIC ($NEXT_PRAYER_TIME_ARABIC)"
+		else
+			tooltip="صلاة $NEXT_PRAYER_ARABIC بعد $TIME_REMAINING_ARABIC ($NEXT_PRAYER_TIME_ARABIC)"
+		fi
+
+		printf "{\"text\": \"$CURRENT_PRAYER_ARABIC\", \"alt\": \"$CURRENT_PRAYER\", \"tooltip\": \"$tooltip\" }"
 
 		# English Tooltip
 		# printf "{\"text\": \"$CURRENT_PRAYER_ARABIC\", \"alt\": \"$CURRENT_PRAYER\", \"tooltip\": \"$NEXT_PRAYER in $TIME_REMAINING ($NEXT_PRAYER_TIME)\" }"
@@ -139,7 +217,7 @@ elif [[ "$1" =~ ^(-h|-t)$ ]]; then
 
 	if [ "$LAST_DATE" != "$CURRENT_DATE" ]; then
 		converter=$(curl -s https://datehijri.com/ajax.php | jq -r .converter)
-		date=$(echo $converter | jq -r ".result.hijri.[1]" | indo_arabic_numerals)
+		date=$(echo $converter | jq -r ".result.hijri.[1]" | to_arabic_num)
 		today="$(echo $converter | jq -r .day)، $date"
 
 		echo "$CURRENT_DATE $today" > "$HIJRI_FILE"
@@ -151,19 +229,18 @@ elif [[ "$1" =~ ^(-h|-t)$ ]]; then
 		echo "$today"
 	else
 		english_date="<span font='16' rise='-2000'></span> $(date +'%H:%M') <span font='16' rise='-2000'></span> $(date +'%a, %d %B %Y')"
-		arabic_date="$(date +'%H:%M' | indo_arabic_numerals) <span font='16' rise='-2000'></span> $today <span font='16' rise='-2000'></span>"
+		arabic_date="$(date +'%H:%M' | to_arabic_num) <span font='16' rise='-2000'></span> $today <span font='16' rise='-2000'></span>"
 
 		printf "{\"text\": \"$english_date\", \"alt\": \"$arabic_date\", \"tooltip\": \"$today\" }"
 	fi
 else
-	cat "$HOME/.config/prayerhistory/$CURRENT_DATE.txt"
-	echo "Current prayer: $CURRENT_PRAYER"
-
-	if [[ -n "$NEXT_PRAYER" ]]; then
-		TIME_REMAINING=$(duration $CURRENT_TIME $NEXT_PRAYER_TIME)
-		echo "Next prayer: $NEXT_PRAYER in $TIME_REMAINING"
-	else
-		echo "Next prayer: $NEXT_PRAYER"
-	fi
+	awk '
+		/Midnight/ { midnight = $0; next }
+		/Last Third/ { lastthird = $0; next }
+		{ print }
+		END {
+			if (midnight) print midnight
+			if (lastthird) print lastthird
+		}' "$PRAYER_FILE"
 fi
 
