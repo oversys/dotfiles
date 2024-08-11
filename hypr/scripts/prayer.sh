@@ -70,6 +70,11 @@ duration() {
 	local end_minutes=$(to_mins "$2")
 	local diff_minutes=$((end_minutes - start_minutes))
 
+	# Handle cases where end time is on the next day
+	if ((diff_minutes < 0)); then
+		diff_minutes=$((diff_minutes + 1440))  # Add 24 hours in minutes
+	fi
+
 	local hours=$((diff_minutes / 60))
 	local minutes=$((diff_minutes % 60))
 
@@ -163,6 +168,13 @@ while IFS= read -r line; do
 		break
 	fi
 done < "$PRAYER_FILE"
+
+if [[ -z "$NEXT_PRAYER" && "$CURRENT_PRAYER" == "Isha" ]]; then
+	MIDNIGHT_TIME=$(awk -F: '/Midnight/ {gsub(/[",]/, "", $0); gsub(/^[ \t]+/, "", $2); print $2 ":" $3}' "$PRAYER_FILE")
+
+	NEXT_PRAYER="Midnight"
+	NEXT_PRAYER_TIME="$MIDNIGHT_TIME"
+fi
 
 if [[ -z "$CURRENT_PRAYER" && "$NEXT_PRAYER" == "Midnight" ]]; then CURRENT_PRAYER="Isha"; fi
 
