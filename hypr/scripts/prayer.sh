@@ -72,7 +72,7 @@ duration() {
 
 	# Handle cases where end time is on the next day
 	if ((diff_minutes < 0)); then
-		diff_minutes=$((diff_minutes + 1440))  # Add 24 hours in minutes
+		diff_minutes=$((diff_minutes + 1440)) # Add 24 hours in minutes
 	fi
 
 	local hours=$((diff_minutes / 60))
@@ -232,7 +232,7 @@ elif [[ "$1" =~ ^(-h|-t)$ ]]; then
 		date=$(echo $converter | jq -r ".result.hijri.[1]" | to_arabic_num)
 		today="$(echo $converter | jq -r .day)، $date"
 
-		echo "$CURRENT_DATE $today" > "$HIJRI_FILE"
+		if [ -n "$converter" ]; then echo "$CURRENT_DATE $today" > "$HIJRI_FILE"; fi
 	else
 		today=$LAST_HIJRI
 	fi
