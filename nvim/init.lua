@@ -323,7 +323,7 @@ end
 map_key('n', "<C-t>", "<CMD>Neotree toggle<CR>")
 
 -- Copy to system clipboard
-map_key('n', "<leader>y", '"+yy')
+map_key('n', "<leader>y", '"+y')
 map_key('v', "<leader>y", '"+y')
 
 -- Press escape to clear search pattern highlighting
