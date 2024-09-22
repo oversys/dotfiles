@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Mawaqit.net masjid ID (gets prayer times directly from the masjid rather than from aladhan.com)
+MASJID_ID="__MASJID_ID__"
+
 ## LOCATION - If country or city are not entered then location will be fetched automatically
 
 # Country name or ISO 3166 code (ex: Netherlands or NL)
@@ -26,8 +29,8 @@ PRAYER_FILE="$PRAYER_DIR/$CURRENT_DATE.txt"
 NOTIFIED_FILE="$PRAYER_DIR/notified"
 HIJRI_FILE="$PRAYER_DIR/hijri.txt"
 
-# Automatically detect location
-if [[ "$COUNTRY" == "__COUNTRY__" || -z "$COUNTRY" || "$CITY" == "__CITY__" || -z "$CITY" ]] && [[ ! -f "$PRAYER_FILE" ]]; then
+# Automatically detect location if neither masjid ID nor location are provided
+if [[ "$MASJID_ID" == "__MASJID_ID__" || -z "$MASJID_ID" ]] && [[ "$COUNTRY" == "__COUNTRY__" || -z "$COUNTRY" || "$CITY" == "__CITY__" || -z "$CITY" ]] && [[ ! -f "$PRAYER_FILE" ]]; then
 	LOCATION=$(curl -s https://ipinfo.io)
 	COUNTRY="$(echo $LOCATION | jq -r '.country')"
 	CITY="$(echo $LOCATION | jq -r '.city')"
@@ -37,6 +40,62 @@ fi
 if [[ "$METHOD" == "__METHOD__" ]]; then METHOD=3; fi
 
 # Helper Functions
+
+# Fetch data from mawaqit.net
+fetch_mawaqit() {
+	local response=$(curl -s "https://mawaqit.net/en/$MASJID_ID")
+
+	if [ $? -eq 0 ]; then
+		local conf_data=$(echo "$response" | grep -oP 'var confData = \K.*(?=;)')
+
+		if [ -n "$conf_data" ]; then
+			echo "$conf_data"
+		else
+			echo "Failed to extract confData JSON for $MASJID_ID" >&2
+		fi
+	else
+		echo "Failed to fetch data for $MASJID_ID" >&2
+	fi
+}
+
+get_timings() {
+	if [[ "$MASJID_ID" == "__MASJID_ID__" || -z "$MASJID_ID" ]]; then
+		curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Midnight, "Last Third": .Lastthird, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha} | to_entries | map("\(.key): \(.value)") | .[]'
+	else
+		local conf_data=$(fetch_mawaqit "$MASJID_ID")
+		local times=$(echo "$conf_data" | jq -r '.times')
+
+		local FAJR_TIME=$(echo "$times" | jq -r '.[0]')
+		local FAJR_MINUTES=$(to_mins "$FAJR_TIME")
+
+		local MAGHRIB_TIME=$(echo "$times" | jq -r '.[3]')
+		local MAGHRIB_MINUTES=$(to_mins "$MAGHRIB_TIME")
+
+		local TOTAL_MINUTES=$(((FAJR_MINUTES + 1440) - MAGHRIB_MINUTES))
+
+		local MIDNIGHT_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 2)))
+		local LAST_THIRD_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 3)))
+
+		local MIDNIGHT_TIME=$(printf "%02d:%02d" $((MIDNIGHT_MINUTES / 60)) $((MIDNIGHT_MINUTES % 60)))
+		local LAST_THIRD_TIME=$(printf "%02d:%02d" $((LAST_THIRD_MINUTES / 60)) $((LAST_THIRD_MINUTES % 60)))
+
+		echo "$conf_data" | jq -nr \
+			--argjson times "$times" \
+			--arg shuruq "$(echo "$conf_data" | jq -r '.shuruq')" \
+			--arg midnight "$MIDNIGHT_TIME" \
+			--arg last_third "$LAST_THIRD_TIME" \
+			'{
+				Midnight: $midnight,
+				"Last Third": $last_third,
+				Fajr: $times[0],
+				Shuruq: $shuruq,
+				Dhuhr: $times[1],
+				Asr: $times[2],
+				Maghrib: $times[3],
+				Isha: $times[4]
+			} | to_entries | map("\(.key): \(.value)") | .[]'
+	fi
+}
 
 to_arabic_num() {
 	read western_arabic
@@ -113,7 +172,7 @@ duration() {
 CURRENT_MINUTES=$(to_mins "$CURRENT_TIME")
 
 if [[ ! -f "$PRAYER_FILE" ]]; then
-	TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Midnight, "Last Third": .Lastthird, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha} | to_entries | map("\(.key): \(.value)") | .[]')
+	TIMINGS=$(get_timings)
 
 	if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$PRAYER_FILE"; fi
 fi
@@ -129,7 +188,7 @@ if [[ $CURRENT_MINUTES -lt $FAJR_MINUTES ]]; then
 	NEXT_PRAYER_TIME="$FAJR_TIME"
 
 	if [[ ! -f "$PRAYER_FILE" ]]; then
-		TIMINGS=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity/$CURRENT_DATE?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Midnight, "Last Third": .Lastthird, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha} | to_entries | map("\(.key): \(.value)") | .[]')
+		TIMINGS=$(get_timings)
 
 		if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$PRAYER_FILE"; fi
 	fi
