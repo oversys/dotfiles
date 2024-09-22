@@ -3,7 +3,7 @@
 dimlightcol() {
 	color="${1#"#"}"
 
-	if [[ -n $2 ]] then factor=$2; else factor=0.8; fi
+	if [[ -n $2 ]]; then factor=$2; else factor=0.8; fi
 	
 	for i in {0..4..2}; do
 		hex=${color:$i:2}
@@ -46,12 +46,13 @@ else
 fi
 
 if [ "$1" == "-c" ]; then
-	THEME="element-icon { size: 98px; margin: 0 22px; }\
+	THEME="element-icon { size: 115px; margin: 0 12px; }\
 		listview { columns: 4; lines: 3; }\
-		element { padding: 0; }\
-		mainbox { children: [listview]; }"
+		element { padding: 0; color: transparent; }\
+		mainbox { children: [listview]; }\
+		window { height: 600px; }"
 
-	WALLPAPER=$(ls $HOME/.config/wallpapers/$FOLDER/ | while read A; do echo -en "$A\x00icon\x1f$HOME/.config/wallpapers/$FOLDER/$A\n"; done | rofi -dmenu -p " Wallpaper" -theme-str "$THEME")
+	WALLPAPER=$(ls $HOME/.config/wallpapers/$FOLDER/ | while read A; do echo -en "$A\x00icon\x1f$HOME/.config/wallpapers/$FOLDER/$A\n"; done | rofi -dmenu -p " Wallpaper" -theme-str "$THEME")
 	if [ -z "$WALLPAPER" ]; then exit; fi
 else
 	WALLPAPER=$(ls -1 $HOME/.config/wallpapers/$FOLDER/ | sort --random-sort | head -1)
@@ -71,22 +72,41 @@ BG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.background)
 LIGHTBG=$(dimlightcol $BG 2.0)
 LIGHTERBG=$(dimlightcol $BG 2.5)
 
+# If color is dark then set text to FG for good readability, otherwise set text to BG
+check_brightness() {
+	local color=$1
+	local threshold=100
+
+	local r=$((16#${color:1:2}))
+	local g=$((16#${color:3:2}))
+	local b=$((16#${color:5:2}))
+
+	# Calculate perceived brightness using YIQ formula
+	local brightness=$(( (r * 299 + g * 587 + b * 114) / 1000 ))
+
+	if [ $brightness -lt $threshold ]; then echo "$FG"; else echo "$BG"; fi
+}
+
 colors=("1" "2" "4" "5")
 for color in "${colors[@]}"; do
+	fg_color_name="FGCOL${color}"
 	color_name="COL${color}"
 	dim_color_name="DIM${color_name}"
 
 	eval "$color_name=$(jq -r .colors.color${color} $HOME/.cache/wal/colors.json)"
 	eval "$dim_color_name=\$(dimlightcol \$$color_name)"
+	eval "$fg_color_name=\$(check_brightness \$$color_name)"
 done
 
 DIMMERCOL2=$(dimlightcol $COL2 0.55)
 
-colors=("FG" "BG" "LIGHTBG" "LIGHTERBG" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMMERCOL2" "DIMCOL4" "DIMCOL5")
-for color in "${colors[@]}"; do
-	sed -i "s/__${color}__/${!color}/" $HOME/.config/waybar/style.css
-	sed -i "s/__${color}__/${!color}/" $HOME/.config/rofi/theme.rasi
-	sed -i "s/__${color}__/${!color}/" $HOME/.config/dunst/dunstrc
+colors=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMMERCOL2" "DIMCOL4" "DIMCOL5")
+configs=("waybar/style.css" "rofi/theme.rasi" "dunst/dunstrc")
+
+for config in "${configs[@]}"; do
+	for color in "${colors[@]}"; do
+		sed -i "s/__${color}__/${!color}/" "$HOME/.config/$config"
+	done
 done
 
 # Restart waybar
@@ -95,4 +115,3 @@ waybar &
 
 # Kill dunst
 killall dunst
-
