@@ -76,21 +76,25 @@ tooltip {
 }
 
 #memory, #custom-time {
+	color: __FGCOL1__;
 	background: __COL1__;
 	border-bottom: 4px solid __DIMCOL1__;
 }
 
 #wireplumber, #network {
+	color: __FGCOL2__;
 	background: __COL2__;
 	border-bottom: 4px solid __DIMCOL2__;
 }
 
 #backlight, #battery {
+	color: __FGCOL4__;
 	background: __COL4__;
 	border-bottom: 4px solid __DIMCOL4__;
 }
 
 #cpu, #custom-prayer {
+	color: __FGCOL5__;
 	background: __COL5__;
 	border-bottom: 4px solid __DIMCOL5__;
 }
