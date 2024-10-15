@@ -81,14 +81,14 @@ get_timings() {
 
 		echo "$conf_data" | jq -nr \
 			--argjson times "$times" \
-			--arg shuruq "$(echo "$conf_data" | jq -r '.shuruq')" \
+			--arg sunrise "$(echo "$conf_data" | jq -r '.shuruq')" \
 			--arg midnight "$MIDNIGHT_TIME" \
 			--arg last_third "$LAST_THIRD_TIME" \
 			'{
 				Midnight: $midnight,
 				"Last Third": $last_third,
 				Fajr: $times[0],
-				Shuruq: $shuruq,
+				Sunrise: $sunrise,
 				Dhuhr: $times[1],
 				Asr: $times[2],
 				Maghrib: $times[3],
