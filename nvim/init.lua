@@ -232,7 +232,7 @@ require("lazy").setup({
 
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-			local servers = { "pyright", "tsserver", "rust_analyzer", "clangd", "html", "cssls" }
+			local servers = { "pyright", "ts_ls", "rust_analyzer", "clangd", "html", "cssls" }
 
 			for _, lsp in ipairs(servers) do
 				require("lspconfig")[lsp].setup {
@@ -384,13 +384,20 @@ local function top_bot(keys)
 		vim.cmd("normal! " .. keys)
 	else
 		local amount = (keys == 'G') and 1 or -1
-		neoscroll.scroll(amount * buf_line_count, true, 1, 5)
+		neoscroll.scroll(amount * buf_line_count, { move_cursor = true, duration = 1, easing = "sine" })
 	end
 end
 
 local modes = { 'n', 'v' }
-map_key(modes, "<ScrollWheelUp>", function() neoscroll.scroll(-4, true, 50, "sine") end)
-map_key(modes, "<ScrollWheelDown>", function() neoscroll.scroll(4, true, 50, "sine") end)
+
+map_key(modes, "<ScrollWheelUp>", function()
+    neoscroll.scroll(-4, { move_cursor = true, duration = 50, easing = "sine" })
+end)
+
+map_key(modes, "<ScrollWheelDown>", function()
+    neoscroll.scroll(4, { move_cursor = true, duration = 50, easing = "sine" })
+end)
+
 map_key(modes, "gg", function() top_bot("gg") end)
 map_key(modes, 'G', function() top_bot('G') end)
 

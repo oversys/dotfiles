@@ -60,39 +60,48 @@ fetch_mawaqit() {
 
 get_timings() {
 	if [[ "$MASJID_ID" == "__MASJID_ID__" || -z "$MASJID_ID" ]]; then
-		curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Midnight, "Last Third": .Lastthird, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha} | to_entries | map("\(.key): \(.value)") | .[]'
+		curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha, Midnight, "Last Third": .Lastthird} | to_entries | map("\(.key): \(.value)") | .[]'
 	else
+		local DAY=$(echo "$CURRENT_DATE" | cut -d'-' -f1)
+		local MONTH=$(( $(echo "$CURRENT_DATE" | cut -d'-' -f2) - 1 ))
+
 		local conf_data=$(fetch_mawaqit "$MASJID_ID")
-		local times=$(echo "$conf_data" | jq -r '.times')
+		local times=$(echo "$conf_data" | jq -r ".calendar[$MONTH][\"$DAY\"]")
 
 		local FAJR_TIME=$(echo "$times" | jq -r '.[0]')
 		local FAJR_MINUTES=$(to_mins "$FAJR_TIME")
 
-		local MAGHRIB_TIME=$(echo "$times" | jq -r '.[3]')
+		local MAGHRIB_TIME=$(echo "$times" | jq -r '.[4]')
 		local MAGHRIB_MINUTES=$(to_mins "$MAGHRIB_TIME")
 
 		local TOTAL_MINUTES=$(((FAJR_MINUTES + 1440) - MAGHRIB_MINUTES))
 
 		local MIDNIGHT_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 2)))
+		if [ $MIDNIGHT_MINUTES -lt 0 ]; then
+			MIDNIGHT_MINUTES=$((MIDNIGHT_MINUTES + 1440))
+		fi
+
 		local LAST_THIRD_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 3)))
+		if [ $LAST_THIRD_MINUTES -lt 0 ]; then
+			LAST_THIRD_MINUTES=$((LAST_THIRD_MINUTES + 1440))
+		fi
 
 		local MIDNIGHT_TIME=$(printf "%02d:%02d" $((MIDNIGHT_MINUTES / 60)) $((MIDNIGHT_MINUTES % 60)))
 		local LAST_THIRD_TIME=$(printf "%02d:%02d" $((LAST_THIRD_MINUTES / 60)) $((LAST_THIRD_MINUTES % 60)))
 
 		echo "$conf_data" | jq -nr \
 			--argjson times "$times" \
-			--arg sunrise "$(echo "$conf_data" | jq -r '.shuruq')" \
 			--arg midnight "$MIDNIGHT_TIME" \
 			--arg last_third "$LAST_THIRD_TIME" \
 			'{
-				Midnight: $midnight,
-				"Last Third": $last_third,
 				Fajr: $times[0],
-				Sunrise: $sunrise,
-				Dhuhr: $times[1],
-				Asr: $times[2],
-				Maghrib: $times[3],
-				Isha: $times[4]
+				Sunrise: $times[1],
+				Dhuhr: $times[2],
+				Asr: $times[3],
+				Maghrib: $times[4],
+				Isha: $times[5],
+				Midnight: $midnight,
+				"Last Third": $last_third
 			} | to_entries | map("\(.key): \(.value)") | .[]'
 	fi
 }
@@ -184,17 +193,64 @@ if [[ $CURRENT_MINUTES -lt $FAJR_MINUTES ]]; then
 	CURRENT_DATE=$YESTERDAY_DATE
 	PRAYER_FILE="$PRAYER_DIR/$CURRENT_DATE.txt"
 
-	NEXT_PRAYER="Fajr"
-	NEXT_PRAYER_TIME="$FAJR_TIME"
-
 	if [[ ! -f "$PRAYER_FILE" ]]; then
 		TIMINGS=$(get_timings)
 
 		if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$PRAYER_FILE"; fi
 	fi
+
+	MIDNIGHT_TIME=$(awk -F: '/Midnight/ {gsub(/[",]/, "", $0); gsub(/^[ \t]+/, "", $2); print $2 ":" $3}' "$PRAYER_FILE")
+	MIDNIGHT_MINUTES=$(to_mins "$MIDNIGHT_TIME")
+
+	LAST_THIRD_TIME=$(awk -F: '/Last Third/ {gsub(/[",]/, "", $0); gsub(/^[ \t]+/, "", $2); print $2 ":" $3}' "$PRAYER_FILE")
+	LAST_THIRD_MINUTES=$(to_mins "$LAST_THIRD_TIME")
+
+	if [[ $MIDNIGHT_MINUTES -gt $LAST_THIRD_MINUTES && "$MIDNIGHT_TIME" != "$CURRENT_TIME" ]]; then MIDNIGHT_MINUTES=$((MIDNIGHT_MINUTES - 1440)); fi
+
+	if [[ $CURRENT_MINUTES -gt $LAST_THIRD_MINUTES ]]; then
+		CURRENT_PRAYER="Last Third"
+		NEXT_PRAYER="Fajr"
+
+		NEXT_PRAYER_TIME="$FAJR_TIME"
+		if [[ -f "$NOTIFIED_FILE" ]]; then
+			NOTIFIED_PRAYER_TIME=$(cat "$NOTIFIED_FILE")
+			if [[ "$CURRENT_TIME" > "$NOTIFIED_PRAYER_TIME" ]]; then rm "$NOTIFIED_FILE"; fi
+		fi
+	elif [[ $CURRENT_MINUTES -eq $LAST_THIRD_MINUTES ]]; then
+		CURRENT_PRAYER="Last Third"
+		NEXT_PRAYER="Fajr"
+		NEXT_PRAYER_TIME="$FAJR_TIME"
+
+		CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
+		notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
+		echo "$MIDNIGHT_TIME" > "$NOTIFIED_FILE"
+	elif [[ $CURRENT_MINUTES -gt $MIDNIGHT_MINUTES && $CURRENT_MINUTES -lt $LAST_THIRD_MINUTES ]]; then
+		CURRENT_PRAYER="Midnight"
+		NEXT_PRAYER="Last Third"
+		NEXT_PRAYER_TIME="$LAST_THIRD_TIME"
+
+		if [[ -f "$NOTIFIED_FILE" ]]; then
+			NOTIFIED_PRAYER_TIME=$(cat "$NOTIFIED_FILE")
+			if [[ "$CURRENT_TIME" > "$NOTIFIED_PRAYER_TIME" ]]; then rm "$NOTIFIED_FILE"; fi
+		fi
+	elif [[ $CURRENT_MINUTES -eq $MIDNIGHT_MINUTES ]]; then
+		CURRENT_PRAYER="Midnight"
+		NEXT_PRAYER="Last Third"
+		NEXT_PRAYER_TIME="$LAST_THIRD_TIME"
+
+		CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
+		notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
+		echo "$MIDNIGHT_TIME" > "$NOTIFIED_FILE"
+	elif [[ $CURRENT_MINUTES -lt $MIDNIGHT_MINUTES ]]; then
+		CURRENT_PRAYER="Isha"
+		NEXT_PRAYER="Midnight"
+		NEXT_PRAYER_TIME="$MIDNIGHT_TIME"
+	fi
 fi
 
 while IFS= read -r line; do 
+	if [[ $CURRENT_MINUTES -lt $FAJR_MINUTES ]]; then break; fi
+
 	PRAYER_NAME=$(echo "$line" | awk -F': ' '{print $1}')
 	PRAYER_TIME=$(echo "$line" | awk -F': ' '{print $2}')
 	PRAYER_MINUTES=$(to_mins "$PRAYER_TIME")
@@ -207,9 +263,9 @@ while IFS= read -r line; do
 
 			CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
 			if [[ "$CURRENT_PRAYER" =~ ^(Sunrise|Midnight|Last Third)$ ]]; then
-				notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($PRAYER_TIME)" -r 3
+				notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
 			else
-				notify-send --urgency=critical "حان وقت صلاة $CURRENT_PRAYER_ARABIC ($PRAYER_TIME)" -r 3
+				notify-send --urgency=critical "حان وقت صلاة $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
 			fi
 
 			echo "$PRAYER_TIME" > "$NOTIFIED_FILE"
@@ -221,7 +277,7 @@ while IFS= read -r line; do
 			NOTIFIED_PRAYER_TIME=$(cat "$NOTIFIED_FILE")
 			if [[ "$CURRENT_TIME" > "$NOTIFIED_PRAYER_TIME" ]]; then rm "$NOTIFIED_FILE"; fi
 		fi
-	elif [[ $CURRENT_MINUTES -lt $PRAYER_MINUTES && "$CURRENT_PRAYER" != "Last Third" ]]; then
+	elif [[ $CURRENT_MINUTES -lt $PRAYER_MINUTES ]]; then
 		NEXT_PRAYER="$PRAYER_NAME"
 		NEXT_PRAYER_TIME="$PRAYER_TIME"
 		break
@@ -234,8 +290,6 @@ if [[ -z "$NEXT_PRAYER" && "$CURRENT_PRAYER" == "Isha" ]]; then
 	NEXT_PRAYER="Midnight"
 	NEXT_PRAYER_TIME="$MIDNIGHT_TIME"
 fi
-
-if [[ -z "$CURRENT_PRAYER" && "$NEXT_PRAYER" == "Midnight" ]]; then CURRENT_PRAYER="Isha"; fi
 
 # Options:
 # -p: _P_rayer module text
