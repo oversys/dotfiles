@@ -222,7 +222,7 @@ if [[ $CURRENT_MINUTES -lt $FAJR_MINUTES ]]; then
 		NEXT_PRAYER_TIME="$FAJR_TIME"
 
 		CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
-		notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
+		notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 4
 		echo "$MIDNIGHT_TIME" > "$NOTIFIED_FILE"
 	elif [[ $CURRENT_MINUTES -gt $MIDNIGHT_MINUTES && $CURRENT_MINUTES -lt $LAST_THIRD_MINUTES ]]; then
 		CURRENT_PRAYER="Midnight"
@@ -239,7 +239,7 @@ if [[ $CURRENT_MINUTES -lt $FAJR_MINUTES ]]; then
 		NEXT_PRAYER_TIME="$LAST_THIRD_TIME"
 
 		CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
-		notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
+		notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 4
 		echo "$MIDNIGHT_TIME" > "$NOTIFIED_FILE"
 	elif [[ $CURRENT_MINUTES -lt $MIDNIGHT_MINUTES ]]; then
 		CURRENT_PRAYER="Isha"
@@ -259,13 +259,13 @@ while IFS= read -r line; do
 		CURRENT_PRAYER="$PRAYER_NAME"
 
 		if [[ ! -f "$NOTIFIED_FILE" ]]; then
-			# notify-send --urgency=critical "Time for $PRAYER_NAME ($PRAYER_TIME)" -r 3
+			# notify-send --urgency=critical "Time for $PRAYER_NAME ($PRAYER_TIME)" -r 4
 
 			CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
 			if [[ "$CURRENT_PRAYER" =~ ^(Sunrise|Midnight|Last Third)$ ]]; then
-				notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
+				notify-send --urgency=critical "حان وقت $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 4
 			else
-				notify-send --urgency=critical "حان وقت صلاة $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 3
+				notify-send --urgency=critical "حان وقت صلاة $CURRENT_PRAYER_ARABIC ($CURRENT_TIME)" -r 4
 			fi
 
 			echo "$PRAYER_TIME" > "$NOTIFIED_FILE"
