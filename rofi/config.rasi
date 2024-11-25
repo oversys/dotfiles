@@ -26,8 +26,8 @@ mode-switcher {
 }
 
 window {
-    height: 400px;
-    width: 600px;
+    height: 600px;
+    width: 700px;
     border-radius: 8px;
 	border: 0px 0px 8px 0px;
 	border-color: @light-bg;
