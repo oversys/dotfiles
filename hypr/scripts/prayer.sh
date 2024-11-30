@@ -270,8 +270,13 @@ while IFS= read -r line; do
 
 			echo "$PRAYER_TIME" > "$NOTIFIED_FILE"
 		fi
-	elif [[ $CURRENT_MINUTES -gt $PRAYER_MINUTES ]]; then
+	elif [[ $CURRENT_MINUTES -gt $PRAYER_MINUTES && "$PRAYER_NAME" != "Last Third" ]]; then
 		CURRENT_PRAYER="$PRAYER_NAME"
+
+		if [[ "$CURRENT_PRAYER" == "Midnight" ]]; then
+			NEXT_PRAYER="Last Third"
+			NEXT_PRAYER_TIME=$(awk -F: '/Last Third/ {gsub(/[",]/, "", $0); gsub(/^[ \t]+/, "", $2); print $2 ":" $3}' "$PRAYER_FILE")
+		fi
 
 		if [[ -f "$NOTIFIED_FILE" ]]; then
 			NOTIFIED_PRAYER_TIME=$(cat "$NOTIFIED_FILE")
