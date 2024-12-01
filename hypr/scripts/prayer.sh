@@ -62,8 +62,8 @@ get_timings() {
 	if [[ "$MASJID_ID" == "__MASJID_ID__" || -z "$MASJID_ID" ]]; then
 		curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha, Midnight, "Last Third": .Lastthird} | to_entries | map("\(.key): \(.value)") | .[]'
 	else
-		local DAY=$(echo "$CURRENT_DATE" | cut -d'-' -f1)
-		local MONTH=$(( $(echo "$CURRENT_DATE" | cut -d'-' -f2) - 1 ))
+		local DAY=$(echo "$CURRENT_DATE" | awk -F'-' '{print $1 + 0}')
+		local MONTH=$(echo "$CURRENT_DATE" | awk -F'-' '{print $2 - 1}')
 
 		local conf_data=$(fetch_mawaqit "$MASJID_ID")
 		local times=$(echo "$conf_data" | jq -r ".calendar[$MONTH][\"$DAY\"]")
