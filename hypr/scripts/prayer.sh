@@ -5,7 +5,7 @@ MASJID_ID="__MASJID_ID__"
 
 ## LOCATION - If country or city are not entered then location will be fetched automatically
 
-# Country name or ISO 3166 code (ex: Netherlands or NL)
+# Country name or ISO 3166 code (ex: The Netherlands, Netherlands, NL, or NLD)
 COUNTRY="__COUNTRY__"
 
 # City name (ex: Makkah)
@@ -29,15 +29,26 @@ PRAYER_FILE="$PRAYER_DIR/$CURRENT_DATE.txt"
 NOTIFIED_FILE="$PRAYER_DIR/notified"
 HIJRI_FILE="$PRAYER_DIR/hijri.txt"
 
-# Automatically detect location if neither masjid ID nor location are provided
-if [[ "$MASJID_ID" == "__MASJID_ID__" || -z "$MASJID_ID" ]] && [[ "$COUNTRY" == "__COUNTRY__" || -z "$COUNTRY" || "$CITY" == "__CITY__" || -z "$CITY" ]] && [[ ! -f "$PRAYER_FILE" ]]; then
-	LOCATION=$(curl -s https://ipinfo.io)
-	COUNTRY="$(echo $LOCATION | jq -r '.country')"
-	CITY="$(echo $LOCATION | jq -r '.city')"
+# Include source of prayer times at the top of the prayer times file
+SOURCE_COMMENT=""
+
+if [[ ! -f "$PRAYER_FILE" ]]; then
+	if [[ "$MASJID_ID" != "__MASJID_ID__" && -n "$MASJID_ID" ]]; then
+		SOURCE_COMMENT="# Fetched prayer times from mawaqit.net with masjid ID: \"$MASJID_ID\""
+	elif [[ "$COUNTRY" != "__COUNTRY__" && -n "$COUNTRY" && "$CITY" != "__CITY__" && -n "$CITY" ]]; then
+		SOURCE_COMMENT="# Fetched prayer times from api.aladhan.com with given location: $CITY, $COUNTRY"
+	else
+		# Automatically detect location if neither masjid ID nor location are provided
+		LOCATION=$(curl -s https://ipinfo.io)
+		COUNTRY="$(echo $LOCATION | jq -r '.country')"
+		CITY="$(echo $LOCATION | jq -r '.city')"
+
+		SOURCE_COMMENT="# Fetched prayer times from api.aladhan.com with automatically detected location: $CITY, $COUNTRY"
+	fi
 fi
 
 # Default method
-if [[ "$METHOD" == "__METHOD__" ]]; then METHOD=3; fi
+if [[ "$METHOD" == "__METHOD__" || -z "$METHOD" ]]; then METHOD=3; fi
 
 # Helper Functions
 
@@ -60,50 +71,60 @@ fetch_mawaqit() {
 
 get_timings() {
 	if [[ "$MASJID_ID" == "__MASJID_ID__" || -z "$MASJID_ID" ]]; then
-		curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '.data.timings | {Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha, Midnight, "Last Third": .Lastthird} | to_entries | map("\(.key): \(.value)") | .[]'
+		# Fetch times from api.aladhan.com
+		local TIMES=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '[.data.timings.Fajr, .data.timings.Sunrise, .data.timings.Dhuhr, .data.timings.Asr, .data.timings.Maghrib, .data.timings.Isha]')
 	else
+		# Fetch times from mawaqit.net
 		local DAY=$(echo "$CURRENT_DATE" | awk -F'-' '{print $1 + 0}')
 		local MONTH=$(echo "$CURRENT_DATE" | awk -F'-' '{print $2 - 1}')
 
-		local conf_data=$(fetch_mawaqit "$MASJID_ID")
-		local times=$(echo "$conf_data" | jq -r ".calendar[$MONTH][\"$DAY\"]")
-
-		local FAJR_TIME=$(echo "$times" | jq -r '.[0]')
-		local FAJR_MINUTES=$(to_mins "$FAJR_TIME")
-
-		local MAGHRIB_TIME=$(echo "$times" | jq -r '.[4]')
-		local MAGHRIB_MINUTES=$(to_mins "$MAGHRIB_TIME")
-
-		local TOTAL_MINUTES=$(((FAJR_MINUTES + 1440) - MAGHRIB_MINUTES))
-
-		local MIDNIGHT_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 2)))
-		if [ $MIDNIGHT_MINUTES -lt 0 ]; then
-			MIDNIGHT_MINUTES=$((MIDNIGHT_MINUTES + 1440))
-		fi
-
-		local LAST_THIRD_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 3)))
-		if [ $LAST_THIRD_MINUTES -lt 0 ]; then
-			LAST_THIRD_MINUTES=$((LAST_THIRD_MINUTES + 1440))
-		fi
-
-		local MIDNIGHT_TIME=$(printf "%02d:%02d" $((MIDNIGHT_MINUTES / 60)) $((MIDNIGHT_MINUTES % 60)))
-		local LAST_THIRD_TIME=$(printf "%02d:%02d" $((LAST_THIRD_MINUTES / 60)) $((LAST_THIRD_MINUTES % 60)))
-
-		echo "$conf_data" | jq -nr \
-			--argjson times "$times" \
-			--arg midnight "$MIDNIGHT_TIME" \
-			--arg last_third "$LAST_THIRD_TIME" \
-			'{
-				Fajr: $times[0],
-				Sunrise: $times[1],
-				Dhuhr: $times[2],
-				Asr: $times[3],
-				Maghrib: $times[4],
-				Isha: $times[5],
-				Midnight: $midnight,
-				"Last Third": $last_third
-			} | to_entries | map("\(.key): \(.value)") | .[]'
+		local TIMES=$(fetch_mawaqit "$MASJID_ID" | jq -r ".calendar[$MONTH][\"$DAY\"]")
 	fi
+
+	# Get Fajr time in minutes
+	local FAJR_TIME=$(echo "$TIMES" | jq -r '.[0]')
+	local FAJR_MINUTES=$(to_mins "$FAJR_TIME")
+
+	# Get Maghrib time in minutes
+	local MAGHRIB_TIME=$(echo "$TIMES" | jq -r '.[4]')
+	local MAGHRIB_MINUTES=$(to_mins "$MAGHRIB_TIME")
+
+	# Get total minutes from Maghrib to Fajr
+	local TOTAL_MINUTES=$(((FAJR_MINUTES + 1440) - MAGHRIB_MINUTES))
+
+	# Calculate midnight time
+	local MIDNIGHT_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 2)))
+
+	if [ $MIDNIGHT_MINUTES -lt 0 ]; then
+		MIDNIGHT_MINUTES=$((MIDNIGHT_MINUTES + 1440))
+	fi
+
+	local MIDNIGHT_TIME=$(printf "%02d:%02d" $((MIDNIGHT_MINUTES / 60)) $((MIDNIGHT_MINUTES % 60)))
+
+	# Calculate last third time
+	local LAST_THIRD_MINUTES=$((FAJR_MINUTES - (TOTAL_MINUTES / 3)))
+
+	if [ $LAST_THIRD_MINUTES -lt 0 ]; then
+		LAST_THIRD_MINUTES=$((LAST_THIRD_MINUTES + 1440))
+	fi
+
+	local LAST_THIRD_TIME=$(printf "%02d:%02d" $((LAST_THIRD_MINUTES / 60)) $((LAST_THIRD_MINUTES % 60)))
+
+	echo "$SOURCE_COMMENT"
+
+	echo "$TIMES" | jq -r \
+		--arg midnight "$MIDNIGHT_TIME" \
+		--arg last_third "$LAST_THIRD_TIME" \
+		'{
+			Fajr: .[0],
+			Sunrise: .[1],
+			Dhuhr: .[2],
+			Asr: .[3],
+			Maghrib: .[4],
+			Isha: .[5],
+			Midnight: $midnight,
+			"Last Third": $last_third
+		} | to_entries | map("\(.key): \(.value)") | .[]'
 }
 
 to_arabic_num() {
@@ -270,7 +291,7 @@ while IFS= read -r line; do
 
 			echo "$PRAYER_TIME" > "$NOTIFIED_FILE"
 		fi
-	elif [[ $CURRENT_MINUTES -gt $PRAYER_MINUTES && "$PRAYER_NAME" != "Last Third" ]]; then
+	elif [[ $CURRENT_MINUTES -gt $PRAYER_MINUTES && $PRAYER_MINUTES -ge $FAJR_MINUTES ]]; then
 		CURRENT_PRAYER="$PRAYER_NAME"
 
 		if [[ "$CURRENT_PRAYER" == "Midnight" ]]; then
@@ -287,7 +308,7 @@ while IFS= read -r line; do
 		NEXT_PRAYER_TIME="$PRAYER_TIME"
 		break
 	fi
-done < "$PRAYER_FILE"
+done < <(grep -v '^#' "$PRAYER_FILE")
 
 if [[ -z "$NEXT_PRAYER" && "$CURRENT_PRAYER" == "Isha" ]]; then
 	MIDNIGHT_TIME=$(awk -F: '/Midnight/ {gsub(/[",]/, "", $0); gsub(/^[ \t]+/, "", $2); print $2 ":" $3}' "$PRAYER_FILE")
@@ -364,13 +385,6 @@ elif [[ "$1" =~ ^(-h|-t)$ ]]; then
 		printf "{\"text\": \"$english_date\", \"alt\": \"$arabic_date\", \"tooltip\": \"$today\" }"
 	fi
 else
-	awk '
-		/Midnight/ { midnight = $0; next }
-		/Last Third/ { lastthird = $0; next }
-		{ print }
-		END {
-			if (midnight) print midnight
-			if (lastthird) print lastthird
-		}' "$PRAYER_FILE"
+	grep -v '^#' "$PRAYER_FILE"
 fi
 
