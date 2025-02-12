@@ -110,8 +110,6 @@ get_timings() {
 
 	local LAST_THIRD_TIME=$(printf "%02d:%02d" $((LAST_THIRD_MINUTES / 60)) $((LAST_THIRD_MINUTES % 60)))
 
-	echo "$SOURCE_COMMENT"
-
 	echo "$TIMES" | jq -r \
 		--arg midnight "$MIDNIGHT_TIME" \
 		--arg last_third "$LAST_THIRD_TIME" \
@@ -204,7 +202,10 @@ CURRENT_MINUTES=$(to_mins "$CURRENT_TIME")
 if [[ ! -f "$PRAYER_FILE" ]]; then
 	TIMINGS=$(get_timings)
 
-	if [ -n "$TIMINGS" ]; then echo "$TIMINGS" > "$PRAYER_FILE"; fi
+	if [ -n "$TIMINGS" ]; then
+		echo "$SOURCE_COMMENT" > "$PRAYER_FILE"
+		echo "$TIMINGS" >> "$PRAYER_FILE"
+	fi
 fi
 
 FAJR_TIME=$(awk -F: '/Fajr/ {gsub(/[",]/, "", $0); gsub(/^[ \t]+/, "", $2); print $2 ":" $3}' "$PRAYER_FILE")
