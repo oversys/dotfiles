@@ -52,6 +52,78 @@ if [[ "$METHOD" == "__METHOD__" || -z "$METHOD" ]]; then METHOD=3; fi
 
 # Helper Functions
 
+to_arabic_num() {
+	read western_arabic
+	echo $western_arabic | sed 'y/0123456789/٠١٢٣٤٥٦٧٨٩/'
+}
+
+arabic_prayer_name() {
+	local PRAYER_ARABIC
+
+	case "$1" in
+		"Fajr") PRAYER_ARABIC="الفجر";;
+		"Sunrise") PRAYER_ARABIC="الشروق";;
+		"Dhuhr") PRAYER_ARABIC="الظهر";;
+		"Asr") PRAYER_ARABIC="العصر";;
+		"Maghrib") PRAYER_ARABIC="المغرب";;
+		"Isha") PRAYER_ARABIC="العشاء";;
+		"Midnight") PRAYER_ARABIC="منتصف الليل";;
+		"Last Third") PRAYER_ARABIC="الثلث الأخير";;
+	esac
+
+	echo "$PRAYER_ARABIC"
+}
+
+to_mins() {
+	IFS=: read -r hour minute <<< "$1"
+	echo $((10#$hour * 60 + 10#$minute))
+}
+
+duration() {
+	local start_minutes=$(to_mins "$1")
+	local end_minutes=$(to_mins "$2")
+	local diff_minutes=$((end_minutes - start_minutes))
+
+	# Handle cases where end time is on the next day
+	if ((diff_minutes < 0)); then
+		diff_minutes=$((diff_minutes + 1440)) # Add 24 hours in minutes
+	fi
+
+	local hours=$((diff_minutes / 60))
+	local minutes=$((diff_minutes % 60))
+
+	if [[ "$3" == "ar" ]]; then
+		local minutes_text
+
+		if ((hours == 0)); then
+			case $minutes in
+				1) minutes_text="دقيقة واحدة";;
+				2) minutes_text="دقيقتان";;
+				3|4|5|6|7|8|9|10) minutes_text="دقائق";;
+				*) minutes_text="دقيقة";;
+			esac
+
+			if ((minutes <= 2)); then
+				printf "$minutes_text"
+			else
+				printf "$(echo $minutes | to_arabic_num) $minutes_text"
+			fi
+		else
+			printf '%02d:%02d\n' "$hours" "$minutes" | to_arabic_num
+		fi
+	else
+		if ((hours == 0)); then
+			if ((minutes == 1)); then
+				printf "%d min" "$minutes"
+			else
+				printf "%d mins" "$minutes"
+			fi
+		else
+			printf '%02d:%02d\n' "$hours" "$minutes"
+		fi
+	fi
+}
+
 # Fetch data from mawaqit.net
 fetch_mawaqit() {
 	local response=$(curl -s "https://mawaqit.net/en/$MASJID_ID")
@@ -125,76 +197,33 @@ get_timings() {
 		} | to_entries | map("\(.key): \(.value)") | .[]'
 }
 
-to_arabic_num() {
-	read western_arabic
-	echo $western_arabic | sed 'y/0123456789/٠١٢٣٤٥٦٧٨٩/'
-}
+get_hijri() {
+	# Using aladhan.com
+	#
+	# today=$(curl -Ls "https://api.aladhan.com/v1/gToH/$CURRENT_DATE" | jq .data.hijri)
+	# day=$(echo $today | jq -r .day)
+	# month=$(echo $today | jq -r .month.en)
+	# year=$(echo $today | jq -r .year)
+	#
+	# printf "$(date +%a), $day $month $year"
 
-arabic_prayer_name() {
-	local PRAYER_ARABIC
+	# Using datehijri.com
 
-	case "$1" in
-		"Fajr") PRAYER_ARABIC="الفجر";;
-		"Sunrise") PRAYER_ARABIC="الشروق";;
-		"Dhuhr") PRAYER_ARABIC="الظهر";;
-		"Asr") PRAYER_ARABIC="العصر";;
-		"Maghrib") PRAYER_ARABIC="المغرب";;
-		"Isha") PRAYER_ARABIC="العشاء";;
-		"Midnight") PRAYER_ARABIC="منتصف الليل";;
-		"Last Third") PRAYER_ARABIC="الثلث الأخير";;
-	esac
+	if [[ ! -f "$HIJRI_FILE" ]]; then touch "$HIJRI_FILE"; fi
 
-	echo "$PRAYER_ARABIC"
-}
+	read -r LAST_DATE LAST_HIJRI < "$HIJRI_FILE"
 
-to_mins() {
-	IFS=: read -r hour minute <<< "$1"
-	echo $((10#$hour * 60 + 10#$minute))
-}
+	if [ "$LAST_DATE" != "$CURRENT_DATE" ]; then
+		local converter=$(curl -s https://datehijri.com/ajax.php | jq -r .converter)
+		local date=$(echo $converter | jq -r ".result.hijri.[1]" | to_arabic_num)
+		local today="$(echo $converter | jq -r .day)، $date"
 
-duration() {
-	local start_minutes=$(to_mins "$1")
-	local end_minutes=$(to_mins "$2")
-	local diff_minutes=$((end_minutes - start_minutes))
-
-	# Handle cases where end time is on the next day
-	if ((diff_minutes < 0)); then
-		diff_minutes=$((diff_minutes + 1440)) # Add 24 hours in minutes
-	fi
-
-	local hours=$((diff_minutes / 60))
-	local minutes=$((diff_minutes % 60))
-
-	if [[ "$3" == "ar" ]]; then
-		local minutes_text
-
-		if ((hours == 0)); then
-			case $minutes in
-				1) minutes_text="دقيقة واحدة";;
-				2) minutes_text="دقيقتان";;
-				3|4|5|6|7|8|9|10) minutes_text="دقائق";;
-				*) minutes_text="دقيقة";;
-			esac
-
-			if ((minutes <= 2)); then
-				printf "$minutes_text"
-			else
-				printf "$(echo $minutes | to_arabic_num) $minutes_text"
-			fi
-		else
-			printf '%02d:%02d\n' "$hours" "$minutes" | to_arabic_num
-		fi
+		if [ -n "$converter" ]; then echo "$CURRENT_DATE $today" > "$HIJRI_FILE"; fi
 	else
-		if ((hours == 0)); then
-			if ((minutes == 1)); then
-				printf "%d min" "$minutes"
-			else
-				printf "%d mins" "$minutes"
-			fi
-		else
-			printf '%02d:%02d\n' "$hours" "$minutes"
-		fi
+		local today=$LAST_HIJRI
 	fi
+
+	echo "$today"
 }
 
 CURRENT_MINUTES=$(to_mins "$CURRENT_TIME")
@@ -351,40 +380,20 @@ if [[ "$1" == "-p" ]]; then
 	fi
 elif [[ "$1" == "-n" ]]; then
 	printf "$CURRENT_PRAYER"
-elif [[ "$1" =~ ^(-h|-t)$ ]]; then
-	# Using aladhan.com
-	#
-	# today=$(curl -Ls "https://api.aladhan.com/v1/gToH/$CURRENT_DATE" | jq .data.hijri)
-	# day=$(echo $today | jq -r .day)
-	# month=$(echo $today | jq -r .month.en)
-	# year=$(echo $today | jq -r .year)
-	#
-	# printf "$(date +%a), $day $month $year"
-
-	# Using datehijri.com
-
-	if [[ ! -f "$HIJRI_FILE" ]]; then touch "$HIJRI_FILE"; fi
-
-	read -r LAST_DATE LAST_HIJRI < "$HIJRI_FILE"
-
-	if [ "$LAST_DATE" != "$CURRENT_DATE" ]; then
-		converter=$(curl -s https://datehijri.com/ajax.php | jq -r .converter)
-		date=$(echo $converter | jq -r ".result.hijri.[1]" | to_arabic_num)
-		today="$(echo $converter | jq -r .day)، $date"
-
-		if [ -n "$converter" ]; then echo "$CURRENT_DATE $today" > "$HIJRI_FILE"; fi
-	else
-		today=$LAST_HIJRI
-	fi
-
-	if [[ "$1" == "-h" ]]; then
-		echo "$today"
-	else
+elif [[ "$1" == "-h" ]]; then
+	echo "$(get_hijri)"
+elif [[ "$1" == "-t" ]]; then
+	# Infinite loop updating time and date as soon as they change
+	while true; do
+		today=$(get_hijri)
 		english_date="<span font='16' rise='-2000'></span> $(date +'%H:%M') <span font='16' rise='-2000'></span> $(date +'%a, %d %B %Y')"
 		arabic_date="$(date +'%H:%M' | to_arabic_num) <span font='16' rise='-2000'></span> $today <span font='16' rise='-2000'></span>"
 
-		printf "{\"text\": \"$english_date\", \"alt\": \"$arabic_date\", \"tooltip\": \"$today\" }"
-	fi
+		printf "{\"text\": \"$english_date\", \"alt\": \"$arabic_date\", \"tooltip\": \"$today\" }\n"
+
+		seconds_remaining=$((60 - $(date +'%S')))
+		sleep $seconds_remaining
+	done
 else
 	grep -v '^#' "$PRAYER_FILE"
 fi
