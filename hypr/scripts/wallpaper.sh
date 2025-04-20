@@ -88,10 +88,16 @@ check_brightness() {
 }
 
 colors=("1" "2" "4" "5")
+color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "DIMMERCOL2")
+
 for color in "${colors[@]}"; do
 	fg_color_name="FGCOL${color}"
 	color_name="COL${color}"
 	dim_color_name="DIM${color_name}"
+
+	color_names+=("$fg_color_name")
+	color_names+=("$color_name")
+	color_names+=("$dim_color_name")
 
 	eval "$color_name=$(jq -r .colors.color${color} $HOME/.cache/wal/colors.json)"
 	eval "$dim_color_name=\$(dimlightcol \$$color_name)"
@@ -100,11 +106,11 @@ done
 
 DIMMERCOL2=$(dimlightcol $COL2 0.55)
 
-colors=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMMERCOL2" "DIMCOL4" "DIMCOL5")
+# color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMMERCOL2" "DIMCOL4" "DIMCOL5")
 configs=("waybar/style.css" "rofi/theme.rasi" "dunst/dunstrc")
 
 for config in "${configs[@]}"; do
-	for color in "${colors[@]}"; do
+	for color in "${color_names[@]}"; do
 		sed -i "s/__${color}__/${!color}/" "$HOME/.config/$config"
 	done
 done
