@@ -27,8 +27,8 @@ tooltip {
 #memory,
 #network,
 #battery,
+#custom-weather,
 #custom-prayer,
-#network,
 #custom-time {
 	color: __BG__;
 	border-radius: 8px;
@@ -75,13 +75,13 @@ tooltip {
 	text-shadow: none;
 }
 
-#memory, #custom-time {
+#memory, #custom-prayer {
 	color: __FGCOL1__;
 	background: __COL1__;
 	border-bottom: 4px solid __DIMCOL1__;
 }
 
-#wireplumber, #network {
+#wireplumber, #network, #custom-time {
 	color: __FGCOL2__;
 	background: __COL2__;
 	border-bottom: 4px solid __DIMCOL2__;
@@ -93,7 +93,7 @@ tooltip {
 	border-bottom: 4px solid __DIMCOL4__;
 }
 
-#cpu, #custom-prayer {
+#cpu, #custom-weather {
 	color: __FGCOL5__;
 	background: __COL5__;
 	border-bottom: 4px solid __DIMCOL5__;

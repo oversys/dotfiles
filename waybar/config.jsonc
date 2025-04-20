@@ -18,6 +18,7 @@
 		"memory",
 		"network",
 		"battery",
+		"custom/weather",
 		"custom/prayer",
 		"custom/time"
 	],
@@ -47,7 +48,7 @@
 		"format": "{}",
 		"rewrite": {
 			"": "<span font='18' rise='-3000' color='#1793D1'>󰣇</span> Desktop",
-			"(.*) — Mozilla Firefox(.*)": "<span font='18' rise='-3500' color='#F05A22'>󰈹</span> Firefox",
+			"(.*)Mozilla Firefox(.*)": "<span font='18' rise='-3500' color='#F05A22'>󰈹</span> Firefox",
 			"(.*) - Brave(.*)": "<span font='18' rise='-3500' color='#F05A22'></span> Brave",
 			"vim (.*)": "<span font='16' rise='-2000' color='#019632'></span> $1",
 			"git (.*)": "<span font='16' rise='-2000' color='#F05030'></span> $1",
@@ -104,6 +105,14 @@
 		"format-charging": "󰂄 {capacity}%",
 		"format-plugged": "<span font='15' rise='-2000'></span> {capacity}%",
 		"format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+	},
+	"custom/weather" : {
+		"format": "{}",
+		"format-alt": "{alt}",
+		"tooltip": true,
+		"interval": 600,
+		"return-type": "json",
+		"exec": "~/.config/hypr/scripts/weather.sh"
 	},
 	"custom/prayer" : {
 		// invisible 'a' is required to display icon on the right and not the left
