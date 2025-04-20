@@ -13,16 +13,15 @@ weather_info=$(curl -s "wttr.in/$CITY?format=%c%t%20(%f)%20%w")
 # Function to map weather emoji to Nerd Font icons
 icon_map() {
   case "$1" in
-    "☀️") echo "󰖙" ;;  # sunny
-    "🌤") echo "󰖕" ;;  # partly sunny
-    "⛅") echo "󰖖" ;;  # partly cloudy
-    "☁️") echo "󰖐" ;;  # cloudy
-    "🌧") echo "󰖖" ;;  # rain
-    "⛈") echo "󰖓" ;;  # thunderstorm
-    "🌩") echo "󰖓" ;;  # thunder
-    "🌨") echo "󰼶" ;;  # snow
-    "❄️") echo "󰼶" ;;  # snow alt
-    "🌫") echo "󰖑" ;;  # fog
+    "☀️") echo "󰖨" ;; # sunny
+    "🌤" | "⛅") echo "󰖕" ;; # partly sunny/cloudy
+    "☁️") echo "󰖐" ;; # cloudy
+    "🌧") echo "󰖖" ;; # rain
+    "⛈") echo "󰖓" ;; # thunderstorm
+    "🌩") echo "󰖓" ;; # thunder
+    "🌨") echo "󰼶" ;; # snow
+    "❄️") echo "󰼶" ;; # snow alt
+    "🌫") echo "󰖑" ;; # fog
     *) echo "$1" ;;
   esac
 }
@@ -37,7 +36,7 @@ wind_dir="${wind_info:0:1}"
 wind_speed="${wind_info:1}"
 
 # Convert emoji icon to Nerd Font icon
-nf_icon=$(printf "%s%s%s" "<span font='16' rise='-2000'>" $(icon_map "$icon") "</span>")
+nf_icon=$(printf "%s%s%s" "<span font='18' rise='-3000'>" $(icon_map "$icon") "</span>")
 
 printf "{\"text\": \"$nf_icon $temp\", \"alt\": \"$nf_icon $temp $real_feel\", \"tooltip\": \"$wind_dir $wind_speed\" }\n"
 
