@@ -1,42 +1,93 @@
 #!/bin/bash
 
 # Automatically detect location
-LOCATION=$(curl -s https://ipinfo.io)
-COUNTRY="$(echo $LOCATION | jq -r '.country')"
-CITY="$(echo $LOCATION | jq -r '.city')"
+while [[ -z "$LOC" ]]; do
+	LOC=$(curl -s https://ipinfo.io | jq -r '.loc')
+done
 
-# Get weather info: icon, temperature, wind direction/speed
-weather_info=$(curl -s "wttr.in/$CITY?format=%c%t%20(%f)%20%w")
+LAT=$(echo $LOC | awk -F ',' '{print $1}')
+LON=$(echo $LOC | awk -F ',' '{print $2}')
 
-# Example output: "☀️  +18°C (+18°C) ↘10km/h"
+# Get weather info: weather code, temperature, wind direction and speed
+while [[ -z "$weather_info" ]]; do
+	weather_info=$(curl -s "https://api.open-meteo.com/v1/forecast?latitude=$LAT&longitude=$LON&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,weather_code&forecast_days=1")
+done
 
-# Function to map weather emoji to Nerd Font icons
-icon_map() {
-  case "$1" in
-    "☀️") echo "󰖨" ;; # sunny
-    "🌤" | "⛅") echo "󰖕" ;; # partly sunny/cloudy
-    "☁️") echo "󰖐" ;; # cloudy
-    "🌧") echo "󰖖" ;; # rain
-    "⛈") echo "󰖓" ;; # thunderstorm
-    "🌩") echo "󰖓" ;; # thunder
-    "🌨") echo "󰼶" ;; # snow
-    "❄️") echo "󰼶" ;; # snow alt
-    "🌫") echo "󰖑" ;; # fog
-    *) echo "$1" ;;
-  esac
+TIME_OF_DAY=$(bash $HOME/.config/hypr/scripts/prayer.sh -n)
+
+if [[ "$TIME_OF_DAY" == "Maghrib" || "$TIME_OF_DAY" == "Isha" ]]; then
+	TIME_OF_DAY="Night"
+else
+	TIME_OF_DAY="Day"
+fi
+
+# Function to map weather code to a Nerd Font icon
+# Reference: https://gist.github.com/stellasphere/9490c195ed2b53c707087c8c2db4ec0c
+weather_icon() {
+	case $1 in
+		0) [[ $TIME_OF_DAY == "Night" ]] && echo "󰖔" || echo "󰖨" ;; # sunny/clear
+		1 | 2) [[ $TIME_OF_DAY == "Night" ]] && echo "" || echo "" ;; # partly sunny/cloudy
+		3) echo "󰅟" ;; # cloudy
+		61 | 63 | 65 | 51 | 53 | 55 | 80 | 81 | 82) echo "" ;; # light/normal/heavy rain/drizzle/showers
+		95 | 96 | 99) echo "" ;; # thunderstorm
+		71 | 73 | 75 | 85 | 86) echo "󰼶" ;; # light/normal/heavy snow or light/normal snow showers
+		66 | 67 | 56 | 57) echo "" ;; # light/normal freezing rain/drizzle
+		45 | 48) echo "󰖑" ;; # fog
+		66 | 67 | 56 | 57) echo "" ;; # light/normal freezing rain/drizzle
+		*) echo "$1" ;;
+	esac
 }
 
-# Parse fields
-icon=$(echo "$weather_info" | awk '{print $1}')
-temp=$(echo "$weather_info" | awk '{print $2}' | sed "s/+//")
-real_feel=$(echo "$weather_info" | awk '{print $3}' | sed "s/+//")
+# Function to map wind direction to an arrow character
+wind_icon() {
+    local deg=$1
 
-wind_info=$(echo "$weather_info" | awk '{print $4}')
-wind_dir="${wind_info:0:1}"
-wind_speed="${wind_info:1}"
+    if (( deg >= 0 && deg < 23 )) || (( deg >= 338 && deg <= 360 )); then
+        # echo ""  # N
+		echo ""
+    elif (( deg >= 23 && deg < 68 )); then
+        # echo ""  # NE
+		echo "↙"
+    elif (( deg >= 68 && deg < 113 )); then
+        # echo ""  # E
+		echo ""
+    elif (( deg >= 113 && deg < 158 )); then
+        # echo ""  # SE
+		echo "↖"
+    elif (( deg >= 158 && deg < 203 )); then
+        # echo ""  # S
+		echo ""
+    elif (( deg >= 203 && deg < 248 )); then
+        # echo ""  # SW
+		echo "↗"
+    elif (( deg >= 248 && deg < 293 )); then
+        # echo ""  # W
+		echo ""
+    elif (( deg >= 293 && deg < 338 )); then
+        # echo ""  # NW
+		echo "↘"
+    fi
+}
 
-# Convert emoji icon to Nerd Font icon
-nf_icon=$(printf "%s%s%s" "<span font='18' rise='-3000'>" $(icon_map "$icon") "</span>")
+## Parse fields
 
-printf "{\"text\": \"$nf_icon $temp\", \"alt\": \"$nf_icon $temp $real_feel\", \"tooltip\": \"$wind_dir $wind_speed\" }\n"
+# Units
+temp_unit=$(echo "$weather_info" | jq -r '.current_units.temperature_2m')
+wind_speed_unit=$(echo "$weather_info" | jq -r '.current_units.wind_speed_10m')
+wind_dir_unit=$(echo "$weather_info" | jq -r '.current_units.wind_direction_10m')
+
+# Temperature
+weather_code=$(echo "$weather_info" | jq -r '.current.weather_code')
+temp=$(echo "$weather_info" | jq -r '.current.temperature_2m')
+real_feel=$(echo "$weather_info" | jq -r '.current.apparent_temperature')
+
+temp_icon=$(printf "%s%s%s" "<span font='18' rise='-3000'>" $(weather_icon "$weather_code") "</span>")
+
+# Wind
+wind_speed=$(echo "$weather_info" | jq -r '.current.wind_speed_10m')
+wind_dir=$(echo "$weather_info" | jq -r '.current.wind_direction_10m')
+wind_dir_icon=$(printf "%s%s%s" "<span font='16' rise='-3000'>" $(wind_icon "$wind_dir") "</span>")
+
+## Print module json
+printf "{\"text\": \"$temp_icon $temp$temp_unit\", \"alt\": \"$temp_icon $temp$temp_unit ($real_feel$temp_unit)\", \"tooltip\": \"$wind_dir_icon $wind_speed $wind_speed_unit @ $wind_dir$wind_dir_unit\" }\n"
 
