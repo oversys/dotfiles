@@ -18,17 +18,46 @@ done
 
 TIME_OF_DAY=$(bash $HOME/.config/hypr/scripts/prayer.sh -n)
 
-if [[ "$TIME_OF_DAY" == "Maghrib" || "$TIME_OF_DAY" == "Isha" ]]; then
+if [[ "$TIME_OF_DAY" =~ ^(Maghrib|Isha|Midnight|Last Third|Fajr)$ ]]; then
 	TIME_OF_DAY="Night"
-else
+
+	moon_info=$(curl -s "https://api.farmsense.net/v1/moonphases/?d=$(date +%s)")
+elif [[ "$TIME_OF_DAY" =~ ^(Sunrise|Dhuhr|Asr)$ ]]; then
 	TIME_OF_DAY="Day"
 fi
 
+# Function that returns a Nerd Font icon of the current moon phase
+get_moon_icon() {
+	local index=$(echo "$moon_info" | jq -r '.[0].Index')
+
+	# Empty part is the light part
+	local phases=(
+		      
+		      
+		       
+		       
+	)
+
+	local moon_icon="${phases[$index]}" 
+
+	echo "$moon_icon"
+}
+
+# Function that provides moon info for module tooltip
+get_moon_tooltip() {
+	local moon_age=$(echo "$moon_info" | jq -r '.[0].Age')
+	local moon_age=$(printf "%.1f" "$moon_age")
+	local moon_phase=$(echo "$moon_info" | jq -r '.[0].Phase')
+
+	echo "$moon_phase ($moon_age)"
+}
+
 # Function to map weather code to a Nerd Font icon
 # Reference: https://gist.github.com/stellasphere/9490c195ed2b53c707087c8c2db4ec0c
-weather_icon() {
+get_weather_icon() {
 	case $1 in
-		0) [[ $TIME_OF_DAY == "Night" ]] && echo "󰖔" || echo "󰖨" ;; # sunny/clear
+		# 0) [[ $TIME_OF_DAY == "Night" ]] && echo "󰖔" || echo "󰖨" ;; # sunny/clear
+		0) [[ $TIME_OF_DAY == "Night" ]] && echo $(get_moon_icon) || echo "󰖨" ;; # sunny/clear
 		1 | 2) [[ $TIME_OF_DAY == "Night" ]] && echo "" || echo "" ;; # partly sunny/cloudy
 		3) echo "󰅟" ;; # cloudy
 		61 | 63 | 65 | 51 | 53 | 55 | 80 | 81 | 82) echo "" ;; # light/normal/heavy rain/drizzle/showers
@@ -42,7 +71,7 @@ weather_icon() {
 }
 
 # Function to map wind direction to an arrow character
-wind_icon() {
+get_wind_icon() {
 	local deg=$1
 
 	if (( deg >= 0 && deg < 23 )) || (( deg >= 338 && deg <= 360 )); then
@@ -84,7 +113,7 @@ weather_code=$(echo "$weather_info" | jq -r '.current.weather_code')
 temp=$(echo "$weather_info" | jq -r '.current.temperature_2m')
 real_feel=$(echo "$weather_info" | jq -r '.current.apparent_temperature')
 
-temp_icon=$(printf "%s%s%s" "<span font='18' rise='-3000'>" $(weather_icon "$weather_code") "</span>")
+temp_icon=$(printf "%s%s%s" "<span font='18' rise='-3000'>" $(get_weather_icon "$weather_code") "</span>")
 
 if [[ "$ROUND_TEMP" -eq 1 ]]; then
 	temp=$(printf "%.0f" "$temp")
@@ -94,12 +123,26 @@ fi
 # Wind
 wind_speed=$(echo "$weather_info" | jq -r '.current.wind_speed_10m')
 wind_dir=$(echo "$weather_info" | jq -r '.current.wind_direction_10m')
-wind_dir_icon=$(printf "%s%s%s" "<span font='16' rise='-3000'>" $(wind_icon "$wind_dir") "</span>")
+wind_dir_icon=$(printf "%s%s%s" "<span font='16' rise='-3000'>" $(get_wind_icon "$wind_dir") "</span>")
 
 if [[ "$ROUND_WIND" -eq 1 ]]; then
 	wind_speed=$(printf "%.0f" "$wind_speed")
 fi
 
+tooltip="$wind_dir_icon $wind_speed $wind_speed_unit @ $wind_dir$wind_dir_unit"
+
 ## Print module json
-printf "{\"text\": \"$temp_icon $temp$temp_unit\", \"alt\": \"$temp_icon $temp$temp_unit ($real_feel$temp_unit)\", \"tooltip\": \"$wind_dir_icon $wind_speed $wind_speed_unit @ $wind_dir$wind_dir_unit\" }\n"
+
+# If night, add moon tooltip and pad text to center
+if [[ -n "$moon_info" ]]; then
+	moon_tooltip=$(printf "\r%s %s" "$temp_icon" "$(get_moon_tooltip)")
+
+	tooltip_length=${#tooltip}
+	moon_tooltip_length=${#moon_tooltip}
+
+	padding_length=$(( (moon_tooltip_length - tooltip_length) / 2 ))
+	tooltip=$(printf "%*s%s %s" $padding_length "" "$tooltip" "$moon_tooltip")
+fi
+
+printf "{\"text\": \"$temp_icon $temp$temp_unit\", \"alt\": \"$temp_icon $temp$temp_unit ($real_feel$temp_unit)\", \"tooltip\": \"$tooltip\" }\n"
 
