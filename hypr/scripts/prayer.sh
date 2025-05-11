@@ -207,23 +207,43 @@ get_hijri() {
 	#
 	# printf "$(date +%a), $day $month $year"
 
+	# -------------------
+
 	# Using datehijri.com
+
+	# if [[ ! -f "$HIJRI_FILE" ]]; then touch "$HIJRI_FILE"; fi
+
+	# read -r LAST_DATE LAST_HIJRI < "$HIJRI_FILE"
+
+	# if [ "$LAST_DATE" != "$CURRENT_DATE" ]; then
+	# 	local converter=$(curl -s https://datehijri.com/ajax.php | jq -r .converter)
+	# 	local date=$(echo $converter | jq -r ".result.hijri.[1]" | to_arabic_num)
+	# 	local today="$(echo $converter | jq -r .day)، $date"
+
+	# 	if [ -n "$converter" ]; then echo "$CURRENT_DATE $today" > "$HIJRI_FILE"; fi
+	# else
+	# 	local today=$LAST_HIJRI
+	# fi
+
+	# echo "$today"
+
+	# -------------
+
+	# Using JavaScript
 
 	if [[ ! -f "$HIJRI_FILE" ]]; then touch "$HIJRI_FILE"; fi
 
 	read -r LAST_DATE LAST_HIJRI < "$HIJRI_FILE"
 
 	if [ "$LAST_DATE" != "$CURRENT_DATE" ]; then
-		local converter=$(curl -s https://datehijri.com/ajax.php | jq -r .converter)
-		local date=$(echo $converter | jq -r ".result.hijri.[1]" | to_arabic_num)
-		local today="$(echo $converter | jq -r .day)، $date"
+		local hijri_date=$(node -e "console.log(new Date().toLocaleDateString('ar-SA-u-ca-islamic', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))" | sed "s/ هـ//")
 
-		if [ -n "$converter" ]; then echo "$CURRENT_DATE $today" > "$HIJRI_FILE"; fi
+		if [ -n "$hijri_date" ]; then echo "$CURRENT_DATE $hijri_date" > "$HIJRI_FILE"; fi
 	else
-		local today=$LAST_HIJRI
+		local hijri_date=$LAST_HIJRI
 	fi
 
-	echo "$today"
+	echo "$hijri_date"
 }
 
 CURRENT_MINUTES=$(to_mins "$CURRENT_TIME")
@@ -349,9 +369,10 @@ fi
 
 # Options:
 # -p: _P_rayer module text
+# -l: Infinite _l_oop of prayer module text
 # -n: Current prayer time (_N_ow)
 # -h: _H_ijri date
-# -t: _T_ime module text
+# -t: _T_ime module text (infinite loop)
 
 if [[ "$1" == "-p" ]]; then
 	CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
@@ -378,6 +399,13 @@ if [[ "$1" == "-p" ]]; then
 		# English Tooltip
 		# printf "{\"text\": \"$CURRENT_PRAYER_ARABIC\", \"alt\": \"$CURRENT_PRAYER\", \"tooltip\": \"$NEXT_PRAYER in $TIME_REMAINING ($NEXT_PRAYER_TIME)\" }"
 	fi
+elif [[ "$1" == "-l" ]]; then
+	# Infinite loop updating prayer module every minute
+	while true; do
+		printf "$($HOME/.config/hypr/scripts/prayer.sh -p)\n"
+
+		sleep $(echo "60 - $(date +%S.%N) % 60" | bc)
+	done
 elif [[ "$1" == "-n" ]]; then
 	printf "$CURRENT_PRAYER"
 elif [[ "$1" == "-h" ]]; then
@@ -385,14 +413,13 @@ elif [[ "$1" == "-h" ]]; then
 elif [[ "$1" == "-t" ]]; then
 	# Infinite loop updating time and date as soon as they change
 	while true; do
-		today=$(get_hijri)
+		hijri_date=$(get_hijri)
 		english_date="<span font='16' rise='-2000'></span> $(date +'%H:%M') <span font='16' rise='-2000'></span> $(date +'%a, %d %B %Y')"
-		arabic_date="$(date +'%H:%M' | to_arabic_num) <span font='16' rise='-2000'></span> $today <span font='16' rise='-2000'></span>"
+		arabic_date="$(date +'%H:%M' | to_arabic_num) <span font='16' rise='-2000'></span> $hijri_date <span font='16' rise='-2000'></span>"
 
-		printf "{\"text\": \"$english_date\", \"alt\": \"$arabic_date\", \"tooltip\": \"$today\" }\n"
+		printf "{\"text\": \"$english_date\", \"alt\": \"$arabic_date\", \"tooltip\": \"$hijri_date\" }\n"
 
-		seconds_remaining=$((60 - $(date +'%S')))
-		sleep $seconds_remaining
+		sleep $(echo "60 - $(date +%S.%N) % 60" | bc)
 	done
 else
 	grep -v '^#' "$PRAYER_FILE"

@@ -119,9 +119,8 @@
 		"format": "<span font='0'>a</span>{} <span font='16' rise='-2000'>󰥹</span>",
 		"format-alt": "<span font='16' rise='-2000'>󰥹</span> {alt}",
 		"tooltip": true,
-		"interval": 30,
 		"return-type": "json",
-		"exec": "~/.config/hypr/scripts/prayer.sh -p"
+		"exec": "~/.config/hypr/scripts/prayer.sh -l"
 	},
 	"custom/time" : {
 		"format": "{}",
