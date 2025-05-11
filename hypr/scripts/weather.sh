@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Rounding options
 ROUND_TEMP=1
 ROUND_WIND=1
 
@@ -20,15 +21,64 @@ TIME_OF_DAY=$(bash $HOME/.config/hypr/scripts/prayer.sh -n)
 
 if [[ "$TIME_OF_DAY" =~ ^(Maghrib|Isha|Midnight|Last Third|Fajr)$ ]]; then
 	TIME_OF_DAY="Night"
-
-	moon_info=$(curl -s "https://api.farmsense.net/v1/moonphases/?d=$(date +%s)")
 elif [[ "$TIME_OF_DAY" =~ ^(Sunrise|Dhuhr|Asr)$ ]]; then
 	TIME_OF_DAY="Day"
 fi
 
+# Function that returns the (approximate) age of the moon
+get_moon_age() {
+	# Seconds since a known new-moon (2000-01-06 18:14:00)
+	DELTA_SEC=$(( $(date +'%s') - 947182440 ))
+
+	# moon_age = days % 29.53059 OR
+	# moon_age = days - floor(days / 29.53059)*29.53059
+	awk -v s="$DELTA_SEC" 'BEGIN {
+		days = s / 86400
+		syn = 29.53059
+		age  = days - int(days / syn) * syn
+		printf("%.1f\n", age)
+	}'
+}
+
+# Function that returns the illumination percentage of the moon
+get_moon_illumination() {
+	local moon_age=$(get_moon_age)
+
+	# Compute percent illumination
+	#    φ = 2π * age/M
+	#    illum = (1 - cos φ)/2 * 100
+	local illumination=$(echo "scale=4
+	pi=4*a(1)
+	phi = 2*pi*$moon_age/29.53059
+	illum = (1 - c(phi))/2 * 100
+	print illum
+	" | bc -l)
+
+	printf "%.1f" "$illumination"
+}
+
+# Function that returns the name of the current moon phase
+get_moon_phase() {
+	local index=$(printf "%.0f" "$(get_moon_age)")
+	local phase=""
+
+	case $index in
+		0 | 29)                          phase="New Moon" ;;
+		1 | 2 | 3 | 4 | 5 | 6)           phase="Waxing Crescent" ;;
+		7)                               phase="First Quarter" ;;
+		8 | 9 | 10 | 11 | 12 | 13)       phase="Waxing Gibbous" ;;
+		14 | 15)                         phase="Full Moon" ;;
+		16 | 17 | 18 | 19 | 20 | 21)     phase="Waning Gibbous" ;;
+		22)                              phase="Last Quarter" ;;
+		23 | 24 | 25 | 26 | 27 | 28)     phase="Waning Crescent" ;;
+	esac
+
+	echo "$phase"
+}
+
 # Function that returns a Nerd Font icon of the current moon phase
 get_moon_icon() {
-	local index=$(echo "$moon_info" | jq -r '.[0].Index')
+	local index=$(printf "%.0f" "$(get_moon_age)")
 
 	# Empty part is the light part
 	local phases=(
@@ -52,12 +102,7 @@ get_moon_icon() {
 
 # Function that provides moon info for module tooltip
 get_moon_tooltip() {
-	local moon_age=$(echo "$moon_info" | jq -r '.[0].Age')
-	local moon_age=$(printf "%.1f" "$moon_age")
-	local moon_phase=$(echo "$moon_info" | jq -r '.[0].Phase')
-	local moon_illum=$(echo "$moon_info" | jq -r ".[0].Illumination" | awk '{printf "%.1f\n", $1 * 100}')
-
-	echo "$moon_phase ($moon_age, $moon_illum%% lit)"
+	echo "$(get_moon_phase) ($(get_moon_age) days, $(get_moon_illumination)%% lit)"
 }
 
 # Function to map weather code to a Nerd Font icon
@@ -137,20 +182,18 @@ if [[ "$ROUND_WIND" -eq 1 ]]; then
 	wind_speed=$(printf "%.0f" "$wind_speed")
 fi
 
-tooltip="$wind_dir_icon $wind_speed $wind_speed_unit @ $wind_dir$wind_dir_unit"
 
 ## Print module json
 
-# If night, add moon tooltip and pad text to center
-if [[ -n "$moon_info" ]]; then
-	moon_tooltip=$(printf "\r%s%s%s %s" "<span font='16' rise='-3000'>" "$(get_moon_icon)" "</span>" "$(get_moon_tooltip)")
+tooltip="$wind_dir_icon $wind_speed $wind_speed_unit @ $wind_dir$wind_dir_unit"
 
-	tooltip_length=${#tooltip}
-		moon_tooltip_length=${#moon_tooltip}
+moon_tooltip=$(printf "\r%s%s%s %s" "<span font='16' rise='-3000'>" "$(get_moon_icon)" "</span>" "$(get_moon_tooltip)")
 
-			padding_length=$(( (moon_tooltip_length - tooltip_length) / 2 ))
-			tooltip=$(printf "%*s%s %s" $padding_length "" "$tooltip" "$moon_tooltip")
-fi
+tooltip_length=${#tooltip}
+moon_tooltip_length=${#moon_tooltip}
+
+padding_length=$(( (moon_tooltip_length - tooltip_length) / 2 ))
+tooltip=$(printf "%*s%s %s" $padding_length "" "$tooltip" "$moon_tooltip")
 
 printf "{\"text\": \"$temp_icon $temp$temp_unit\", \"alt\": \"$temp_icon $temp$temp_unit ($real_feel$temp_unit)\", \"tooltip\": \"$tooltip\" }\n"
 
