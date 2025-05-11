@@ -38,6 +38,13 @@ get_moon_icon() {
 		       
 	)
 
+	# local phases=(
+	# 	      
+	# 	      
+	# 	       
+	# 	       
+	# )
+
 	local moon_icon="${phases[$index]}" 
 
 	echo "$moon_icon"
@@ -48,8 +55,9 @@ get_moon_tooltip() {
 	local moon_age=$(echo "$moon_info" | jq -r '.[0].Age')
 	local moon_age=$(printf "%.1f" "$moon_age")
 	local moon_phase=$(echo "$moon_info" | jq -r '.[0].Phase')
+	local moon_illum=$(echo "$moon_info" | jq -r ".[0].Illumination" | awk '{printf "%.1f\n", $1 * 100}')
 
-	echo "$moon_phase ($moon_age)"
+	echo "$moon_phase ($moon_age, $moon_illum%% lit)"
 }
 
 # Function to map weather code to a Nerd Font icon
@@ -135,13 +143,13 @@ tooltip="$wind_dir_icon $wind_speed $wind_speed_unit @ $wind_dir$wind_dir_unit"
 
 # If night, add moon tooltip and pad text to center
 if [[ -n "$moon_info" ]]; then
-	moon_tooltip=$(printf "\r%s %s" "$temp_icon" "$(get_moon_tooltip)")
+	moon_tooltip=$(printf "\r%s%s%s %s" "<span font='16' rise='-3000'>" "$(get_moon_icon)" "</span>" "$(get_moon_tooltip)")
 
 	tooltip_length=${#tooltip}
-	moon_tooltip_length=${#moon_tooltip}
+		moon_tooltip_length=${#moon_tooltip}
 
-	padding_length=$(( (moon_tooltip_length - tooltip_length) / 2 ))
-	tooltip=$(printf "%*s%s %s" $padding_length "" "$tooltip" "$moon_tooltip")
+			padding_length=$(( (moon_tooltip_length - tooltip_length) / 2 ))
+			tooltip=$(printf "%*s%s %s" $padding_length "" "$tooltip" "$moon_tooltip")
 fi
 
 printf "{\"text\": \"$temp_icon $temp$temp_unit\", \"alt\": \"$temp_icon $temp$temp_unit ($real_feel$temp_unit)\", \"tooltip\": \"$tooltip\" }\n"
