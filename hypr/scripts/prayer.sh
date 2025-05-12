@@ -3,6 +3,9 @@
 # Mawaqit.net masjid ID (gets prayer times directly from the masjid rather than from aladhan.com)
 MASJID_ID="__MASJID_ID__"
 
+# Set to 1 to enable caching of mawaqit.net calendar
+USE_CACHE=1
+
 ## LOCATION - If country or city are not entered then location will be fetched automatically
 
 # Country name or ISO 3166 code (ex: The Netherlands, Netherlands, NL, or NLD)
@@ -26,6 +29,7 @@ YESTERDAY_DATE=$(date -d "yesterday" +"%d-%m-%Y")
 # Files & Directories
 PRAYER_DIR="$HOME/.config/prayerhistory"
 PRAYER_FILE="$PRAYER_DIR/$CURRENT_DATE.txt"
+CACHE_FILE="$PRAYER_DIR/${MASJID_ID}.json"
 NOTIFIED_FILE="$PRAYER_DIR/notified"
 HIJRI_FILE="$PRAYER_DIR/hijri.txt"
 
@@ -34,7 +38,11 @@ SOURCE_COMMENT=""
 
 if [[ ! -f "$PRAYER_FILE" ]]; then
 	if [[ "$MASJID_ID" != "__MASJID_ID__" && -n "$MASJID_ID" ]]; then
-		SOURCE_COMMENT="# Fetched prayer times from mawaqit.net with masjid ID: \"$MASJID_ID\""
+		if [[ $USE_CACHE -eq 1 && -f "$CACHE_FILE" ]]; then
+			SOURCE_COMMENT="# Fetched prayer times from mawaqit.net with masjid ID: \"$MASJID_ID\" (local cache)"
+		else
+			SOURCE_COMMENT="# Fetched prayer times from mawaqit.net with masjid ID: \"$MASJID_ID\""
+		fi
 	elif [[ "$COUNTRY" != "__COUNTRY__" && -n "$COUNTRY" && "$CITY" != "__CITY__" && -n "$CITY" ]]; then
 		SOURCE_COMMENT="# Fetched prayer times from api.aladhan.com with given location: $CITY, $COUNTRY"
 	else
@@ -150,7 +158,15 @@ get_timings() {
 		local DAY=$(echo "$CURRENT_DATE" | awk -F'-' '{print $1 + 0}')
 		local MONTH=$(echo "$CURRENT_DATE" | awk -F'-' '{print $2 - 1}')
 
-		local TIMES=$(fetch_mawaqit "$MASJID_ID" | jq -r ".calendar[$MONTH][\"$DAY\"]")
+		if [[ $USE_CACHE -eq 1 && -f "$CACHE_FILE" ]]; then
+			# Use cached calendar
+			local TIMES=$(jq -r ".calendar[$MONTH][\"$DAY\"]" "$CACHE_FILE")
+		else
+			local RESPONSE=$(fetch_mawaqit "$MASJID_ID")
+			if [[ $USE_CACHE -eq 1 ]]; then echo "$RESPONSE" > "$CACHE_FILE"; fi
+
+			local TIMES=$(echo "$RESPONSE" | jq -r ".calendar[$MONTH][\"$DAY\"]")
+		fi
 	fi
 
 	# Get Fajr time in minutes
