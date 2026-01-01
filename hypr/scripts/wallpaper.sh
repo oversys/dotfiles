@@ -60,7 +60,7 @@ fi
 
 WALLPAPER="$HOME/.config/wallpapers/$FOLDER/$WALLPAPER"
 wal -si $WALLPAPER
-hyprctl hyprpaper preload $WALLPAPER && hyprctl hyprpaper wallpaper ,$WALLPAPER
+hyprctl hyprpaper wallpaper ",$WALLPAPER"
 
 # Waybar, rofi, and dunst colors
 cp $HOME/.config/waybar/style.bak $HOME/.config/waybar/style.css
