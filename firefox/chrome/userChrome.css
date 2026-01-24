@@ -1,6 +1,7 @@
 @import "user-chrome.css";
 @import "theme-material-blue.css";
 
-.tab-text.tab-label{
+.tab-text.tab-label {
     font-size: 15px;
 }
+
