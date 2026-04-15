@@ -47,7 +47,9 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 	-- File tabs
-	{ "akinsho/bufferline.nvim", version = "*", dependencies = "nvim-tree/nvim-web-devicons",
+	{ "akinsho/bufferline.nvim",
+		version = "*",
+		dependencies = "nvim-tree/nvim-web-devicons",
 		opts = {
 			options = {
 				separator_style = "slant",
@@ -59,16 +61,30 @@ require("lazy").setup({
 					text_align = "center",
 				}},
 				diagnostics = "nvim_lsp",
-				diagnostics_indicator = function(count, level)
-					local icon = level:match("error") and "" or ""
-					return icon .. " " .. count
+				diagnostics_indicator = function(count, level, diagnostics_dict, context)
+					local symbols = {
+						error = " ",
+						warning = " ",
+						hint = " ",
+						info = " "
+					}
+
+					local result = {}
+					for _, type in ipairs({ "error", "warning", "hint", "info" }) do
+						if diagnostics_dict[type] then
+							table.insert(result, symbols[type] .. diagnostics_dict[type])
+						end
+					end
+
+					return #result > 0 and table.concat(result, " ") or ""
 				end
 			}
 		}
 	},
 
 	-- Status line
-	{ "nvim-lualine/lualine.nvim", dependencies = "nvim-tree/nvim-web-devicons",
+	{ "nvim-lualine/lualine.nvim",
+		dependencies = "nvim-tree/nvim-web-devicons",
 		opts = {
 			options = {
 				theme = "monokai-pro",
@@ -121,14 +137,24 @@ require("lazy").setup({
 	},
 
 	-- Syntax highlighting
-	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate",
+	{ "nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		lazy = false,
+		build = ":TSUpdate",
 		config = function ()
-			require("nvim-treesitter.configs").setup({
-				ensure_installed = { "c", "lua", "rust", "python" },
-				sync_install = false,
-				auto_install = true,
-				highlight = { enable = true },
-				indent = { enable = true },
+			local ensure_installed = { "c", "lua", "rust", "python" }
+			require("nvim-treesitter").install(ensure_installed)
+
+			vim.api.nvim_create_autocmd("FileType", {
+				callback = function(args)
+					local filetype = args.match
+					local lang = vim.treesitter.language.get_lang(filetype)
+
+					if vim.treesitter.language.add(lang) then
+						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+						vim.treesitter.start()
+					end
+				end
 			})
 		end
 	},
@@ -150,11 +176,18 @@ require("lazy").setup({
 				vim.api.nvim_set_hl(0, "Magenta", { fg = "#948ae3" })
 			end)
 
+			vim.api.nvim_set_hl(0, "Scope", { fg = "#5b595c", bold = true })
+
 			require("ibl").setup({
 				indent = {
 					char = "▏",
 					tab_char = "▏",
 					highlight = highlight,
+				},
+				scope = {
+					enabled = true,
+					highlight = { "Scope" },
+					show_end = false
 				}
 			})
 		end
@@ -230,20 +263,15 @@ require("lazy").setup({
 				})
 			})
 
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-			local servers = { "pyright", "ts_ls", "rust_analyzer", "clangd", "html", "cssls" }
+			local servers = { "pyright", "ts_ls", "rust_analyzer", "clangd", "html", "cssls", "lua_ls" }
 
 			for _, lsp in ipairs(servers) do
-				require("lspconfig")[lsp].setup {
-					capabilities = capabilities,
-				}
+				vim.lsp.enable(lsp)
 			end
 
-			require("lspconfig")["lua_ls"].setup {
-				capabilities = capabilities,
+			vim.lsp.config("lua_ls", {
 				settings = { Lua = { diagnostics = { globals = { "vim" } } } }
-			}
+			})
 		end
 	},
 
@@ -296,16 +324,6 @@ require("lazy").setup({
 					vim.go.laststatus = 0
 					vim.cmd("hi Cursor blend=100")
 					vim.cmd("set guicursor+=a:Cursor/lCursor")
-				end
-			})
-
-			vim.api.nvim_create_autocmd("BufUnload", {
-				buffer = 0,
-				callback = function ()
-					vim.opt.cmdheight = 1
-					vim.opt.showtabline = 2
-					vim.go.laststatus = 3
-					vim.cmd("set guicursor&")
 				end
 			})
 
