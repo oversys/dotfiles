@@ -147,10 +147,15 @@ require("lazy").setup({
 
 			vim.api.nvim_create_autocmd("FileType", {
 				callback = function(args)
+					local treesitter = require("nvim-treesitter")
 					local filetype = args.match
 					local lang = vim.treesitter.language.get_lang(filetype)
 
-					if vim.treesitter.language.add(lang) then
+					if vim.tbl_contains(treesitter.get_available(), lang) then
+						if not vim.tbl_contains(treesitter.get_installed(), lang) then
+							treesitter.install(lang):wait()
+						end
+
 						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 						vim.treesitter.start()
 					end
@@ -160,7 +165,7 @@ require("lazy").setup({
 	},
 
 	-- Scroll animation
-	{ "karb94/neoscroll.nvim" },
+	-- { "karb94/neoscroll.nvim" },
 
 	-- Indent visualization
 	{ "lukas-reineke/indent-blankline.nvim",
@@ -392,6 +397,7 @@ map_key({ 'n', 'i' }, "<C-]>", function()
 end)
 
 -- neoscroll
+--[[
 local neoscroll = require("neoscroll")
 
 local function top_bot(keys)
@@ -418,4 +424,5 @@ end)
 
 map_key(modes, "gg", function() top_bot("gg") end)
 map_key(modes, 'G', function() top_bot('G') end)
+]]
 
