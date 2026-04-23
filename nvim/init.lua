@@ -42,6 +42,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Change leader key (default: backslash \)
 -- vim.g.mapleader = " "
 -- vim.g.maplocalleader = " "
 
@@ -131,7 +132,7 @@ require("lazy").setup({
 				},
 			})
 
-			vim.cmd([[colorscheme monokai-pro]])
+			vim.cmd("colorscheme monokai-pro")
 			vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a3a", blend = 10 })
 		end
 	},
@@ -142,22 +143,36 @@ require("lazy").setup({
 		lazy = false,
 		build = ":TSUpdate",
 		config = function ()
+			local treesitter = require("nvim-treesitter")
 			local ensure_installed = { "c", "lua", "rust", "python" }
-			require("nvim-treesitter").install(ensure_installed)
+
+			treesitter.install(ensure_installed)
 
 			vim.api.nvim_create_autocmd("FileType", {
 				callback = function(args)
-					local treesitter = require("nvim-treesitter")
 					local filetype = args.match
 					local lang = vim.treesitter.language.get_lang(filetype)
 
 					if vim.tbl_contains(treesitter.get_available(), lang) then
 						if not vim.tbl_contains(treesitter.get_installed(), lang) then
-							treesitter.install(lang):wait()
+							treesitter.install(lang)
 						end
 
-						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-						vim.treesitter.start()
+						-- Run after main event-loop because starting nvim-treesitter is slow
+						vim.schedule(function()
+							vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+							pcall(vim.treesitter.start)
+
+							-- Display non-blocking assignment in Verilog as ⇐ instead of <= (⩽ with ligatures)
+							vim.cmd([[syntax match verilogNonBlocking "<=" conceal cchar=⇐ containedin=ALL]])
+							vim.opt_local.conceallevel = 2
+
+							-- Replace symbol in all modes
+							vim.opt_local.concealcursor = "nvic"
+
+							-- vim.cmd("highlight! link Conceal Operator")
+							vim.api.nvim_set_hl(0, "Conceal", { link = "Operator" })
+						end)
 					end
 				end
 			})
@@ -218,6 +233,17 @@ require("lazy").setup({
 			local lspkind = require("lspkind")
 			local cmp = require("cmp")
 			cmp.setup({
+				-- Reduce delay
+				completion = {
+					autocomplete = {
+						cmp.TriggerEvent.TextChanged
+					},
+					completeopt = "menu,menuone,noselect",
+					keyword_length = 1,
+					debounce = 0,
+					throttle = 0,
+				},
+
 				window = {
 					completion = { border = "rounded" },
 					documentation = { border = "rounded" },
