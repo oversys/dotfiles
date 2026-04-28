@@ -168,14 +168,16 @@ require("lazy").setup({
 							pcall(vim.treesitter.start)
 
 							-- Display non-blocking assignment in Verilog as ⇐ instead of <= (⩽ with ligatures)
-							vim.cmd([[syntax match verilogNonBlocking "<=" conceal cchar=⇐ containedin=ALL]])
-							vim.opt_local.conceallevel = 2
+							if filetype == "verilog" or filetype == "systemverilog" then
+								vim.cmd([[syntax match verilogNonBlocking "<=" conceal cchar=⇐ containedin=ALL]])
+								vim.opt_local.conceallevel = 2
 
-							-- Replace symbol in all modes
-							vim.opt_local.concealcursor = "nvic"
+								-- Replace symbol in all modes
+								vim.opt_local.concealcursor = "nvic"
 
-							-- vim.cmd("highlight! link Conceal Operator")
-							vim.api.nvim_set_hl(0, "Conceal", { link = "Operator" })
+								-- vim.cmd("highlight! link Conceal Operator")
+								vim.api.nvim_set_hl(0, "Conceal", { link = "Operator" })
+							end
 						end)
 					end
 				end
@@ -298,7 +300,13 @@ require("lazy").setup({
 				})
 			})
 
+			--                 Python,    JS/TS,       Rust,        C/C++,    HTML,    CSS,      Lua
 			local servers = { "pyright", "ts_ls", "rust_analyzer", "clangd", "html", "cssls", "lua_ls" }
+
+			-- Add Verible to servers only if installed (LSP for Verilog, only in AUR)
+			-- if vim.fn.executable("verible-verilog-ls") then
+			-- 	table.insert(servers, "verible")
+			-- end
 
 			for _, lsp in ipairs(servers) do
 				vim.lsp.enable(lsp)
