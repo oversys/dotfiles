@@ -1,7 +1,7 @@
 # Prompt
 NL=$'\n'
-PROMPT="%F{#66d9ef} %f%~${NL}%F{#ff6188}❯%F{#ffd866}❯%F{#a9dc76}❯ %b%f"
-# PROMPT="%F{#66d9ef} %F{#9389E2}∋%f %~${NL}%F{#ff6188}∴ %F{#ffd866}∅%F{#a9dc76} ↦ %b%f"
+PROMPT="%F{#5ad4e6} %f%~${NL}%F{#ff618d}❯%F{#fce566}❯%F{#7bd88f}❯ %b%f"
+# PROMPT="%F{#5ad4e6} %F{#ae81ff}∋%f %~${NL}%F{#ff618d}∴ %F{#fce566}∅%F{#7bd88f} |-> %b%f"
 
 # History
 HISTFILE=~/.zsh_history
