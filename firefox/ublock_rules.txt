@@ -1,0 +1,55 @@
+! Apr 21, 2025 https://github.com
+github.com###\:R3kptal9lab\: > .prc-Button-ButtonContent-HKbr-.gUkoLg.Box-sc-g0xbh4-0 > .prc-Button-Label-pTQ3x
+github.com###\:R3kptal9lab\: > .prc-Button-ButtonContent-HKbr-.gUkoLg.Box-sc-g0xbh4-0
+github.com##div.react-code-size-details-in-header > .prc-Button-ButtonBase-c50BI.jlVuVO.Box-sc-g0xbh4-0
+
+! Sep 14, 2025 to Feb 07, 2026: Reduce YT clutter
+! Hide button to become channel member
+www.youtube.com###sponsor-button
+! Hide share button
+www.youtube.com###top-level-buttons-computed > yt-button-view-model.ytd-menu-renderer > .ytd-menu-renderer.style-scope.ytSpecButtonViewModelHost
+! Hide scroll container with recommended categories over recommended videos on right
+www.youtube.com###scroll-container > .yt-chip-cloud-renderer.style-scope
+! Hide voice search button
+www.youtube.com###voice-search-button > .ytd-masthead.style-scope > yt-button-shape
+! Hide clip button, thank you button, useless remove ads button (just prompts you to subscribe to premium), so basically just keep save to playlist
+www.youtube.com##ytd-menu-service-item-renderer.style-scope.ytd-menu-popup-renderer:not(:has-text(Opslaan)):not(:has-text(Save))
+www.youtube.com##yt-button-view-model.ytd-menu-renderer:has-text(Fragment)
+www.youtube.com##.yt-list-item-view-model__container--tappable.yt-list-item-view-model__container--compact.yt-list-item-view-model__container.yt-list-item-view-model__label
+! Remove keyboard icon in search box
+www.youtube.com##.ytSearchboxComponentYtdTextInputAssistantWrapper
+
+! Oct 14, 2025 https://www.google.com
+! www.google.com##.C6AK7c.XVMlrc > .mXwfNd > .mVH5Fc > .R1QWuf
+
+! Nov 30, 2025: Block JavaScript YouTube homepage (only if you navigate directly to /)
+||www.youtube.com/|$csp=script-src 'none'
+
+! Jan 11, 2026: Block feed on YouTube homepage
+www.youtube.com##ytd-browse[page-subtype="home"]
+
+! Jan 25, 2026 to Feb 07, 2026: Fix styling/spacing for "YouTube Sans Arabic" font
+! YT main video title
+www.youtube.com##ytd-watch-metadata[title-headline-xs] h1.ytd-watch-metadata:style(line-height: 2 !important;)
+! YT recommended videos on right of video (bottom spacing + fix Arabic text direction)
+www.youtube.com##a.yt-lockup-metadata-view-model__title:style(padding-bottom: 0.3rem !important;)
+www.youtube.com##a:has-text(/[\u0600-\u06FF]/):style(direction: rtl !important; text-align: right !important;)
+! YT captions
+www.youtube.com##span.ytp-caption-segment:style(padding-bottom: 0.8rem !important;)
+! YT recommended videos after video ends (bottom spacing + fix Arabic text direction)
+www.youtube.com##span.ytp-modern-videowall-still-info-title:style(padding-bottom: 0.55rem !important;)
+www.youtube.com##span.ytp-modern-videowall-still-info-title:has-text(/[\u0600-\u06FF]/):style(direction: rtl !important; text-align: right !important;)
+! YT playlist videos
+www.youtube.com##a.yt-simple-endpoint.style-scope.ytd-playlist-video-renderer:style(padding-bottom: 0.38rem !important;)
+! YT comments
+www.youtube.com###content.style-scope.ytd-expander:style(padding-bottom: 0.3rem !important;)
+
+! Mar 16, 2026 https://chatgpt.com
+||accounts.google.com/gsi/iframe/select?*chatgpt.com*$subdocument
+
+! Apr 12, 2026 https://www.youtube.com
+www.youtube.com###scroll-container > .yt-horizontal-list-renderer.style-scope
+
+! Apr 13, 2026 https://www.youtube.com
+www.youtube.com##grid-shelf-view-model.ytGridShelfViewModelHostHasBottomButton.ytd-item-section-renderer.ytGridShelfViewModelHost
+
