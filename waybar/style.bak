@@ -16,7 +16,7 @@ window#waybar {
 tooltip {
 	background: __LIGHTERBG__;
 	border-radius: 10px;
-	border-bottom: 4px solid __LIGHTBG__;
+	border-bottom: 5px solid __LIGHTBG__;
 }
 
 #workspaces,
@@ -40,23 +40,23 @@ tooltip {
 #window {
 	background: __LIGHTERBG__;
 	color: __FG__;
-	border-bottom: 4px solid __LIGHTBG__;
+	border-bottom: 5px solid __LIGHTBG__;
 }
 
 #workspaces {
 	background: __LIGHTERBG__;
-	border-bottom: 4px solid __LIGHTBG__;
+	border-bottom: 5px solid __LIGHTBG__;
 	margin-left: 10px;
 	padding-right: 0px;
 	padding-left: 5px;
 }
 
 #workspaces button {
-	color: __COL2__;
+	color: __FG__;
 }
 
 #workspaces button.empty {
-	color: __DIMMERCOL2__;
+	color: __DIMFG__;
 }
 
 #workspaces button.active label {
@@ -78,24 +78,24 @@ tooltip {
 #memory, #custom-prayer {
 	color: __FGCOL1__;
 	background: __COL1__;
-	border-bottom: 4px solid __DIMCOL1__;
+	border-bottom: 5px solid __DIMCOL1__;
 }
 
 #wireplumber, #network, #custom-time {
 	color: __FGCOL2__;
 	background: __COL2__;
-	border-bottom: 4px solid __DIMCOL2__;
+	border-bottom: 5px solid __DIMCOL2__;
 }
 
 #backlight, #battery {
 	color: __FGCOL4__;
 	background: __COL4__;
-	border-bottom: 4px solid __DIMCOL4__;
+	border-bottom: 5px solid __DIMCOL4__;
 }
 
 #cpu, #custom-weather {
 	color: __FGCOL5__;
 	background: __COL5__;
-	border-bottom: 4px solid __DIMCOL5__;
+	border-bottom: 5px solid __DIMCOL5__;
 }
 

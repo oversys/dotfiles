@@ -1,6 +1,7 @@
 # Prompt
 NL=$'\n'
 PROMPT="%F{#66d9ef} %f%~${NL}%F{#ff6188}❯%F{#ffd866}❯%F{#a9dc76}❯ %b%f"
+# PROMPT="%F{#66d9ef} %F{#9389E2}∋%f %~${NL}%F{#ff6188}∴ %F{#ffd866}∅%F{#a9dc76} ↦ %b%f"
 
 # History
 HISTFILE=~/.zsh_history
@@ -154,6 +155,14 @@ sdf() {
 # Get IP Address
 getip() { ip -o -4 addr list $1 | awk '{print $4}' | cut -d / -f 1 }
 
+# Open files
+open() {
+	for file in $@; do
+		xdg-open $file
+	done
+}
+
 # Plugins
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+
