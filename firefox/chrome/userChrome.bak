@@ -1,10 +1,12 @@
+/* Last working version: Mozilla Firefox 150.0 */
+
 @import "colors.css";
 @import "fonts.css";
 
 /* TODO:
-* Style trust, permissions, translate, and bookmark buttons.
+* Style trust, permissions, translate, and bookmark buttons (fix hover effects).
 * Style CTRL + F find bar.
-* Style checkboxes (like in quit confirmation popup).
+* Style checkboxes, radios, etc.
 * Style new tab page (in userContent.css).
 */
 
@@ -29,12 +31,18 @@
 	--toolbarbutton-hover-background: transparent !important;
 	--toolbarbutton-active-background: transparent !important;
 	--toolbarbutton-active-outline-color: var(--accent-color) !important;
+	--toolbarbutton-icon-fill-attention: var(--accent-color) !important;
 }
 
 /* Change popup colors */
 :is(menupopup, panel) {
 	--panel-background: var(--lighter-bg-color) !important;
 	--panel-border-color: var(--bg-color) !important;
+}
+
+#select-translations-panel-text-area {
+	outline: none !important;
+	border-color: var(--accent-color) !important;
 }
 
 /* Change color of close browser confirmation popup */
@@ -87,9 +95,17 @@ toolbar#TabsToolbar {
 	order: 2 !important;
 }
 
-/* Move bookmarks below tabs, only show bookmarks when hovered over */
+/* Bookmark bar customizaton */
 toolbar#PersonalToolbar {
+	/* Move bookmarks below tabs */
 	order: 3 !important;
+
+	/* Change bookmark toolbar colors */
+	background-color: var(--bg-color) !important;
+	color: var(--fg-color) !important;
+	font-weight: 500 !important;
+
+	/* Only show bookmarks when hovered over */
 	opacity: 0 !important;
 	max-height: 0px !important;
 	transition:
@@ -105,16 +121,11 @@ toolbar#TabsToolbar:hover ~ toolbar#PersonalToolbar, toolbar#PersonalToolbar:hov
 		max-height 0.3s linear 1s !important;
 }
 
-/* Change bookmark toolbar colors */
-toolbar#PersonalToolbar {
-	background-color: var(--bg-color) !important;
-	color: var(--fg-color) !important;
-}
-
 /* Change colors of opened bookmark item (ex.: folder) */
 toolbarbutton.bookmark-item[open="true"] {
 	color: var(--accent-color) !important;
 	border-radius: 4px !important;
+	font-weight: 700 !important;
 }
 
 /** Customize address bar **/
@@ -142,6 +153,10 @@ toolbarbutton#downloads-button, #trust-icon,
 .toolbarbutton-animatable-box, toolbarbutton#back-button:active,
 toolbarbutton#forward-button:active {
 	fill: var(--accent-color) !important;
+}
+
+#translations-button-locale {
+	background-color: var(--accent-color) !important;
 }
 
 #urlbar-revert-button:hover {
@@ -271,7 +286,7 @@ toolbarbutton#tabs-newtab-button:active {
 
 .tab-label {
 	color: var(--fg-color) !important;
-	font-weight: 600 !important;
+	font-weight: 500 !important;
 }
 
 /* Selected tab decorations */
@@ -416,6 +431,14 @@ menuitem#context-openlinkinsplitview {
 menuseparator#context-sep-screenshots,
 menuseparator#context-sep-selectall, menuseparator#context-sep-navigation {
 	display: none !important;
+}
+
+menupopup#contentAreaContextMenu menuitem:hover {
+	background-color: var(--accent-color) !important;
+}
+
+menu[_moz-menuactive="true"] {
+	background-color: var(--accent-color) !important;
 }
 
 /** End customize popup **/
