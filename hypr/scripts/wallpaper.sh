@@ -1,18 +1,19 @@
 #!/bin/bash
 
 dimlightcol() {
-	color="${1#"#"}"
+	local color="${1#"#"}"
+	local factor="${2:-0.8}"
+	local dim_color=""
 
-	if [[ -n $2 ]]; then factor=$2; else factor=0.8; fi
-	
-	for i in {0..4..2}; do
-		hex=${color:$i:2}
-		dec=$((16#$hex))
-		dim=$(printf "%.0f" $(echo "$dec * $factor" | bc))
+	for i in 0 2 4; do
+		local hex=${color:$i:2}
+		local dec=$((16#$hex))
+		local dim=$(printf "%.0f" $(echo "$dec * $factor" | bc))
+		if ((dim > 255)); then dim=255; fi
 		dim_color+=$(printf "%02x" $dim)
 	done
-	
-	printf "#$dim_color"
+
+	printf "#%s" "$dim_color"
 }
 
 # Set wallpaper based on time of day and generate colorscheme
@@ -46,11 +47,12 @@ else
 fi
 
 if [ "$1" == "-c" ]; then
-	THEME="element-icon { size: 115px; margin: 0 12px; }\
-		listview { columns: 4; lines: 3; }\
-		element { padding: 0; color: transparent; }\
+	THEME="element-icon { size: 115px; margin: 0; }\
+		element-text { size: 0px; margin: 0; padding: 0; }\
+		listview { columns: 4; lines: 3; spacing: 8px; }\
+		element { padding: 0; orientation: vertical; children: [element-icon]; }\
 		mainbox { children: [listview]; }\
-		window { height: 600px; }"
+		window { height: 740px; width: 800px; }"
 
 	WALLPAPER=$(ls $HOME/.config/wallpapers/$FOLDER/ | while read A; do echo -en "$A\x00icon\x1f$HOME/.config/wallpapers/$FOLDER/$A\n"; done | rofi -dmenu -p " Wallpaper" -theme-str "$THEME")
 	if [ -z "$WALLPAPER" ]; then exit; fi
@@ -79,7 +81,7 @@ LIGHTERBG=$(dimlightcol $BG 2.5)
 # If color is dark then set text to FG for good readability, otherwise set text to BG
 check_brightness() {
 	local color=$1
-	local threshold=100
+	local threshold=103
 
 	local r=$((16#${color:1:2}))
 	local g=$((16#${color:3:2}))
@@ -92,7 +94,7 @@ check_brightness() {
 }
 
 colors=("1" "2" "4" "5")
-color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "DIMMERCOL2")
+color_names=("FG" "DIMFG" "BG" "LIGHTBG" "LIGHTERBG" "DIMMERCOL2")
 
 for color in "${colors[@]}"; do
 	fg_color_name="FGCOL${color}"
@@ -109,6 +111,7 @@ for color in "${colors[@]}"; do
 done
 
 DIMMERCOL2=$(dimlightcol $COL2 0.55)
+DIMFG=$(dimlightcol $FG 0.55)
 
 # color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMMERCOL2" "DIMCOL4" "DIMCOL5")
 configs=("$HOME/.config/waybar/style.css" "$HOME/.config/rofi/theme.rasi" "$HOME/.config/dunst/dunstrc" "$MOZILLA_DIR/chrome/userChrome.css")
