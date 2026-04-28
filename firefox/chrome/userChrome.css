@@ -1,7 +1,405 @@
-@import "user-chrome.css";
-@import "theme-material-blue.css";
+@import "colors.css";
 
-.tab-text.tab-label {
-    font-size: 15px;
+/* TODO:
+* Style trust, permissions, translate, and bookmark buttons.
+* Style CTRL + F find bar.
+* Style checkboxes (like in quit confirmation popup).
+* Style new tab page (in userContent.css).
+*/
+
+/* Change font */
+* {
+	font-family: "JetBrainsMono NF" !important;
 }
+
+:root {
+	/* Colors */
+	--bg-color: #111111;
+	--lighter-bg-color: #1a1a1a;
+	--fg-color: var(--foreground, #72b1cc);
+	--accent-color: var(--color1, #ff6188);
+
+	/* Panel customization */
+	--panel-background: var(--lighter-bg-color) !important;
+	--panel-border-color: var(--bg-color) !important;
+	--panel-color: #ffffff !important;
+
+	/* Toolbar button customization */
+	--toolbarbutton-hover-background: transparent !important;
+	--toolbarbutton-active-background: transparent !important;
+	--toolbarbutton-active-outline-color: var(--accent-color) !important;
+}
+
+/* Change popup colors */
+:is(menupopup, panel) {
+	--panel-background: var(--lighter-bg-color) !important;
+	--panel-border-color: var(--bg-color) !important;
+}
+
+/* Change color of close browser confirmation popup */
+window#commonDialogWindow {
+	background-color: var(--lighter-bg-color) !important;
+}
+
+/* Customize buttons */
+button[default="true"] {
+	border: 2px solid var(--accent-color) !important;
+	color: var(--fg-color) !important;
+	background: none !important;
+}
+
+.toggle-button[aria-pressed="true"] {
+	background: none !important;
+	border: 1px solid var(--accent-color) !important;
+
+	&::before {
+		background-color: var(--accent-color) !important;
+	}
+}
+
+.panel-subview-footer-button {
+	color: var(--accent-color) !important;
+}
+
+/* Hide all tabs button */
+toolbarbutton#alltabs-button {
+	display: none !important;
+}
+
+/* Hide browser close button */
+toolbarbutton.titlebar-button.titlebar-close {
+	display: none !important;
+}
+
+/* Hide reader mode button */
+#reader-mode-button {
+	display: none !important;
+}
+
+/* Hide picture-in-picture button */
+#picture-in-picture-button {
+	display: none !important;
+}
+
+/* Move tabs below address bar */
+toolbar#TabsToolbar {
+	order: 2 !important;
+}
+
+/* Move bookmarks below tabs, only show bookmarks when hovered over */
+toolbar#PersonalToolbar {
+	order: 3 !important;
+	opacity: 0 !important;
+	max-height: 0px !important;
+	transition:
+		opacity 0.3s ease 1s,
+		max-height 0.3s ease 1s !important;
+}
+
+toolbar#TabsToolbar:hover ~ toolbar#PersonalToolbar, toolbar#PersonalToolbar:hover {
+	opacity: 1 !important;
+	max-height: 100px !important;
+	transition:
+		opacity 0.3s ease 1s,
+		max-height 0.3s linear 1s !important;
+}
+
+/* Change bookmark toolbar colors */
+toolbar#PersonalToolbar {
+	background-color: var(--bg-color) !important;
+	color: var(--fg-color) !important;
+}
+
+/* Change colors of opened bookmark item (ex.: folder) */
+toolbarbutton.bookmark-item[open="true"] {
+	color: var(--accent-color) !important;
+	border-radius: 4px !important;
+}
+
+/** Customize address bar **/
+
+/* Change icon colors */
+toolbarbutton#back-button, toolbarbutton#forward-button,
+toolbarbutton#reload-button, toolbarbutton#PanelUI-menu-button,
+toolbarbutton#downloads-button, #trust-icon,
+#star-button, #translations-button-icon,
+#permissions-granted-icon, #blocked-permissions-container image,
+#urlbar-revert-button {
+	fill: var(--fg-color) !important;
+}
+
+.tab-throbber {
+	color: var(--fg-color) !important;
+}
+
+.button-background {
+	color: var(--fg-color) !important;
+}
+
+/* Change icon colors when open/active (burger menu, refresh) */
+#nav-bar .toolbarbutton-1[open="true"] > .toolbarbutton-badge-stack,
+.toolbarbutton-animatable-box, toolbarbutton#back-button:active,
+toolbarbutton#forward-button:active {
+	fill: var(--accent-color) !important;
+}
+
+#urlbar-revert-button:hover {
+	background: none !important;
+}
+
+toolbarbutton#urlbar-zoom-button {
+	color: var(--fg-color) !important;
+}
+
+/* Hide other search engines button */
+.searchmode-switcher {
+	display: none !important;
+}
+
+/* Hide tab close button */
+.tab-close-button {
+	display: none !important;
+}
+
+/* Hide new tab button */
+/*
+toolbarbutton#new-tab-button {
+	display: none !important;
+}
+
+toolbarbutton#tabs-newtab-button {
+	display: none !important;
+}
+*/
+
+/* _Or_ customize new tab button */
+toolbarbutton#new-tab-button:active {
+	fill: var(--accent-color) !important;
+}
+
+toolbarbutton#tabs-newtab-button:active {
+	fill: var(--accent-color) !important;
+}
+
+/* Toolbar background */
+#nav-bar, #TabsToolbar {
+	background: var(--bg-color) !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+/* URL bar background (including search suggestions) */
+.urlbar-background {
+	background: var(--bg-color) !important;
+	border: none !important;
+	outline: none !important;
+}
+
+#urlbar[focused] > .urlbar-background {
+	background: var(--lighter-bg-color) !important;
+}
+
+.urlbarView-body-inner {
+	border-top: 2px solid var(--accent-color) !important;
+}
+
+.urlbarView-url {
+	color: var(--fg-color) !important;
+}
+
+#urlbar-input {
+	font-weight: bold !important;
+	padding-left: 5px !important;
+	padding-right: 0px !important;
+}
+
+/* Tab preview */
+.tab-preview-content-main {
+	background: var(--lighter-bg-color) !important;
+	border: 1px solid var(--bg-color) !important;
+}
+
+.tab-preview-thumbnail-container {
+	& > canvas{
+		border: 1px solid var(--bg-color) !important;
+	}
+}
+
+/* Center tab content */
+.tabbrowser-tab[selected]:not([pinned]) .tab-label-container, .tabbrowser-tab:not([pinned]) {
+	padding-inline-end: 6px !important;
+}
+
+.tab-icon-stack {
+	margin-inline-start: auto
+}
+
+.tab-label-container {
+	max-width: min-content;
+	margin-inline-end: auto;
+}
+
+/* Increase minimum tab width */
+.tabbrowser-tab {
+	min-width: 125px !important;
+}
+
+/* Change tab decorations */
+.tab-background {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	border-radius: 4px !important;
+}
+
+.tab-label {
+	color: var(--fg-color) !important;
+	font-weight: 600 !important;
+}
+
+/* Selected tab decorations */
+.tabbrowser-tab[selected] .tab-background {
+	background: transparent !important;
+	border: 1.5px solid var(--accent-color) !important;
+	box-shadow: none !important;
+	border-radius: 5px !important;
+}
+
+.tabbrowser-tab[selected] .tab-label {
+	color: var(--accent-color) !important;
+	font-weight: 700 !important;
+}
+
+/* Dimmed urlbar scheme */
+.urlbar-input .text-link{
+	color: #ff0000 !important;
+}
+
+.urlbar-input-box .urlbar-scheme {
+	color: #ff0000 !important;
+	font-weight: 400 !important;
+}
+
+/* Normal color for real/host part of URL */
+.urlbar-input-box .urlbar-domain {
+	color: #e8e8e8 !important;
+	font-weight: 700 !important;
+}
+
+/* Placeholder text */
+#urlbar-input::placeholder {
+	color: #a5a3a1 !important;
+	font-weight: 700 !important;
+}
+
+/** End customize address bar **/
+
+/** Customize burger menu **/
+
+/* Hide sync button */
+toolbaritem#appMenu-fxa-status2 {
+	display: none !important;
+}
+
+/* Hide profiles button */
+toolbarbutton#appMenu-empty-profiles-button {
+	display: none !important;
+}
+
+/* Hide ugly gradient separator */
+toolbarseparator#appMenu-fxa-separator {
+	display: none !important;
+}
+
+/* Other separators are not uniquely identified unfortunately */
+toolbarseparator {
+	display: none !important;
+}
+
+/* Hide print button (just use hotkey) */
+toolbarbutton#appMenu-print-button2 {
+	display: none !important;
+}
+
+/* Hide save button (just use hotkey) */
+toolbarbutton#appMenu-save-file-button2 {
+	display: none !important;
+}
+
+/* Hide find button (just use hotkey) */
+toolbarbutton#appMenu-find-button2 {
+	display: none !important;
+}
+
+/* Hide zoom controls (just use hotkeys) */
+toolbaritem#appMenu-zoom-controls {
+	display: none !important;
+}
+
+/* Hide report broken site button */
+toolbarbutton#appMenu-report-broken-site-button {
+	display: none !important;
+}
+
+/* Hide help button */
+toolbarbutton#appMenu-help-button2 {
+	display: none !important;
+}
+
+/* Hide quit button */
+toolbarbutton#appMenu-quit-button2 {
+	display: none !important;
+}
+
+/** End customize burger menu **/
+
+/** Customize (right-click) popup **/
+
+/* Hide useless menu navigation group */
+menugroup#context-navigation {
+	display: none !important;
+}
+
+/* Hide useless select all */
+menuitem#context-selectall {
+	display: none !important;
+}
+
+/* Hide "Inspect Accessibility Properties */
+menuitem#context-inspect-a11y {
+	display: none !important;
+}
+
+/* Hide take screenshot button */
+menuitem#context-take-screenshot {
+	display: none !important;
+}
+
+/* Hide email image button (be fr bruv) */
+menuitem#context-sendimage {
+	display: none !important;
+}
+
+/* Hide bookmark link button */
+menuitem#context-bookmarklink {
+	display: none !important;
+}
+
+/* Hide save link as button */
+menuitem#context-savelink {
+	display: none !important;
+}
+
+/* Hide open link in split view button */
+menuitem#context-openlinkinsplitview {
+	display: none !important;
+}
+
+/* Hide separators */
+menuseparator#context-sep-screenshots,
+menuseparator#context-sep-selectall, menuseparator#context-sep-navigation {
+	display: none !important;
+}
+
+/** End customize popup **/
 

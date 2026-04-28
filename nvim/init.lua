@@ -160,7 +160,11 @@ require("lazy").setup({
 
 						-- Run after main event-loop because starting nvim-treesitter is slow
 						vim.schedule(function()
-							vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+							-- Only use nvim-treesitter's indentation if it has indentation rules for that lang
+							if vim.treesitter.query.get(lang, "indents") ~= nil then
+								vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+							end
+
 							pcall(vim.treesitter.start)
 
 							-- Display non-blocking assignment in Verilog as ⇐ instead of <= (⩽ with ligatures)

@@ -137,7 +137,7 @@ fetch_mawaqit() {
 	local response=$(curl -s "https://mawaqit.net/en/$MASJID_ID")
 
 	if [ $? -eq 0 ]; then
-		local conf_data=$(echo "$response" | grep -oP 'var confData = \K.*(?=;)')
+		local conf_data=$(echo "$response" | grep -oP '(var|let) confData = \K.*(?=;)')
 
 		if [ -n "$conf_data" ]; then
 			echo "$conf_data"
