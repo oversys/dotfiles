@@ -62,10 +62,14 @@ WALLPAPER="$HOME/.config/wallpapers/$FOLDER/$WALLPAPER"
 wal -si $WALLPAPER
 hyprctl hyprpaper wallpaper ",$WALLPAPER"
 
-# Waybar, rofi, and dunst colors
+# Templates
 cp $HOME/.config/waybar/style.bak $HOME/.config/waybar/style.css
 cp $HOME/.config/rofi/theme.bak $HOME/.config/rofi/theme.rasi
 cp $HOME/.config/dunst/dunstrc.bak $HOME/.config/dunst/dunstrc
+
+mozilla_dirs=("$HOME"/.mozilla/firefox/*.default-release)
+MOZILLA_DIR="${mozilla_dirs[0]}"
+cp $MOZILLA_DIR/chrome/userChrome.bak $MOZILLA_DIR/chrome/userChrome.css
 
 FG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.foreground)
 BG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.background)
@@ -107,11 +111,11 @@ done
 DIMMERCOL2=$(dimlightcol $COL2 0.55)
 
 # color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMMERCOL2" "DIMCOL4" "DIMCOL5")
-configs=("waybar/style.css" "rofi/theme.rasi" "dunst/dunstrc")
+configs=("$HOME/.config/waybar/style.css" "$HOME/.config/rofi/theme.rasi" "$HOME/.config/dunst/dunstrc" "$MOZILLA_DIR/chrome/userChrome.css")
 
 for config in "${configs[@]}"; do
 	for color in "${color_names[@]}"; do
-		sed -i "s/__${color}__/${!color}/" "$HOME/.config/$config"
+		sed -i "s/__${color}__/${!color}/" "$config"
 	done
 done
 
@@ -121,3 +125,4 @@ waybar &
 
 # Kill dunst
 killall dunst
+
