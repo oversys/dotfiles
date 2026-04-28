@@ -1,4 +1,5 @@
 @import "colors.css";
+@import "fonts.css";
 
 /* TODO:
 * Style trust, permissions, translate, and bookmark buttons.
@@ -16,8 +17,8 @@
 	/* Colors */
 	--bg-color: #111111;
 	--lighter-bg-color: #1a1a1a;
-	--fg-color: var(--foreground, #72b1cc);
-	--accent-color: var(--color1, #ff6188);
+	--fg-color: __FG__;
+	--accent-color: __COL1__;
 
 	/* Panel customization */
 	--panel-background: var(--lighter-bg-color) !important;
@@ -149,6 +150,22 @@ toolbarbutton#forward-button:active {
 
 toolbarbutton#urlbar-zoom-button {
 	color: var(--fg-color) !important;
+}
+
+/* Change downloads button color */
+#downloads-indicator-icon {
+	fill: var(--fg-color) !important;
+}
+
+toolbarbutton#downloads-button[attention] #downloads-indicator-icon,
+toolbarbutton#downloads-button[downloading] #downloads-indicator-icon,
+toolbarbutton#downloads-button[open="true"] #downloads-indicator-icon {
+	fill: var(--accent-color) !important;
+}
+
+#downloads-indicator-finish-image, #downloads-indicator-start-image,
+#downloads-indicator-progress-inner, #downloads-indicator-progress-outer {
+	fill: var(--accent-color) !important;
 }
 
 /* Hide other search engines button */
