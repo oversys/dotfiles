@@ -1,0 +1,29 @@
+/* Customize about: pages */
+@-moz-document url-prefix("about:") {
+	:root {
+		--bg-color: #111111;
+		--lighter-bg-color: #1a1a1a;
+		--accent-color: __COL1__;
+
+		accent-color: var(--accent-color) !important;
+		--color-accent-primary: var(--accent-color) !important;
+		--color-accent-primary-hover: var(--accent-color) !important;
+		--color-accent-primary-active: var(--accent-color) !important;
+		--color-accent-primary-selected: var(--accent-color) !important;
+
+		--background-color-canvas: var(--bg-color) !important;
+
+		--background-color-box: var(--lighter-bg-color) !important;
+		--input-text-background-color: var(--lighter-bg-color) !important;
+		--background-color-box-info: var(--lighter-bg-color) !important;
+
+		--table-background-color: var(--lighter-bg-color) !important;
+		--table-row-background-color: var(--bg-color) !important;
+		--table-row-background-color-alternate: var(--lighter-bg-color) !important;
+	}
+
+	input, .qr-code-box {
+		background-color: var(--lighter-bg-color) !important;
+	}
+}
+
