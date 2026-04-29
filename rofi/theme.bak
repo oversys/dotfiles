@@ -1,7 +1,7 @@
 * {
 	col2: __COL2__;
+	fgcol2: __FGCOL2__;
 	dimcol2: __DIMCOL2__;
-	dimmercol2: __DIMMERCOL2__;
     bg: __BG__;
     fg: __FG__;
     light-bg: __LIGHTBG__;
