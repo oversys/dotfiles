@@ -63,3 +63,7 @@ user_pref("signon.autofillForms", false);
 user_pref("signon.firefoxRelay.feature", "disabled");
 user_pref("signon.generation.enabled", false);
 
+// Disable previous/next page swiping
+user_pref("browser.gesture.swipe.left", "");
+user_pref("browser.gesture.swipe.right", "");
+

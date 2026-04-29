@@ -1,19 +1,11 @@
 /* Last working version: Mozilla Firefox 150.0 */
 
-@import "colors.css";
 @import "fonts.css";
 
 /* TODO:
-* Style trust, permissions, translate, and bookmark buttons (fix hover effects).
 * Style CTRL + F find bar.
-* Style checkboxes, radios, etc.
 * Style new tab page (in userContent.css).
 */
-
-/* Change font */
-* {
-	font-family: "JetBrainsMono NF" !important;
-}
 
 :root {
 	/* Colors */
@@ -32,6 +24,15 @@
 	--toolbarbutton-active-background: transparent !important;
 	--toolbarbutton-active-outline-color: var(--accent-color) !important;
 	--toolbarbutton-icon-fill-attention: var(--accent-color) !important;
+
+	--color-accent-primary: var(--accent-color) !important;
+	--border-color-selected: var(--accent-color) !important;
+}
+
+/* Change font and accent color on all elements */
+* {
+	font-family: "JetBrainsMono NF" !important;
+	accent-color: var(--accent-color) !important;
 }
 
 /* Change popup colors */
@@ -73,6 +74,15 @@ button[default="true"] {
 /* Hide all tabs button */
 toolbarbutton#alltabs-button {
 	display: none !important;
+}
+
+/* Hide tab scroll forwards and backwards buttons */
+toolbarbutton#scrollbutton-down {
+	display: none !important;
+}
+
+toolbarbutton#scrollbutton-up .toolbarbutton-icon {
+	width: 0px !important;
 }
 
 /* Hide browser close button */
@@ -135,7 +145,7 @@ toolbarbutton#back-button, toolbarbutton#forward-button,
 toolbarbutton#reload-button, toolbarbutton#PanelUI-menu-button,
 toolbarbutton#downloads-button, #trust-icon,
 #star-button, #translations-button-icon,
-#permissions-granted-icon, #blocked-permissions-container image,
+#permissions-granted-icon, .blocked-permission-icon,
 #urlbar-revert-button {
 	fill: var(--fg-color) !important;
 }
@@ -151,7 +161,7 @@ toolbarbutton#downloads-button, #trust-icon,
 /* Change icon colors when open/active (burger menu, refresh) */
 #nav-bar .toolbarbutton-1[open="true"] > .toolbarbutton-badge-stack,
 .toolbarbutton-animatable-box, toolbarbutton#back-button:active,
-toolbarbutton#forward-button:active {
+toolbarbutton#forward-button:active, toolbarbutton#stop-button {
 	fill: var(--accent-color) !important;
 }
 
@@ -178,8 +188,31 @@ toolbarbutton#downloads-button[open="true"] #downloads-indicator-icon {
 	fill: var(--accent-color) !important;
 }
 
+/* Download animations */
 #downloads-indicator-finish-image, #downloads-indicator-start-image,
 #downloads-indicator-progress-inner, #downloads-indicator-progress-outer {
+	fill: var(--accent-color) !important;
+}
+
+/* Style normal/hover/active effects of trust icon, permissions box, translation icon, and bookmark icon  */
+#trust-icon-container, #identity-permission-box, #translations-button, #star-button-box {
+	background: none !important;
+	outline: none !important;
+	border: none !important;
+}
+
+#trust-icon-container[open="true"], #trust-icon-container:active,
+#identity-permission-box[open="true"], #identity-permission-box:active,
+#translations-button[open="true"], #translations-button:active,
+#star-button-box[open="true"], #star-button-box:active {
+	outline: 1px solid var(--accent-color) !important;
+}
+
+#trust-icon-container[open="true"] #trust-icon, #trust-icon-container:active #trust-icon,
+#identity-permission-box[open="true"] #permissions-granted-icon, #identity-permission-box:active #permissions-granted-icon,
+#identity-permission-box[open="true"] .blocked-permission-icon, #identity-permission-box:active .blocked-permission-icon,
+#translations-button[open="true"] #translations-button-icon, #translations-button:active #translations-button-icon,
+#star-button-box[open="true"] #star-button, #star-button-box:active #star-button, #star-button[starred] {
 	fill: var(--accent-color) !important;
 }
 
@@ -442,4 +475,3 @@ menu[_moz-menuactive="true"] {
 }
 
 /** End customize popup **/
-
