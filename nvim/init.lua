@@ -133,7 +133,7 @@ require("lazy").setup({
 			})
 
 			vim.cmd("colorscheme monokai-pro")
-			vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a3a", blend = 10 })
+			vim.api.nvim_set_hl(0, "CursorLine", { bg = "#39383a", blend = 10 })
 		end
 	},
 
