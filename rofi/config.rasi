@@ -48,7 +48,7 @@ prompt, element selected, button selected {
 	background-color: @col2;
 	border-color: @dimcol2;
 	border: 0px 0px 8px 0px;
-    text-color: @bg;
+    text-color: @fgcol2;
 }
 
 element, entry, button {
@@ -94,7 +94,7 @@ element-icon {
 button {
     padding: 12px;
     margin: 10px 5px 10px 5px;
-    text-color: @dimmercol2;
+    text-color: @fg;
     vertical-align: 0.5; 
     horizontal-align: 0.5;
 }
@@ -105,3 +105,4 @@ listview {
     background-color: #00000000;
     columns: 1;
 }
+

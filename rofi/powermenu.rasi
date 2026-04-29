@@ -51,7 +51,7 @@ element {
 
 element selected.normal {
     background-color: @col2;
-    text-color: @bg;
+    text-color: @fgcol2;
     border: 0px 0px 8px 0px;
     border-color: @dimcol2;
     background-color: @col2;

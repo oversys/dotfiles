@@ -95,7 +95,7 @@ check_brightness() {
 }
 
 colors=("1" "2" "4" "5")
-color_names=("FG" "DIMFG" "BG" "LIGHTBG" "LIGHTERBG" "DIMMERCOL2")
+color_names=("FG" "DIMFG" "BG" "LIGHTBG" "LIGHTERBG")
 
 for color in "${colors[@]}"; do
 	fg_color_name="FGCOL${color}"
@@ -111,10 +111,9 @@ for color in "${colors[@]}"; do
 	eval "$fg_color_name=\$(check_brightness \$$color_name)"
 done
 
-DIMMERCOL2=$(dimlightcol $COL2 0.55)
 DIMFG=$(dimlightcol $FG 0.55)
 
-# color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMMERCOL2" "DIMCOL4" "DIMCOL5")
+# color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMCOL4" "DIMCOL5")
 configs=("$HOME/.config/waybar/style.css" "$HOME/.config/rofi/theme.rasi" "$HOME/.config/dunst/dunstrc" "$MOZILLA_DIR/chrome/userChrome.css" "$MOZILLA_DIR/chrome/userContent.css")
 
 for config in "${configs[@]}"; do
