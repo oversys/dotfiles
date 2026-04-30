@@ -118,6 +118,8 @@ toolbar#PersonalToolbar {
 	/* Move bookmarks below tabs */
 	order: 3 !important;
 
+	height: 32px !important;
+
 	/* Change bookmark toolbar colors */
 	background-color: var(--bg-color) !important;
 	color: var(--fg-color) !important;
@@ -140,11 +142,39 @@ toolbar#PersonalToolbar:hover {
 		max-height 0.3s linear 1s !important;
 }
 
+/* Change color of menu bookmark item */
+image.toolbarbutton-icon[type="menu"] {
+	fill: var(--fg-color) !important;
+}
+
 /* Change colors of opened bookmark item (ex.: folder) */
 toolbarbutton.bookmark-item[open="true"] {
 	color: var(--accent-color) !important;
 	border-radius: 4px !important;
 	font-weight: 700 !important;
+}
+
+toolbarbutton.bookmark-item[open="true"] image.toolbarbutton-icon[type="menu"] {
+	fill: var(--accent-color) !important;
+}
+
+/* Change icon of directory */
+image.toolbarbutton-icon[src^="page-icon:file:///"] {
+	-moz-context-properties: fill !important;
+	fill: var(--fg-color) !important;
+	content: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M426.666667 170.666667H170.666667c-47.146667 0-84.906667 38.186667-84.906667 85.333333L85.333333 768c0 47.146667 38.186667 85.333333 85.333334 85.333333h682.666666c47.146667 0 85.333333-38.186667 85.333334-85.333333V341.333333c0-47.146667-38.186667-85.333333-85.333334-85.333333H512l-85.333333-85.333333z" /></svg>') !important;
+	width: 18px !important;
+	height: 18px !important;
+}
+
+/* Add more space between bookmark icon and label */
+toolbarbutton.bookmark-item image.toolbarbutton-icon {
+	margin-inline-end: 6px !important;
+}
+
+/* Improve bookmark icon vertical alignment */
+toolbarbutton.bookmark-item image.toolbarbutton-icon {
+	margin-block-end: -2px !important;
 }
 
 /** Customize address bar **/
@@ -263,6 +293,19 @@ toolbarbutton#downloads-button[open="true"] #downloads-indicator-icon {
 }
 
 .tabbrowser-tab[selected] .tab-icon-image[src="chrome://branding/content/icon32.png"] {
+	fill: var(--accent-color) !important;
+}
+
+/* Change icon of directory navigation */
+.tab-icon-image[src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACgElEQVQ4T6VTS2sTURT+7sydjGmTpklLWmmtaSWhUERQRLdCwZV06baCbvwDBXWhC0F/gUuXbpSKDxSRQglNSzG19qFQsLhoq22xMckkk8zcmfGcKxZdd+Bw4XLP9zpnBI74Ce4vl8u3BgYG7q+tr0NaFkYLBURRhCAIoJSC53mo1+uoVqtwXRcWvaHz3sTExF0NsLGx8XboxNDlpeWPiHd04PTYmNbFAL7va4BWq4VKpYKdnR0IIZhgdnx8/JIolUrxwcHBz9lsNmfb9mHjv+zczMVqarUa9vb2EI/Ht9rt9qhYWFjI53K51WQyabM00zQRhuGhfHoErmazqU/P80nFNhKJhLe/v39WFIvFK4VC4UUsFiOPNZAS2LZF0sm776Hd4iZPF/vf2tpGo+EglUrBcZyrYn5+fiqfzz+QUuqganUHic5OdCYS4LswCuE2mvh5UCHpu2i5TW2FFLDS22JxcfFxV1dqks1nMmkdGvsNghDCNBCFkWZuOA7du3DJykHlF3p6MhzkE7GysvqBfJ9Tykdffz8CQg9phNzITCEBqUBp/67b0mBKBTQJMMCaeD8zu6k8b9g+ZuvHwjBhcAmDTq7/Q/WJSEQG3JaDmC2/iWfTr75m0pkRDs8wBKRpkfc/xRNhIFbAahQF2zaqmCk/hfH9OHL54U0x/fzlj97ebF93d5oaJCwZg0UTsTSA/LMXxMrMyg8QJR3ceXQdYu0Ubtyc3BWv37xbNg15Jk0ABjXEeBf+KiALIa8zbyQDUAVRG6tflqAcidzIyU9ibq58rVQqTlEkXcwopRkZhtTeec8DWqowVHQSECmgDRWWJSnEsHb+wsWH+l84yndkgN/LSn0+ufpeUQAAAABJRU5ErkJggg=="] {
+	-moz-context-properties: fill !important;
+	fill: var(--fg-color) !important;
+	content: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M426.666667 170.666667H170.666667c-47.146667 0-84.906667 38.186667-84.906667 85.333333L85.333333 768c0 47.146667 38.186667 85.333333 85.333334 85.333333h682.666666c47.146667 0 85.333333-38.186667 85.333334-85.333333V341.333333c0-47.146667-38.186667-85.333333-85.333334-85.333333H512l-85.333333-85.333333z" /></svg>') !important;
+	width: 16px !important;
+	height: 16px !important;
+}
+
+.tabbrowser-tab[selected] .tab-icon-image[src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACgElEQVQ4T6VTS2sTURT+7sydjGmTpklLWmmtaSWhUERQRLdCwZV06baCbvwDBXWhC0F/gUuXbpSKDxSRQglNSzG19qFQsLhoq22xMckkk8zcmfGcKxZdd+Bw4XLP9zpnBI74Ce4vl8u3BgYG7q+tr0NaFkYLBURRhCAIoJSC53mo1+uoVqtwXRcWvaHz3sTExF0NsLGx8XboxNDlpeWPiHd04PTYmNbFAL7va4BWq4VKpYKdnR0IIZhgdnx8/JIolUrxwcHBz9lsNmfb9mHjv+zczMVqarUa9vb2EI/Ht9rt9qhYWFjI53K51WQyabM00zQRhuGhfHoErmazqU/P80nFNhKJhLe/v39WFIvFK4VC4UUsFiOPNZAS2LZF0sm776Hd4iZPF/vf2tpGo+EglUrBcZyrYn5+fiqfzz+QUuqganUHic5OdCYS4LswCuE2mvh5UCHpu2i5TW2FFLDS22JxcfFxV1dqks1nMmkdGvsNghDCNBCFkWZuOA7du3DJykHlF3p6MhzkE7GysvqBfJ9Tykdffz8CQg9phNzITCEBqUBp/67b0mBKBTQJMMCaeD8zu6k8b9g+ZuvHwjBhcAmDTq7/Q/WJSEQG3JaDmC2/iWfTr75m0pkRDs8wBKRpkfc/xRNhIFbAahQF2zaqmCk/hfH9OHL54U0x/fzlj97ebF93d5oaJCwZg0UTsTSA/LMXxMrMyg8QJR3ceXQdYu0Ubtyc3BWv37xbNg15Jk0ABjXEeBf+KiALIa8zbyQDUAVRG6tflqAcidzIyU9ibq58rVQqTlEkXcwopRkZhtTeec8DWqowVHQSECmgDRWWJSnEsHb+wsWH+l84yndkgN/LSn0+ufpeUQAAAABJRU5ErkJggg=="] {
 	fill: var(--accent-color) !important;
 }
 
