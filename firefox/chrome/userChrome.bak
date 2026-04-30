@@ -1,9 +1,5 @@
 /* Last working version: Mozilla Firefox 150.0.1 */
 
-/* TODO:
-* Style CTRL + F find bar.
-*/
-
 @import "fonts.css";
 
 :root {
@@ -31,6 +27,8 @@
 	--link-color: var(--accent-color) !important;
 	--link-color-hover: var(--accent-color) !important;
 	--link-color-active: var(--accent-color) !important;
+
+	--text-color: var(--fg-color) !important;
 }
 
 /* Change font and accent color on all elements */
@@ -133,7 +131,8 @@ toolbar#PersonalToolbar {
 		max-height 0.3s ease 1s !important;
 }
 
-toolbar#TabsToolbar:hover ~ toolbar#PersonalToolbar, toolbar#PersonalToolbar:hover {
+toolbar#TabsToolbar:hover ~ toolbar#PersonalToolbar,
+toolbar#PersonalToolbar:hover {
 	opacity: 1 !important;
 	max-height: 100px !important;
 	transition:
@@ -151,11 +150,16 @@ toolbarbutton.bookmark-item[open="true"] {
 /** Customize address bar **/
 
 /* Change icon colors */
-toolbarbutton#back-button, toolbarbutton#forward-button,
-toolbarbutton#reload-button, toolbarbutton#PanelUI-menu-button,
-toolbarbutton#downloads-button, #trust-icon,
-#star-button, #translations-button-icon,
-#permissions-granted-icon, .blocked-permission-icon,
+toolbarbutton#back-button,
+toolbarbutton#forward-button,
+toolbarbutton#reload-button,
+toolbarbutton#PanelUI-menu-button,
+toolbarbutton#downloads-button,
+#trust-icon,
+#star-button,
+#translations-button-icon,
+#permissions-granted-icon,
+.blocked-permission-icon,
 #urlbar-revert-button {
 	fill: var(--fg-color) !important;
 }
@@ -170,8 +174,10 @@ toolbarbutton#downloads-button, #trust-icon,
 
 /* Change icon colors when open/active (burger menu, refresh) */
 #nav-bar .toolbarbutton-1[open="true"] > .toolbarbutton-badge-stack,
-.toolbarbutton-animatable-box, toolbarbutton#back-button:active,
-toolbarbutton#forward-button:active, toolbarbutton#reload-button:active,
+.toolbarbutton-animatable-box,
+toolbarbutton#back-button:active,
+toolbarbutton#forward-button:active,
+toolbarbutton#reload-button:active,
 toolbarbutton#stop-button {
 	fill: var(--accent-color) !important;
 }
@@ -200,30 +206,45 @@ toolbarbutton#downloads-button[open="true"] #downloads-indicator-icon {
 }
 
 /* Download animations */
-#downloads-indicator-finish-image, #downloads-indicator-start-image,
-#downloads-indicator-progress-inner, #downloads-indicator-progress-outer {
+#downloads-indicator-finish-image,
+#downloads-indicator-start-image,
+#downloads-indicator-progress-inner,
+#downloads-indicator-progress-outer {
 	fill: var(--accent-color) !important;
 }
 
 /* Style normal/hover/active effects of trust icon, permissions box, translation icon, and bookmark icon */
-#trust-icon-container, #identity-permission-box, #translations-button, #star-button-box {
+#trust-icon-container,
+#identity-permission-box,
+#translations-button,
+#star-button-box {
 	background: none !important;
 	outline: none !important;
 	border: none !important;
 }
 
-#trust-icon-container[open="true"], #trust-icon-container:active,
-#identity-permission-box[open="true"], #identity-permission-box:active,
-#translations-button[open="true"], #translations-button:active,
-#star-button-box[open="true"], #star-button-box:active {
+#trust-icon-container[open="true"],
+#trust-icon-container:active,
+#identity-permission-box[open="true"],
+#identity-permission-box:active,
+#translations-button[open="true"],
+#translations-button:active,
+#star-button-box[open="true"],
+#star-button-box:active {
 	outline: 1px solid var(--accent-color) !important;
 }
 
-#trust-icon-container[open="true"] #trust-icon, #trust-icon-container:active #trust-icon,
-#identity-permission-box[open="true"] #permissions-granted-icon, #identity-permission-box:active #permissions-granted-icon,
-#identity-permission-box[open="true"] .blocked-permission-icon, #identity-permission-box:active .blocked-permission-icon,
-#translations-button[open="true"] #translations-button-icon, #translations-button:active #translations-button-icon,
-#star-button-box[open="true"] #star-button, #star-button-box:active #star-button, #star-button[starred] {
+#trust-icon-container[open="true"] #trust-icon,
+#trust-icon-container:active #trust-icon,
+#identity-permission-box[open="true"] #permissions-granted-icon,
+#identity-permission-box:active #permissions-granted-icon,
+#identity-permission-box[open="true"] .blocked-permission-icon,
+#identity-permission-box:active .blocked-permission-icon,
+#translations-button[open="true"] #translations-button-icon,
+#translations-button:active #translations-button-icon,
+#star-button-box[open="true"] #star-button,
+#star-button-box:active #star-button,
+#star-button[starred] {
 	fill: var(--accent-color) !important;
 }
 
@@ -281,7 +302,8 @@ toolbarbutton#tabs-newtab-button:active {
 }
 
 /* Toolbar background */
-#nav-bar, #TabsToolbar {
+#nav-bar,
+#TabsToolbar {
 	background: var(--bg-color) !important;
 	border: none !important;
 	box-shadow: none !important;
@@ -395,6 +417,40 @@ toolbarbutton#tabs-newtab-button:active {
 
 /** End customize address bar **/
 
+/** Customize tab right-click popup menu **/
+
+/* Hide new tab to right button */
+menuitem#context_openANewTab {
+	display: none !important;
+}
+
+/* Hide add tab to new group button */
+menuitem#context_moveTabToNewGroup {
+	display: none !important;
+}
+
+/* Hide add split view button */
+menuitem#context_moveTabToSplitView {
+	display: none !important;
+}
+
+/* Hide close duplicate tabs button */
+menuitem#context_closeDuplicateTabs {
+	display: none !important;
+}
+
+/* Hide close multiple tabs button */
+menu#context_closeTabOptions {
+	display: none !important;
+}
+
+/* Hide separators */
+menupopup#tabContextMenu menuseparator {
+	display: none !important;
+}
+
+/** End customize tab right-click popup menu **/
+
 /** Customize burger menu **/
 
 /* Hide sync button */
@@ -498,7 +554,8 @@ menuitem#context-openlinkinsplitview {
 
 /* Hide separators */
 menuseparator#context-sep-screenshots,
-menuseparator#context-sep-selectall, menuseparator#context-sep-navigation {
+menuseparator#context-sep-selectall,
+menuseparator#context-sep-navigation {
 	display: none !important;
 }
 
@@ -513,7 +570,8 @@ menu[_moz-menuactive="true"] {
 /** End customize popup **/
 
 /* Style history sidebar */
-#sidebar-box, #historyTree {
+#sidebar-box,
+#historyTree {
 	background-color: var(--bg-color) !important;
 	color: var(--fg-color) !important;
 }
@@ -548,4 +606,104 @@ toolbarbutton#sidebar-close:active {
 	outline: 1px solid var(--accent-color) !important;
 	fill: var(--accent-color) !important;
 }
+
+/* Style print popup */
+:root[dialogroot] {
+	--background-color-canvas: var(--bg-color) !important;;
+}
+
+/** Customize CTRL + F find bar **/
+
+/* Customize entire element */
+findbar {
+	position: absolute !important;
+	top: 12px !important;
+	right: 20px !important;
+	padding: 12px 6px !important;
+	min-width: 320px !important;
+	contain: none !important;
+
+	background: none !important;
+	background-color: var(--lighter-bg-color) !important;
+	color: var(--fg-color) !important;
+
+	border: 1px solid var(--bg-color) !important;
+	border-radius: 6px !important;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Customize text input */
+.findbar-textbox {
+	order: 1 !important;
+	width: 200px !important;
+	padding: 4px 8px !important;
+	margin-right: 6px !important;;
+
+	background: transparent !important;
+	color: var(--fg-color) !important;
+
+	border: none !important;
+	outline: none !important;
+}
+
+/* Change color when pattern is not found */
+.findbar-textbox[status="notfound"] {
+	background-color: rgba(255, 60, 60, 0.15) !important;
+	color: #ff9999 !important;
+	border-radius: 4px !important;
+}
+
+/* Customize status text */
+.findbar-find-status,
+.findbar-label {
+	margin: 0 6px !important;
+
+	font-weight: normal !important;
+	font-style: italic !important;
+}
+
+/* Style buttons */
+toolbarbutton.findbar-find-previous,
+toolbarbutton.findbar-find-next,
+toolbarbutton.findbar-closebutton {
+	padding: 6px !important;
+	margin: 0 2px !important;
+
+	fill: var(--fg-color) !important;
+	cursor: pointer !important;
+}
+
+toolbarbutton.findbar-find-previous:active,
+toolbarbutton.findbar-find-next:active,
+toolbarbutton.findbar-closebutton:active {
+	fill: var(--accent-color) !important;
+}
+
+/* Change order of buttons */
+toolbarbutton.findbar-find-previous {
+	order: 3 !important;
+
+	border-left: 1px solid #3E3E42 !important;
+	border-radius: 0 !important;
+	padding-left: 10px !important;
+}
+
+toolbarbutton.findbar-find-next {
+	order: 4 !important;
+}
+
+toolbarbutton.findbar-closebutton {
+	order: 99 !important;
+	margin-right: 6px !important;
+}
+
+/* Hide advanced controls */
+.findbar-highlight,
+.findbar-case-sensitive,
+.findbar-match-diacritics,
+.findbar-entire-word {
+	display: none !important;
+}
+
+/** End customize CTRL + F find bar **/
 
