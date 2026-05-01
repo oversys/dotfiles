@@ -94,12 +94,14 @@
 
 	/* Dua */
 	.search-inner-wrapper::after {
-		content: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ" !important;
+		/* content: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ" !important; */
+		content: "__DHIKR__" !important;
 
 		position: fixed !important;
 		top: 45% !important;
 		left: 50% !important;
 		transform: translateX(-50%) !important;
+		width: 650px !important;
 
 		font-size: 64px !important;
 		font-family: "Diwani Letter" !important;
