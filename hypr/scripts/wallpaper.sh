@@ -70,9 +70,9 @@ cp $HOME/.config/rofi/theme.bak $HOME/.config/rofi/theme.rasi
 cp $HOME/.config/dunst/dunstrc.bak $HOME/.config/dunst/dunstrc
 
 mozilla_dirs=("$HOME"/.mozilla/firefox/*.default-release)
-MOZILLA_DIR="${mozilla_dirs[0]}"
-cp $MOZILLA_DIR/chrome/userChrome.bak $MOZILLA_DIR/chrome/userChrome.css
-cp $MOZILLA_DIR/chrome/userContent.bak $MOZILLA_DIR/chrome/userContent.css
+MOZILLA_DIR="${mozilla_dirs[0]}/chrome"
+cp $MOZILLA_DIR/userChrome.bak $MOZILLA_DIR/userChrome.css
+cp $MOZILLA_DIR/userContent.bak $MOZILLA_DIR/userContent.css
 
 FG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.foreground)
 BG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.background)
@@ -114,13 +114,16 @@ done
 DIMFG=$(dimlightcol $FG 0.55)
 
 # color_names=("FG" "BG" "LIGHTBG" "LIGHTERBG" "FGCOL1" "FGCOL2" "FGCOL4" "FGCOL5" "COL1" "COL2" "COL4" "COL5" "DIMCOL1" "DIMCOL2" "DIMCOL4" "DIMCOL5")
-configs=("$HOME/.config/waybar/style.css" "$HOME/.config/rofi/theme.rasi" "$HOME/.config/dunst/dunstrc" "$MOZILLA_DIR/chrome/userChrome.css" "$MOZILLA_DIR/chrome/userContent.css")
+configs=("$HOME/.config/waybar/style.css" "$HOME/.config/rofi/theme.rasi" "$HOME/.config/dunst/dunstrc" "$MOZILLA_DIR/userChrome.css" "$MOZILLA_DIR/userContent.css")
 
 for config in "${configs[@]}"; do
 	for color in "${color_names[@]}"; do
 		sed -i "s/__${color}__/${!color}/" "$config"
 	done
 done
+
+dhikr=$(jq -r '.[]' "$MOZILLA_DIR/dhikr.json" | shuf -n 1)
+sed -i "s/__DHIKR__/$dhikr/" "$MOZILLA_DIR/userContent.css"
 
 # Restart waybar
 killall waybar
