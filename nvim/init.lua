@@ -308,6 +308,11 @@ require("lazy").setup({
 			-- 	table.insert(servers, "verible")
 			-- end
 
+			-- Add Haskell Language Server only if installed (available in official Arch repo)
+			if vim.fn.executable("haskell-language-server") then
+				table.insert(servers, "hls")
+			end
+
 			for _, lsp in ipairs(servers) do
 				vim.lsp.enable(lsp)
 			end
@@ -376,51 +381,57 @@ require("lazy").setup({
 })
 
 -- Key bindings
-local function map_key(mode, keys, command)
-	vim.keymap.set(mode, keys, command)
+local function map_key(mode, keys, command, description)
+	local opts = {}
+
+	if description then
+		opts.desc = description
+	end
+
+	vim.keymap.set(mode, keys, command, opts)
 end
 
 -- Toggle file explorer
-map_key('n', "<C-t>", "<CMD>Neotree toggle<CR>")
+map_key('n', "<C-t>", "<CMD>Neotree toggle<CR>", "Toggle file explorer")
 
 -- Copy to system clipboard
-map_key('n', "<leader>y", '"+y')
-map_key('v', "<leader>y", '"+y')
+map_key('n', "<leader>y", '"+y', "Copy to system clipboard")
+map_key('v', "<leader>y", '"+y', "Copy selection to system clipboard")
 
--- Press escape to clear search pattern highlighting
-map_key('n', "<ESC>", "<CMD>nohlsearch<CR>")
+-- Press escape to clear search pattern highlighting and command line/messages
+map_key('n', "<ESC>", "<CMD>nohlsearch<BAR>echo<CR>")
 
 -- Manage Tabs
-map_key('n', "<C-Tab>", "<CMD>bnext<CR>")
-map_key('n', "<C-S-Tab>", "<CMD>bprev<CR>")
-map_key('n', "<C-w>", "<CMD>bdelete<CR>")
+map_key('n', "<C-Tab>", "<CMD>bnext<CR>", "Go to next tab")
+map_key('n', "<C-S-Tab>", "<CMD>bprev<CR>", "Go to previous tab")
+map_key('n', "<C-w>", "<CMD>bdelete<CR>", "Close current tab")
 
 vim.api.nvim_del_keymap('n', "<C-W><C-D>")
 vim.api.nvim_del_keymap('n', "<C-W>d")
 
 for i = 1, 9 do
-	map_key('n', "<C-" .. i .. ">", "<CMD>BufferLineGoToBuffer " .. i .. "<CR>")
+	map_key('n', "<C-" .. i .. ">", "<CMD>BufferLineGoToBuffer " .. i .. "<CR>", "Go to tab " .. i)
 end
 
 -- Telescope
 local builtin = require("telescope.builtin")
-map_key('n', "<leader>tf", builtin.find_files)
-map_key('n', "<leader>tr", builtin.oldfiles)
-map_key('n', "<leader>th", builtin.help_tags)
-map_key('n', "<leader>tb", builtin.buffers)
-map_key('n', "<leader>tg", builtin.live_grep)
-map_key('n', "<leader>td", builtin.diagnostics)
-map_key('n', "<leader>tk", builtin.keymaps)
+map_key('n', "<leader>tf", builtin.find_files, "Search files")
+map_key('n', "<leader>tr", builtin.oldfiles, "Search old files")
+map_key('n', "<leader>th", builtin.help_tags, "Search help tags")
+map_key('n', "<leader>tb", builtin.buffers, "Search buffers")
+map_key('n', "<leader>tg", builtin.live_grep, "Search for pattern in directory files")
+map_key('n', "<leader>td", builtin.diagnostics, "Search diagnostics")
+map_key('n', "<leader>tk", builtin.keymaps, "Search keymaps")
 
 -- Go to definition/references
-map_key('n', "gd", vim.lsp.buf.definition)
-map_key('n', "gr", builtin.lsp_references)
+map_key('n', "gd", vim.lsp.buf.definition, "Go to definition")
+map_key('n', "gr", builtin.lsp_references, "Go to references")
 
 -- Diagnostics
-map_key('n', "<leader>dp", vim.diagnostic.goto_prev) -- Previous message
-map_key('n', "<leader>dn", vim.diagnostic.goto_next) -- Next message
-map_key('n', "<leader>dl", vim.diagnostic.open_float) -- Open diagnostic message(s) for current line
-map_key('n', "<leader>do", vim.diagnostic.setloclist) -- Open buffer diagnostics
+map_key('n', "<leader>dp", vim.diagnostic.goto_prev, "Go to previous diagnostic message")
+map_key('n', "<leader>dn", vim.diagnostic.goto_next, "Go to next diagnostic message")
+map_key('n', "<leader>dl", vim.diagnostic.open_float, "Open diagnostic message(s) for current line")
+map_key('n', "<leader>do", vim.diagnostic.setloclist, "Open all buffer diagnostic messages")
 
 -- Toggle autopairs
 map_key({ 'n', 'i' }, "<C-]>", function()
@@ -432,7 +443,7 @@ map_key({ 'n', 'i' }, "<C-]>", function()
 		autopairs.disable()
 		print("nvim-autopairs disabled")
 	end
-end)
+end, "Toggle autopairs")
 
 -- neoscroll
 --[[
@@ -453,14 +464,121 @@ end
 local modes = { 'n', 'v' }
 
 map_key(modes, "<ScrollWheelUp>", function()
-    neoscroll.scroll(-4, { move_cursor = true, duration = 50, easing = "sine" })
+	neoscroll.scroll(-4, { move_cursor = true, duration = 50, easing = "sine" })
 end)
 
 map_key(modes, "<ScrollWheelDown>", function()
-    neoscroll.scroll(4, { move_cursor = true, duration = 50, easing = "sine" })
+	neoscroll.scroll(4, { move_cursor = true, duration = 50, easing = "sine" })
 end)
 
 map_key(modes, "gg", function() top_bot("gg") end)
 map_key(modes, 'G', function() top_bot('G') end)
 ]]
+
+-- Toggling comments
+local function toggle_comment_range(start_line, end_line)
+	-- Get comment string
+	local cs = vim.bo.commentstring
+
+	if cs == "" then
+		return
+	end
+
+	-- Get comment start and end
+	local comment_start, comment_end = cs:match("^(.*)%%s(.*)$")
+
+	comment_start = vim.trim(comment_start or "")
+	comment_end = vim.trim(comment_end or "")
+
+	local lines = vim.api.nvim_buf_get_lines(
+		0,
+		start_line - 1,
+		end_line,
+		false
+	)
+
+	-- Check if all lines are commented
+	local all_commented = true
+
+	for _, line in ipairs(lines) do
+		local is_commented = false
+
+		if comment_start ~= "" then
+			is_commented = vim.startswith(line, comment_start) and vim.endswith(line, comment_end)
+		else
+			is_commented = vim.startswith(line, comment_start)
+		end
+
+		if line ~= "" and not is_commented then
+			all_commented = false
+			break
+		end
+	end
+
+	-- Toggle comments (all lines are modified the same way)
+	for i, line in ipairs(lines) do
+		if line ~= "" then
+			if all_commented then
+				-- Remove comment start
+				lines[i] = line:gsub("^%s*" .. vim.pesc(comment_start) .. "%s?", "", 1)
+
+				-- Remove comment end (if exists)
+				if comment_end ~= "" then
+					lines[i] = line:gsub("%s?" .. vim.pesc(comment_end) .. "%s*$", "", 1)
+				end
+			else
+				if comment_end ~= "" then
+					lines[i] = comment_start .. " " .. line .. " " .. comment_end
+				else
+					lines[i] = comment_start .. " " .. line
+				end
+			end
+		end
+	end
+
+	vim.api.nvim_buf_set_lines(
+		0,
+		start_line - 1,
+		end_line,
+		false,
+		lines
+	)
+end
+
+-- Toggle comments in normal mode
+map_key('n', "<leader>/", function()
+	local start_line = vim.fn.line('.')
+	local end_line = start_line + vim.v.count1 - 1
+
+	toggle_comment_range(start_line, end_line)
+end, "Toggle comment(s)")
+
+-- Toggle comments in visual mode
+map_key('v', "<leader>/", function()
+	local start_line = vim.fn.line('v')
+	local end_line = vim.fn.line('.')
+
+	if start_line > end_line then
+		start_line, end_line = end_line, start_line
+	end
+
+	toggle_comment_range(start_line, end_line)
+
+	-- Exit visual mode after toggling comments
+	vim.api.nvim_feedkeys(
+		vim.api.nvim_replace_termcodes("<Esc>", true, false, true),
+		'n',
+		false
+	)
+end, "Toggle comment(s) in selected lines")
+
+-- Highlight empty lines with extra spaces/tabs
+-- vim.cmd("match")
+-- vim.cmd("highlight ExtraWhitespace guibg=#3a3f4b")
+-- vim.cmd([[match ExtraWhitespace /^\s\+$/]])
+
+-- Show return symbol at EOL
+-- vim.cmd("set list")
+-- vim.cmd("set listchars+=eol:⏎") -- or: ↲ 󰌑
+-- vim.cmd("highlight link NonText Comment")
 
