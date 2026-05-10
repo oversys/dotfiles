@@ -1,4 +1,4 @@
-/* Last working version: Mozilla Firefox 150.0.1 */
+/* Last working version: Mozilla Firefox 150.0.2 */
 
 @import "fonts.css";
 
@@ -170,8 +170,9 @@ image.toolbarbutton-icon[type="menu"] {
 	fill: var(--fg-color) !important;
 }
 
-/* Change colors of opened bookmark item (ex.: folder) */
-toolbarbutton.bookmark-item[open="true"] {
+/* Change colors of active or opened bookmark item (ex.: folder) */
+toolbarbutton.bookmark-item[open="true"],
+toolbarbutton.bookmark-item:active {
 	color: var(--accent-color) !important;
 	border-radius: 4px !important;
 	font-weight: 700 !important;
@@ -774,4 +775,13 @@ toolbarbutton.findbar-closebutton {
 }
 
 /** End customize CTRL + F find bar **/
+
+/* Style URL/status text in the bottom-left corner */
+#statuspanel-label {
+	background-color: var(--lighter-bg-color) !important;
+	color: var(--fg-color) !important;
+	border: 2px solid var(--accent-color) !important;
+	border-radius: 0px !important;
+	padding: 3px !important;
+}
 

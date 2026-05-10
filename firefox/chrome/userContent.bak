@@ -1,4 +1,4 @@
-/* Last working version: Mozilla Firefox 150.0.1 */
+/* Last working version: Mozilla Firefox 150.0.2 */
 
 /* Customize about: pages */
 @-moz-document url-prefix("about:") {
@@ -155,10 +155,14 @@
 
 	body:has(#UI_showHidden, #UI_goUp) {
 		background-color: var(--lighter-bg-color) !important;
-		border: 2px solid var(--accent-color) !important;
-		border-radius: 4px !important;
+		border: 3px solid var(--accent-color) !important;
+		/* border-radius: 4px !important; */
 		color: var(--fg-color) !important;
 		accent-color: var(--accent-color) !important;
+	}
+
+	body:has(#UI_showHidden, #UI_goUp) h1 {
+		border-bottom: 2px solid var(--accent-color) !important;
 	}
 
 	body:has(#UI_showHidden, #UI_goUp) a.dir,
