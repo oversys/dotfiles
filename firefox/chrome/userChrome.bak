@@ -28,7 +28,13 @@
 	--link-color-hover: var(--accent-color) !important;
 	--link-color-active: var(--accent-color) !important;
 
+	/* Other fixes */
 	--text-color: var(--fg-color) !important;
+	--focus-outline-color: var(--accent-color) !important;
+	--toolbar-bgcolor: var(--bg-color) !important;
+	--toolbar-color: var(--fg-color) !important;
+	--info-bar-text-color: var(--fg-color) !important;
+	--info-bar-background-color: var(--accent-color) !important;
 }
 
 /* Change font and accent color on all elements */
@@ -53,13 +59,30 @@ menuitem[_moz-menuactive="true"] {
 	border-color: var(--accent-color) !important;
 }
 
+/* Style infobar */
+.infobar {
+	--info-bar-background-color: var(--lighter-bg-color) !important;
+	--info-bar-text-color: var(--fg-color) !important;
+
+	background-color: var(--lighter-bg-color) !important;
+	color: var(--fg-color) !important;
+}
+
+.infobar::before {
+	background: none !important;
+}
+
+.icon-container .icon {
+	color: var(--accent-color) !important;
+}
+
 /* Change color of close browser confirmation popup */
 window#commonDialogWindow {
 	background-color: var(--lighter-bg-color) !important;
 }
 
 /* Customize buttons */
-button[default="true"] {
+button[default="true"], button.primary {
 	border: 2px solid var(--accent-color) !important;
 	color: var(--fg-color) !important;
 	background: none !important;
@@ -205,8 +228,10 @@ toolbarbutton#downloads-button,
 /* Change icon colors when open/active (burger menu, refresh) */
 #nav-bar .toolbarbutton-1[open="true"] > .toolbarbutton-badge-stack,
 .toolbarbutton-animatable-box,
-toolbarbutton#back-button:active,
-toolbarbutton#forward-button:active,
+toolbarbutton#back-button:active .toolbarbutton-icon,
+toolbarbutton#back-button[open="true"] .toolbarbutton-icon,
+toolbarbutton#forward-button:active .toolbarbutton-icon,
+toolbarbutton#forward-button[open="true"] .toolbarbutton-icon,
 toolbarbutton#reload-button:active,
 toolbarbutton#stop-button {
 	fill: var(--accent-color) !important;
@@ -662,8 +687,8 @@ findbar {
 	position: absolute !important;
 	top: 12px !important;
 	right: 20px !important;
-	padding: 12px 6px !important;
-	min-width: 320px !important;
+	padding: 16px 6px !important;
+	min-width: 400px !important;
 	contain: none !important;
 
 	background: none !important;
@@ -679,7 +704,7 @@ findbar {
 .findbar-textbox {
 	order: 1 !important;
 	width: 200px !important;
-	padding: 4px 8px !important;
+	padding: 0 8px !important;
 	margin-right: 6px !important;;
 
 	background: transparent !important;
