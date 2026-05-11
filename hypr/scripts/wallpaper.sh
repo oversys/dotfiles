@@ -186,15 +186,18 @@ check_brightness() {
 }
 
 # Templates
-mozilla_dirs=("$HOME"/.mozilla/firefox/*.default-release)
-MOZILLA_DIR="${mozilla_dirs[0]}/chrome"
+firefox_dirs=("$HOME"/.mozilla/firefox/*.default-release)
+# New Firefox config location
+# firefox_dirs=("$HOME"/.config/mozilla/firefox/*.default-release)
+
+FIREFOX_DIR="${firefox_dirs[0]}/chrome"
 
 declare -A config_map=(
 	["$HOME/.config/waybar/style.bak"]="$HOME/.config/waybar/style.css"
 	["$HOME/.config/rofi/theme.bak"]="$HOME/.config/rofi/theme.rasi"
 	["$HOME/.config/dunst/dunstrc.bak"]="$HOME/.config/dunst/dunstrc"
-	["$MOZILLA_DIR/userChrome.bak"]="$MOZILLA_DIR/userChrome.css"
-	["$MOZILLA_DIR/userContent.bak"]="$MOZILLA_DIR/userContent.css"
+	["$FIREFOX_DIR/userChrome.bak"]="$FIREFOX_DIR/userChrome.css"
+	["$FIREFOX_DIR/userContent.bak"]="$FIREFOX_DIR/userContent.css"
 )
 
 for template in "${!config_map[@]}"; do
@@ -240,8 +243,8 @@ COL1=${COL1,,}
 printf '$bg_color = 0xff%s\n$accent_color = 0xff%s\n' "${BG#"#"}" "${COL1#"#"}" > "$HOME/.config/hypr/colors.conf"
 
 # Select random dhikr for Firefox new tab page
-dhikr=$(jq -r '.[]' "$MOZILLA_DIR/dhikr.json" | shuf -n 1)
-sed -i "s/__DHIKR__/$dhikr/" "$MOZILLA_DIR/userContent.css"
+dhikr=$(jq -r '.[]' "$FIREFOX_DIR/dhikr.json" | shuf -n 1)
+sed -i "s/__DHIKR__/$dhikr/" "$FIREFOX_DIR/userContent.css"
 
 # Change wallpaper
 hyprctl hyprpaper wallpaper ",$WALLPAPER"
