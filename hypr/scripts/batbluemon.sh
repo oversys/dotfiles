@@ -26,3 +26,4 @@ while sleep 3; do
 
 	PREV_BAT_STAT=$(cat /sys/class/power_supply/BAT*/status)
 done
+

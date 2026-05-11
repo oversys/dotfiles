@@ -1,9 +1,9 @@
 [global]
 	# Colors
 	frame_color = "__COL1__"
-	background = "__LIGHTERBG__"
+	background = "__BG__"
 	foreground = "__FG__"
-	highlight = "__COL4__"
+	highlight = "__COL1__"
 
 	# Display notifications on monitor with mouse focus
 	follow = mouse

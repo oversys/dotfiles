@@ -65,7 +65,7 @@ tooltip {
 
 #workspaces button.urgent {
 	color: __LIGHTBG__;
-	background: __COL4__;
+	background: __COL3__;
 }
 
 #workspaces button:hover {
@@ -88,14 +88,14 @@ tooltip {
 }
 
 #backlight, #battery {
-	color: __FGCOL4__;
-	background: __COL4__;
-	border-bottom: 5px solid __DIMCOL4__;
+	color: __FGCOL3__;
+	background: __COL3__;
+	border-bottom: 5px solid __DIMCOL3__;
 }
 
 #cpu, #custom-weather {
-	color: __FGCOL5__;
-	background: __COL5__;
-	border-bottom: 5px solid __DIMCOL5__;
+	color: __FGCOL4__;
+	background: __COL4__;
+	border-bottom: 5px solid __DIMCOL4__;
 }
 

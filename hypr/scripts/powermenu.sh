@@ -9,3 +9,4 @@ case "$ACTION" in
 	"") hyprlock;;
 	"") hyprctl dispatch exit;;
 esac
+

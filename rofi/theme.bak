@@ -1,12 +1,12 @@
 * {
-	col2: __COL2__;
-	fgcol2: __FGCOL2__;
-	dimcol2: __DIMCOL2__;
-    bg: __BG__;
-    fg: __FG__;
-    light-bg: __LIGHTBG__;
-    lighter-bg: __LIGHTERBG__;
+	col1: __COL1__;
+	fgcol1: __FGCOL1__;
+	dimcol1: __DIMCOL1__;
+	bg: __BG__;
+	fg: __FG__;
+	light-bg: __LIGHTBG__;
+	lighter-bg: __LIGHTERBG__;
 
-    width: 600;
+	width: 600;
 }
 

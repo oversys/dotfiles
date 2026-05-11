@@ -778,10 +778,14 @@ toolbarbutton.findbar-closebutton {
 
 /* Style URL/status text in the bottom-left corner */
 #statuspanel-label {
+	padding: 3px !important;
+
 	background-color: var(--lighter-bg-color) !important;
 	color: var(--fg-color) !important;
-	border: 2px solid var(--accent-color) !important;
-	border-radius: 0px !important;
-	padding: 3px !important;
+
+	border: none !important;
+	border-top: 2px solid var(--accent-color) !important;
+	border-right: 2px solid var(--accent-color) !important;
+	border-radius: 0 !important;
 }
 
