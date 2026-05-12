@@ -5,7 +5,8 @@
 :root {
 	/* Colors */
 	--bg-color: #111111;
-	--lighter-bg-color: #1a1a1a;
+	--lighter-bg-color: #1A1A1A;
+	--lightest-bg-color: #2A2A2A;
 	--fg-color: __FG__;
 	--accent-color: __COL1__;
 
@@ -678,7 +679,7 @@ toolbarbutton#sidebar-close:active {
 
 /* Style print popup */
 :root[dialogroot] {
-	--background-color-canvas: var(--bg-color) !important;;
+	--background-color-canvas: var(--bg-color) !important;
 }
 
 /** Customize CTRL + F find bar **/
@@ -706,7 +707,7 @@ findbar {
 	order: 1 !important;
 	width: 200px !important;
 	padding: 0 8px !important;
-	margin-right: 6px !important;;
+	margin-right: 6px !important;
 
 	background: transparent !important;
 	color: var(--fg-color) !important;
@@ -788,4 +789,73 @@ toolbarbutton.findbar-closebutton {
 	border-right: 2px solid var(--accent-color) !important;
 	border-radius: 0 !important;
 }
+
+/* Change color of tab load animation */
+.tab-loading-burst {
+	--tab-loading-fill: var(--accent-color) !important;
+}
+
+/** Customize download popup **/
+dialog#unknownContentType {
+	background-color: var(--bg-color) !important;
+	color: var(--fg-color) !important;
+}
+
+/* Customize "Open with" dropdown */
+menulist#openHandler {
+	appearance: none !important;
+
+	background-color: var(--lighter-bg-color) !important;
+	color: var(--fg-color) !important;
+	border: 2px solid var(--accent-color) !important;
+	border-radius: 4px !important;
+	padding: 3px !important;
+}
+
+/* Style buttons */
+button[part="dialog-button"] {
+	appearance: none !important;
+
+	border-radius: 8px !important;
+	padding: 8px 16px !important;
+	margin-bottom: 10px !important;
+}
+
+button:not([dlgtype="accept"]) {
+	background-color: var(--lightest-bg-color) !important;
+	border: none !important;
+}
+
+button[dlgtype="accept"] {
+	border: 2px solid var(--accent-color) !important;
+}
+
+/* Customize radio inputs */
+#unknownContentType .radio-check {
+	appearance: none !important;
+
+	width: 16px !important;
+	height: 16px !important;
+
+	margin-right: 6px !important;
+	margin-block-end: -1px !important;
+
+	background-color: var(--lightest-bg-color) !important;
+	border-radius: 50% !important;
+	border: none !important;
+	outline: none !important;
+}
+
+#unknownContentType radio[selected="true"] .radio-check {
+	background-color: var(--accent-color) !important;
+}
+
+/* Customize unchecked checkbox */
+checkbox#rememberChoice:not([checked]) .checkbox-check {
+	appearance: none !important;
+	background-color: var(--lightest-bg-color) !important;
+	border-radius: 3px !important;
+}
+
+/** End customize download popup **/
 
