@@ -821,7 +821,7 @@ button[part="dialog-button"] {
 	margin-bottom: 10px !important;
 }
 
-button:not([dlgtype="accept"]) {
+button[part="dialog-button"]:not([dlgtype="accept"]) {
 	background-color: var(--lightest-bg-color) !important;
 	border: none !important;
 }
