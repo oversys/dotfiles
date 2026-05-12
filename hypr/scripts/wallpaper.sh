@@ -186,9 +186,7 @@ check_brightness() {
 }
 
 # Templates
-firefox_dirs=("$HOME"/.mozilla/firefox/*.default-release)
-# New Firefox config location
-# firefox_dirs=("$HOME"/.config/mozilla/firefox/*.default-release)
+firefox_dirs=("$HOME"/.config/mozilla/firefox/*.auto-arch)
 
 FIREFOX_DIR="${firefox_dirs[0]}/chrome"
 
