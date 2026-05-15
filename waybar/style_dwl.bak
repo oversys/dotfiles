@@ -1,0 +1,111 @@
+* {
+	font-family: JetBrains Mono Nerd Font Mono, monospace;
+	font-weight: bold;
+	font-size: 16px;
+	border: none;
+	border-radius: 0;
+	min-height: 0;
+}
+
+window#waybar {
+	background: rgba(21, 18, 27, 0.5);
+	padding: 10px;
+	color: __FG__;
+}
+
+tooltip {
+	background: __LIGHTERBG__;
+	border-radius: 10px;
+	border-bottom: 5px solid __LIGHTBG__;
+}
+
+#tags,
+#window,
+#wireplumber,
+#backlight,
+#cpu,
+#memory,
+#network,
+#battery,
+#custom-weather,
+#custom-prayer,
+#custom-time {
+	/* color: __BG__; */
+	border-radius: 8px;
+	padding: 0px 10px;
+	margin: 6px 0px;
+	margin-right: 10px;
+}
+
+#window {
+	background: __LIGHTERBG__;
+	color: __FG__;
+	border-bottom: 5px solid __LIGHTBG__;
+}
+
+#tags {
+	background: __LIGHTERBG__;
+	border-bottom: 5px solid __LIGHTBG__;
+	margin-left: 10px;
+	padding-right: 0px;
+	padding-left: 5px;
+}
+
+#tags button {
+	margin: 0 9px;
+	padding: 0;
+	color: __DIMFG__;
+}
+
+#tags button.occupied {
+	color: __FG__;
+}
+
+#tags button.focused label {
+	text-decoration: underline;
+}
+
+#tags button.urgent {
+	color: __COL1__;
+}
+
+#tags button:hover {
+	background: none;
+	border: none;
+	box-shadow: none;
+	text-shadow: none;
+}
+
+#tags button:nth-child(n+6):not(.occupied):not(.focused) {
+	opacity: 0;
+	min-width: 0;
+	padding: 0;
+	margin: 0;
+	font-size: 0;
+	margin-right: -999px;
+}
+
+#memory, #custom-prayer {
+	color: __FGCOL1__;
+	background: __COL1__;
+	border-bottom: 5px solid __DIMCOL1__;
+}
+
+#wireplumber, #network, #custom-time {
+	color: __FGCOL2__;
+	background: __COL2__;
+	border-bottom: 5px solid __DIMCOL2__;
+}
+
+#backlight, #battery {
+	color: __FGCOL3__;
+	background: __COL3__;
+	border-bottom: 5px solid __DIMCOL3__;
+}
+
+#cpu, #custom-weather {
+	color: __FGCOL4__;
+	background: __COL4__;
+	border-bottom: 5px solid __DIMCOL4__;
+}
+
