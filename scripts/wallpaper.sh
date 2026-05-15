@@ -5,7 +5,7 @@ TIME=$(date +"%-H")
 DATE=$(date +"%d-%m-%Y")
 
 if [[ -f "$HOME/.config/prayerhistory/$DATE.txt" ]]; then
-	PRAYER_NAME=$(bash $HOME/.config/hypr/scripts/prayer.sh -n)
+	PRAYER_NAME=$(bash $HOME/.config/scripts/prayer.sh -n)
 	case $PRAYER_NAME in
 		"Fajr") FOLDER="dawn";;
 		"Sunrise") FOLDER="morning";;
@@ -191,7 +191,7 @@ firefox_dirs=("$HOME"/.config/mozilla/firefox/*.auto-arch)
 FIREFOX_DIR="${firefox_dirs[0]}/chrome"
 
 declare -A config_map=(
-	["$HOME/.config/waybar/style.bak"]="$HOME/.config/waybar/style.css"
+	["$HOME/.config/waybar/style_hyprland.bak"]="$HOME/.config/waybar/style.css"
 	["$HOME/.config/rofi/theme.bak"]="$HOME/.config/rofi/theme.rasi"
 	["$HOME/.config/dunst/dunstrc.bak"]="$HOME/.config/dunst/dunstrc"
 	["$FIREFOX_DIR/userChrome.bak"]="$FIREFOX_DIR/userChrome.css"
@@ -249,7 +249,7 @@ hyprctl hyprpaper wallpaper ",$WALLPAPER"
 
 # Restart waybar
 killall waybar
-waybar &
+waybar --config "$HOME/.config/waybar/config_hyprland.jsonc" &
 
 # Kill dunst
 killall dunst

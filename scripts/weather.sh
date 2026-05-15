@@ -17,7 +17,7 @@ while [[ -z "$weather_info" ]]; do
 	weather_info=$(curl -s "https://api.open-meteo.com/v1/forecast?latitude=$LAT&longitude=$LON&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,weather_code&forecast_days=1")
 done
 
-TIME_OF_DAY=$(bash $HOME/.config/hypr/scripts/prayer.sh -n)
+TIME_OF_DAY=$(bash $HOME/.config/scripts/prayer.sh -n)
 
 if [[ "$TIME_OF_DAY" =~ ^(Maghrib|Isha|Midnight|Last Third|Fajr)$ ]]; then
 	TIME_OF_DAY="Night"

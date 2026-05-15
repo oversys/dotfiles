@@ -418,7 +418,7 @@ if [[ "$1" == "-p" ]]; then
 elif [[ "$1" == "-l" ]]; then
 	# Infinite loop updating prayer module every minute
 	while true; do
-		printf "$($HOME/.config/hypr/scripts/prayer.sh -p)\n"
+		printf "$($HOME/.config/scripts/prayer.sh -p)\n"
 
 		sleep $(echo "60 - $(date +%S.%N) % 60" | bc)
 	done

@@ -112,7 +112,7 @@
 		"tooltip": true,
 		"interval": 600,
 		"return-type": "json",
-		"exec": "~/.config/hypr/scripts/weather.sh"
+		"exec": "~/.config/scripts/weather.sh"
 	},
 	"custom/prayer" : {
 		// invisible 'a' is required to display icon on the right and not the left
@@ -120,13 +120,13 @@
 		"format-alt": "<span font='16' rise='-2000'>󰥹</span> {alt}",
 		"tooltip": true,
 		"return-type": "json",
-		"exec": "~/.config/hypr/scripts/prayer.sh -l"
+		"exec": "~/.config/scripts/prayer.sh -l"
 	},
 	"custom/time" : {
 		"format": "{}",
 		"format-alt": "{alt}",
 		"tooltip": true,
 		"return-type": "json",
-		"exec": "~/.config/hypr/scripts/prayer.sh -t"
+		"exec": "~/.config/scripts/prayer.sh -t"
 	},
 }
