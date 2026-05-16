@@ -234,11 +234,12 @@ for config in "${config_map[@]}"; do
 	done
 done
 
-# Special handling for hyprland (different format)
+# Special handling for hyprland and hyprlock (different color format in hyprlang)
+FG=${FG,,}
 BG=${BG,,}
 COL1=${COL1,,}
 
-printf '$bg_color = 0xff%s\n$accent_color = 0xff%s\n' "${BG#"#"}" "${COL1#"#"}" > "$HOME/.config/hypr/colors.conf"
+printf '$wallpaper = %s\n$fg_color = 0xff%s\n$bg_color = 0xff%s\n$accent_color = 0xff%s\n' "$WALLPAPER" "${FG#"#"}" "${BG#"#"}" "${COL1#"#"}" > "$HOME/.config/hypr/colors.conf"
 
 # Select random dhikr for Firefox new tab page
 dhikr=$(jq -r '.[]' "$FIREFOX_DIR/dhikr.json" | shuf -n 1)
