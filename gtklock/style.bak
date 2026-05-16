@@ -1,0 +1,58 @@
+#clock-label {
+	margin-top: 200px;
+	margin-bottom: 0px;
+
+	font-family: "JetBrainsMono NFM ExtraBold";
+	font-size: 180px;
+	font-weight: 800;
+
+	color: __FG__;
+	text-shadow: 0 2px 18px rgba(0,0,0,0.20);
+}
+
+#date-label {
+	margin-top: -30px;
+
+	font-family: "JetBrainsMono NFM";
+	font-size: 36px;
+	font-style: italic;
+	font-weight: 500;
+
+	color: __FG__;
+}
+
+#input-field {
+	margin-top: 100px;
+
+	border-radius: 999px;
+	border: 1px solid rgba(255,255,255,0.08);
+	background-color: rgba(255,255,255,0.10);
+
+	color: __FG__;
+	caret-color: __FG__;
+	font-size: 32px;
+
+	padding: 18px 32px;
+	min-width: 420px;
+
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 12px rgba(0,0,0,0.18);
+}
+
+#input-field:focus {
+	border: 1px solid rgba(255,255,255,0.18);
+}
+
+#error-label, #warning-label {
+	font-family: "JetBrainsMono NFM";
+	margin-top: 15px;
+	font-size: 16px;
+}
+
+#error-label {
+	color: rgba(255,120,120,0.92);
+}
+
+#warning-label {
+	color: rgba(255,210,120,0.88);
+}
+

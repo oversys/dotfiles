@@ -194,6 +194,7 @@ declare -A config_map=(
 	["$HOME/.config/waybar/style_dwl.bak"]="$HOME/.config/waybar/style.css"
 	["$HOME/.config/rofi/theme.bak"]="$HOME/.config/rofi/theme.rasi"
 	["$HOME/.config/dunst/dunstrc.bak"]="$HOME/.config/dunst/dunstrc"
+	["$HOME/.config/gtklock/style.bak"]="$HOME/.config/gtklock/style.css"
 	["$FIREFOX_DIR/userChrome.bak"]="$FIREFOX_DIR/userChrome.css"
 	["$FIREFOX_DIR/userContent.bak"]="$FIREFOX_DIR/userContent.css"
 )
@@ -245,6 +246,7 @@ waybar --config "$HOME/.config/waybar/config_dwl.jsonc" &
 
 # Change wallpaper
 swaybg -i "$WALLPAPER" -m fill &
+rm /tmp/lock.png
 
 # Kill dunst
 killall dunst
