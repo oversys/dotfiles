@@ -45,7 +45,7 @@ else
 fi
 
 WALLPAPER="$HOME/.config/wallpapers/$FOLDER/$WALLPAPER"
-wal -si $WALLPAPER
+wal -steni $WALLPAPER
 
 # Get background and foreground colors
 BG=$(cat $HOME/.cache/wal/colors.json | jq -r .special.background)
@@ -241,11 +241,15 @@ printf 'focus=%s' "$COL1" > "/tmp/dwl_colors"
 pkill -SIGUSR1 dwl
 
 # Restart waybar
+pkill -SIGUSR2 dwl
 killall waybar
 waybar --config "$HOME/.config/waybar/config_dwl.jsonc" &
 
 # Change wallpaper
+OLD_SWAYBG=$(pidof swaybg)
 swaybg -i "$WALLPAPER" -m fill &
+sleep 0.5
+kill $OLD_SWAYBG
 rm /tmp/lock.png
 
 # Kill dunst
