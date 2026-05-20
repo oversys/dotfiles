@@ -1,5 +1,5 @@
 # dotfiles
-Configurations for both dwl (primary) and Hyprland (secondary).
+Configurations for both `dwl` (primary) and `Hyprland` (secondary).
 
 ## Notification IDs
 1. Volume increase/decrease
