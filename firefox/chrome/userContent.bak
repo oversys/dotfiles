@@ -1,4 +1,4 @@
-/* Last working version: Mozilla Firefox 150.0.3 */
+/* Last working version: Mozilla Firefox 151.0 */
 
 /* Customize about: pages */
 @-moz-document url-prefix("about:") {
@@ -121,7 +121,7 @@
 	}
 
 	/* Hide top sites (above styling just in case) */
-	.ds-top-sites {
+	.top-sites {
 		display: none !important;
 	}
 
@@ -221,6 +221,7 @@
 	img[src^="moz-icon://.webm"],
 	img[src^="moz-icon://.mkv"],
 	img[src^="moz-icon://.pptx"],
+	img[src^="moz-icon://.hs"],
 	img[src^="moz-icon://.sh"] {
 		appearance: none !important;
 		display: inline-block !important;
@@ -336,6 +337,11 @@
 	/* Change presentation file icon */
 	img[src^="moz-icon://.pptx"] {
 		background: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M27.002 5.005h-23.005c-0.551 0-0.997-0.447-0.997-1s0.446-0.999 0.997-0.999h10.536v-1c0-0.552 0.447-0.999 0.998-0.999s0.997 0.447 0.997 0.999v1h10.474c0.552 0 0.998 0.448 0.998 0.999 0 0.553-0.446 1-0.998 1zM27.002 20.998h-23.005v-14.994h23.005v14.994zM7 13.032c0 2.213 1.791 4.007 4 4.007s4-1.794 4-4.007h-4v-4.009c-2.209 0-4 1.795-4 4.009zM18.024 9.003h-0.997v0.999h0.997v-0.999zM18.024 11.002h-0.997v0.999h0.997v-0.999zM18.024 13.001h-0.997v0.999h0.997v-0.999zM18.024 15h-0.997v1h0.997v-1zM18.024 17h-0.997v1h0.997v-1zM24.010 9.003h-4.987v0.999h4.987v-0.999zM24.010 11.002h-4.987v0.999h4.987v-0.999zM24.010 13.001h-4.987v0.999h4.987v-0.999zM24.010 15h-4.987v1h4.987v-1zM24.010 17h-4.987v1h4.987v-1zM12.781 25.996h2.251v-4.998h0.998v4.998h2.216l-2.216-4.998h1.995l3.989 8.996h-1.994l-1.33-3h-2.66v4.998h-0.998v-4.998h-2.701l-1.351 3h-1.995l4.052-8.996h1.995l-2.251 4.998zM16.030 20.998v0 0 0zM15.032 20.998v0 0 0z" /></svg>') !important;
+	}
+
+	/* Change Haskell file icon */
+	img[src^="moz-icon://.hs"] {
+		background: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M.006 20.47L5.649 12 .006 3.531h4.235l5.674 8.47-5.674 8.468zm5.643 0L11.29 12 5.65 3.531h4.266l11.253 16.938h-4.224l-3.535-5.34-3.495 5.34zM19.3 15.525l-1.877-2.827h6.571v2.826zm-2.826-4.235l-1.877-2.827h9.387v2.827z" /></svg>') !important;
 	}
 }
 
