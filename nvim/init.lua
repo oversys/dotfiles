@@ -13,6 +13,7 @@ vim.opt.smartcase = true
 vim.opt.cursorline = true
 vim.opt.scrolloff = 8
 
+--[[
 -- Remove terminal padding on entry
 vim.api.nvim_create_autocmd("VimEnter", {
 	pattern = '*',
@@ -27,6 +28,7 @@ vim.api.nvim_create_autocmd("VimLeave", {
 		vim.cmd("silent !kitty @ set-spacing padding=default")
 	end
 })
+]]
 
 -- Lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -132,7 +134,7 @@ require("lazy").setup({
 				},
 			})
 
-			vim.cmd("colorscheme monokai-pro")
+			vim.cmd("colorscheme monokai-pro-spectrum")
 			vim.api.nvim_set_hl(0, "CursorLine", { bg = "#39383a", blend = 10 })
 		end
 	},
@@ -200,9 +202,9 @@ require("lazy").setup({
 				vim.api.nvim_set_hl(0, "Green", { fg = "#7bd88f" })
 				vim.api.nvim_set_hl(0, "Blue", { fg = "#5ad4e6" })
 				vim.api.nvim_set_hl(0, "Magenta", { fg = "#948ae3" })
+				vim.api.nvim_set_hl(0, "Scope", { fg = "#5b595c", bold = true })
 			end)
 
-			vim.api.nvim_set_hl(0, "Scope", { fg = "#5b595c", bold = true })
 
 			require("ibl").setup({
 				indent = {
@@ -335,49 +337,6 @@ require("lazy").setup({
 
 	-- Fuzzy finder
 	{ "nvim-telescope/telescope.nvim", branch = "0.1.x", dependencies = "nvim-lua/plenary.nvim" },
-
-	-- Dashboard
-	{ "goolord/alpha-nvim",
-		dependencies = { "nvim-tree/nvim-web-devicons", "nvim-lua/plenary.nvim" },
-		config = function ()
-			local dashboard = require("alpha.themes.dashboard")
-
-			package.path = package.path .. ';' .. vim.fn.stdpath('config') .. '/?.lua'
-			local ascii_art = require("ascii_art")
-			local keys = vim.tbl_keys(ascii_art)
-			local random_key = keys[math.random(1, #keys)]
-			dashboard.section.header.val = ascii_art[random_key]
-
-			dashboard.section.buttons.val = {
-				dashboard.button( "e", "󰝒    New file" , "<CMD>ene <BAR> startinsert<CR>"),
-				dashboard.button( "f", "󰈞    Find file", "<CMD>Telescope find_files<CR>"),
-				dashboard.button( "r", "󱋡    Recent"   , "<CMD>Telescope oldfiles<CR>"),
-				dashboard.button( "q", "󰅚    Quit", "<CMD>qa<CR>"),
-			}
-
-			-- dashboard.section.footer.val = require("alpha.fortune")
-
-			local plugins_count = #require("lazy").plugins()
-			local datetime = os.date(" %m-%d-%Y    %H:%M:%S")
-			local version = vim.version()
-			local nvim_version_info = " v" .. version.major .. "." .. version.minor .. "." .. version.patch
-
-			dashboard.section.footer.val = datetime .. "    " .. plugins_count .. " Plugins   " .. nvim_version_info
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "AlphaReady",
-				callback = function ()
-					vim.opt.cmdheight = 0
-					vim.opt.showtabline = 0
-					vim.go.laststatus = 0
-					vim.cmd("hi Cursor blend=100")
-					vim.cmd("set guicursor+=a:Cursor/lCursor")
-				end
-			})
-
-			require("alpha").setup(dashboard.opts)
-		end
-	}
 })
 
 -- Key bindings
@@ -501,12 +460,13 @@ local function toggle_comment_range(start_line, end_line)
 	local all_commented = true
 
 	for _, line in ipairs(lines) do
+		local trimmed = vim.trim(line)
 		local is_commented = false
 
-		if comment_start ~= "" then
-			is_commented = vim.startswith(line, comment_start) and vim.endswith(line, comment_end)
+		if comment_end ~= "" then
+			is_commented = vim.startswith(trimmed, comment_start) and vim.endswith(trimmed, comment_end)
 		else
-			is_commented = vim.startswith(line, comment_start)
+			is_commented = vim.startswith(trimmed, comment_start)
 		end
 
 		if line ~= "" and not is_commented then
@@ -520,17 +480,17 @@ local function toggle_comment_range(start_line, end_line)
 		if line ~= "" then
 			if all_commented then
 				-- Remove comment start
-				lines[i] = line:gsub("^%s*" .. vim.pesc(comment_start) .. "%s?", "", 1)
+				lines[i] = line:gsub("^(%s*)" .. vim.pesc(comment_start) .. "%s?", "%1", 1)
 
 				-- Remove comment end (if exists)
 				if comment_end ~= "" then
-					lines[i] = line:gsub("%s?" .. vim.pesc(comment_end) .. "%s*$", "", 1)
+					lines[i] = lines[i]:gsub("%s?" .. vim.pesc(comment_end) .. "%s*$", "", 1)
 				end
 			else
 				if comment_end ~= "" then
-					lines[i] = comment_start .. " " .. line .. " " .. comment_end
+					lines[i] = line:gsub("^(%s*)", "%1" .. comment_start .. " ", 1) .. " " .. comment_end
 				else
-					lines[i] = comment_start .. " " .. line
+					lines[i] = line:gsub("^(%s*)", "%1" .. comment_start .. " ", 1)
 				end
 			end
 		end
