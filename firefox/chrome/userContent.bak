@@ -240,7 +240,8 @@
 	}
 
 	/* Change text and DOCX file icon */
-	img[src^="moz-icon://.txt"] {
+	img[src^="moz-icon://.txt"],
+	img[src^="moz-icon://.docx"] {
 		background: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M1 1.5C1 0.671573 1.67157 0 2.5 0H10.7071L14 3.29289V13.5C14 14.3284 13.3284 15 12.5 15H2.5C1.67157 15 1 14.3284 1 13.5V1.5Z M3 4.5V3.5H9V4.5H3Z M3 7V6H11V7H3Z M3 9.5V8.5H10V9.5H3Z M3 12V11H12V12H3Z" /></svg>') !important;
 	}
 

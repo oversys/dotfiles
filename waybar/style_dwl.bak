@@ -61,12 +61,13 @@ tooltip {
 	color: __FG__;
 }
 
-#tags button.focused label {
-	text-decoration: underline;
-}
-
 #tags button.urgent {
 	color: __COL1__;
+}
+
+#tags button.urgent label,
+#tags button.focused label {
+	text-decoration: underline;
 }
 
 #tags button:hover {
