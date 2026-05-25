@@ -5,8 +5,8 @@ PROMPT="%F{#5ad4e6} %f%~${NL}%F{#ff618d}❯%F{#fce566}❯%F{#7bd88f}❯ %b%f"
 
 # History
 HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=100000
+SAVEHIST=100000
 setopt appendhistory
 setopt sharehistory
 
@@ -19,13 +19,13 @@ alias rconf="source $HOME/.zshrc"
 # Pacman aliases
 alias upd="sudo pacman -Syy"
 alias upg="sudo pacman -Syu"
-alias purge="sudo pacman -Rsn $(pacman -Qdtq)" 
+alias purge='sudo pacman -Rsn $(pacman -Qdtq)'
 alias sp="pacman -Ss"
 alias gp="sudo pacman -S"
 alias rp="sudo pacman -Rs"
 
 # Key bindings
-bindkey "^[[Z" end-of-line 
+bindkey "^[[Z" end-of-line
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 
@@ -59,27 +59,27 @@ saur() {
 ctz() {
 	echo -e "Select \e[4;33mRegion\e[0m:"
 	REGIONS=("Africa" "America" "Antarctica" "Asia" "Australia" "Europe" "Pacific")
-	
+
 	select region in "${REGIONS[@]}"; do
 		SELECTED_REGION=$region
 		break
 	done
-	
+
 	clear
-	
+
 	echo -e "Select \e[4;35mCity\e[0m:"
 	CITIES=($(/bin/ls /usr/share/zoneinfo/$SELECTED_REGION))
-	
+
 	select city in "${CITIES[@]}"; do
 		SELECTED_CITY=$city
 		break
 	done
-	
+
 	sudo timedatectl set-timezone $SELECTED_REGION/$SELECTED_CITY
 }
 
 # Mounting NAS
-mns() { 
+mns() {
 	HELPMSG="Usage:
   mns (--options) SERVER_HOSTNAME SHARE_NAME
 
