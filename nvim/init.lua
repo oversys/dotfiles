@@ -142,6 +142,8 @@ require("lazy").setup({
 			-- vim.cmd("highlight Pmenu guibg=NONE")
 			vim.api.nvim_set_hl(0, "Pmenu", { bg = "NONE" })
 			vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+			vim.api.nvim_set_hl(0, "BlinkCmpMenu", { bg = "NONE" })
+			vim.api.nvim_set_hl(0, "@markup.raw.block.markdown", { bg = "NONE" })
 		end
 	},
 
@@ -228,86 +230,53 @@ require("lazy").setup({
 	},
 
 	-- Autocomplete
-	{ "hrsh7th/nvim-cmp",
+	{
+		"saghen/blink.cmp",
 		dependencies = {
-			"neovim/nvim-lspconfig",
-			"onsails/lspkind.nvim",
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-nvim-lsp-signature-help",
-			"hrsh7th/cmp-nvim-lua",
-			"hrsh7th/cmp-buffer",
-			"hrsh7th/cmp-path",
-			"hrsh7th/cmp-cmdline",
-			"hrsh7th/cmp-vsnip",
-			"hrsh7th/vim-vsnip"
+			"saghen/blink.lib",
 		},
-		config = function ()
-			vim.opt.completeopt = { "menu", "menuone", "noselect" }
+		build = function()
+			require("blink.cmp").build():pwait()
+		end,
+		opts = {
+			keymap = { preset = "super-tab" },
 
-			local lspkind = require("lspkind")
-			local cmp = require("cmp")
-			cmp.setup({
-				-- Reduce delay
-				completion = {
-					autocomplete = {
-						cmp.TriggerEvent.TextChanged
-					},
-					completeopt = "menu,menuone,noselect",
-					keyword_length = 1,
-					debounce = 0,
-					throttle = 0,
+			completion = {
+				-- Add rounded borders to the documentation window
+				documentation = {
+					auto_show = true,
+					auto_show_delay_ms = 0,
+					window = { border = "rounded" }
 				},
+				-- Customize the autocomplete menu (round corners + icons + text truncation)
+				menu = {
+					border = "rounded",
+					draw = {
+						columns = {
+							{ "label", "label_description" },
+							{ "kind_icon", "kind", gap = 1 }
+						},
+						components = {
+							label = {
+								width = { max = 25 }, -- Max width for the main code/text label
+							},
+							label_description = {
+								width = { max = 25 }, -- Max width for the trailing details
+							},
+						},
+					}
+				}
+			},
 
-				window = {
-					completion = { border = "rounded" },
-					documentation = { border = "rounded" },
-				},
+			fuzzy = { implementation = "prefer_rust_with_warning" }
+		},
+	},
 
-				formatting = {
-					format = lspkind.cmp_format({
-						before = function (_, vim_item)
-							-- Hide LSP `detail` content
-							if (vim_item.menu ~= nil and string.len(vim_item.menu) > 0) then
-								vim_item.menu = string.sub(vim_item.menu, 1, 0) .. ""
-							end
-
-							--[[ Truncate text longer than maxwidth
-							local maxwidth = 40
-							local ellipsis_char = "..."
-
-							if (vim_item.menu ~= nil and string.len(vim_item.menu) > maxwidth) then
-								vim_item.menu = string.sub(vim_item.menu, 1, maxwidth - 3) .. ellipsis_char
-							end
-							]]--
-
-							return vim_item
-						end
-					})
-				},
-
-				snippet = {
-					expand = function(args)
-						vim.fn["vsnip#anonymous"](args.body)
-					end
-				},
-
-				mapping = cmp.mapping.preset.insert({
-					["<C-b>"] = cmp.mapping.scroll_docs(-4),
-					["<C-f>"] = cmp.mapping.scroll_docs(4),
-					["<C-Space>"] = cmp.mapping.complete(),
-					["<C-e>"] = cmp.mapping.abort(),
-					["<Tab>"] = cmp.mapping.confirm({ select = true })
-				}),
-
-				sources = cmp.config.sources({
-						{ name = "nvim_lsp" },
-						{ name = "vsnip" },
-						{ name = "nvim_lsp_signature_help" }
-					}, {
-						{ name = "buffer" }
-				})
-			})
-
+	-- LSP Configuration
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = { "saghen/blink.cmp" },
+		config = function()
 			--                 Python,    JS/TS,       Rust,        C/C++,    HTML,    CSS,      Lua
 			local servers = { "pyright", "ts_ls", "rust_analyzer", "clangd", "html", "cssls", "lua_ls" }
 
@@ -333,13 +302,7 @@ require("lazy").setup({
 
 	-- Auto close
 	{ "alvan/vim-closetag" },
-	{ "windwp/nvim-autopairs",
-		config = function ()
-			require("nvim-autopairs").setup({})
-			local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-			require("cmp").event:on("confirm_done", cmp_autopairs.on_confirm_done())
-		end
-	},
+	{ "windwp/nvim-autopairs", opts = {} },
 
 	-- Fuzzy finder
 	{ "nvim-telescope/telescope.nvim", branch = "0.1.x", dependencies = "nvim-lua/plenary.nvim" },
