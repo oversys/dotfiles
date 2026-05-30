@@ -16,7 +16,7 @@ depth = 1
 EOF
 
 # Build
-meson setup build --buildtype=release
+meson setup build --buildtype=release --force-fallback-for=fcft
 ninja -C build
 
 # Install
