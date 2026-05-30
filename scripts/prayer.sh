@@ -252,20 +252,22 @@ CYCLE_MAGHRIB=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Maghrib")"
 CYCLE_ISHA=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Isha")")
 NEXT_CYCLE_FAJR=$(to_epoch "$NEXT_CYCLE_DATE" "$(extract_time "$NEXT_CYCLE_DATE" "Fajr")")
 
-# Calculate Midnight and Last Third times
-NIGHT_DURATION=$(( NEXT_CYCLE_FAJR - CYCLE_MAGHRIB ))
-CYCLE_MIDNIGHT=$(( CYCLE_MAGHRIB + (NIGHT_DURATION / 2) ))
-CYCLE_LAST_THIRD=$(( NEXT_CYCLE_FAJR - (NIGHT_DURATION / 3) ))
-
-# Save Midnight and Last Third times
+# Calculate or extract Midnight and Last Third times
 PRAYER_FILE="$PRAYER_DIR/$CYCLE_DATE.txt"
 
 if [ -z "$(grep 'Midnight' "$PRAYER_FILE")" ]; then
+	NIGHT_DURATION=$(( NEXT_CYCLE_FAJR - CYCLE_MAGHRIB ))
+	CYCLE_MIDNIGHT=$(( CYCLE_MAGHRIB + (NIGHT_DURATION / 2) ))
+	CYCLE_LAST_THIRD=$(( NEXT_CYCLE_FAJR - (NIGHT_DURATION / 3) ))
+
 	MIDNIGHT_TIME=$(date -d "@$CYCLE_MIDNIGHT" +"%H:%M")
 	LAST_THIRD_TIME=$(date -d "@$CYCLE_LAST_THIRD" +"%H:%M")
 
 	echo "Midnight: $MIDNIGHT_TIME" >> "$PRAYER_FILE"
 	echo "Last Third: $LAST_THIRD_TIME" >> "$PRAYER_FILE"
+else
+	CYCLE_MIDNIGHT=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Midnight")")
+	CYCLE_LAST_THIRD=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Last Third")")
 fi
 
 # Determine current and next prayers
@@ -375,6 +377,25 @@ elif [[ "$1" == "-t" ]]; then
 		sleep $(echo "60 - $(date +%S.%N) % 60" | bc)
 	done
 else
-	grep -v '^#' "$PRAYER_DIR/$CYCLE_DATE.txt"
+	FAJR_TIME=$(extract_time "$CYCLE_DATE" "Fajr")
+	SUNRISE_TIME=$(extract_time "$CYCLE_DATE" "Sunrise")
+	DHUHR_TIME=$(extract_time "$CYCLE_DATE" "Dhuhr")
+	ASR_TIME=$(extract_time "$CYCLE_DATE" "Asr")
+	MAGHRIB_TIME=$(extract_time "$CYCLE_DATE" "Maghrib")
+	ISHA_TIME=$(extract_time "$CYCLE_DATE" "Isha")
+	MIDNIGHT_TIME=$(extract_time "$CYCLE_DATE" "Midnight")
+	LAST_THIRD_TIME=$(extract_time "$CYCLE_DATE" "Last Third")
+
+	# Left-to-Right mark for Arabic
+	LRM=$'\u200E'
+
+	echo "Fajr:       $FAJR_TIME ———————————————————— $(echo $FAJR_TIME | to_arabic_num)      :$LRMالفجر$LRM"
+	echo "Sunrise:    $SUNRISE_TIME ———————————————————— $(echo $SUNRISE_TIME | to_arabic_num)     :$LRMالشروق$LRM"
+	echo "Dhuhr:      $DHUHR_TIME ———————————————————— $(echo $DHUHR_TIME | to_arabic_num)      :$LRMالظهر$LRM"
+	echo "Asr:        $ASR_TIME ———————————————————— $(echo $ASR_TIME | to_arabic_num)      :$LRMالعصر$LRM"
+	echo "Maghrib:    $MAGHRIB_TIME ———————————————————— $(echo $MAGHRIB_TIME | to_arabic_num)     :$LRMالمغرب$LRM"
+	echo "Isha:       $ISHA_TIME ———————————————————— $(echo $ISHA_TIME | to_arabic_num)     :$LRMالعشاء$LRM"
+	echo "Midnight:   $MIDNIGHT_TIME ———————————————————— $(echo $MIDNIGHT_TIME | to_arabic_num) :$LRMمنتصف الليل$LRM"
+	echo "Last Third: $LAST_THIRD_TIME ———————————————————— $(echo $LAST_THIRD_TIME | to_arabic_num)  :$LRMالثلث الأخير$LRM"
 fi
 
