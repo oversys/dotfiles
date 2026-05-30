@@ -109,7 +109,7 @@
 	},
 	"custom/prayer" : {
 		// invisible 'a' is required to display icon on the right and not the left
-		"format": "<span font='0'>a</span>{} <span font='13' rise='-300'>󰥹</span>",
+		"format": "<span font='0'>a</span>{} <span font='13' rise='-300'>󱫱</span>",
 		"format-alt": "<span font='16' rise='-2000'>󰥹</span> {alt}",
 		"tooltip": true,
 		"return-type": "json",
