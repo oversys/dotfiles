@@ -58,6 +58,7 @@ require("lazy").setup({
 				separator_style = "slant",
 				indicator = { style = "underline" },
 				buffer_close_icon = '',
+				show_buffer_close_icons = false,
 				offsets = {{
 					filetype = "neo-tree",
 					text = " Files",
@@ -136,6 +137,11 @@ require("lazy").setup({
 
 			vim.cmd("colorscheme monokai-pro-spectrum")
 			vim.api.nvim_set_hl(0, "CursorLine", { bg = "#39383a", blend = 10 })
+
+			-- Make autocomplete background transparent
+			-- vim.cmd("highlight Pmenu guibg=NONE")
+			vim.api.nvim_set_hl(0, "Pmenu", { bg = "NONE" })
+			vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
 		end
 	},
 
@@ -311,9 +317,9 @@ require("lazy").setup({
 			-- end
 
 			-- Add Haskell Language Server only if installed (available in official Arch repo)
-			if vim.fn.executable("haskell-language-server") then
-				table.insert(servers, "hls")
-			end
+			-- if vim.fn.executable("haskell-language-server") then
+			-- 	table.insert(servers, "hls")
+			-- end
 
 			for _, lsp in ipairs(servers) do
 				vim.lsp.enable(lsp)
@@ -433,6 +439,13 @@ end)
 map_key(modes, "gg", function() top_bot("gg") end)
 map_key(modes, 'G', function() top_bot('G') end)
 ]]
+
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "c", "cpp" },
+	callback = function()
+		vim.bo.commentstring = "/* %s */"
+	end,
+})
 
 -- Toggling comments
 local function toggle_comment_range(start_line, end_line)
