@@ -1,4 +1,4 @@
-/* Last working version: Mozilla Firefox 151.0 */
+/* Last working version: Mozilla Firefox 151.0.2 */
 
 /* Customize about: pages */
 @-moz-document url-prefix("about:") {
