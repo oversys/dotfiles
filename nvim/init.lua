@@ -144,6 +144,9 @@ require("lazy").setup({
 			vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
 			vim.api.nvim_set_hl(0, "BlinkCmpMenu", { bg = "NONE" })
 			vim.api.nvim_set_hl(0, "@markup.raw.block.markdown", { bg = "NONE" })
+
+			-- Make blink.cmp signature help background opaque
+			vim.api.nvim_set_hl(0, "BlinkCmpSignatureHelp", { bg = "#191919" })
 		end
 	},
 
@@ -268,6 +271,8 @@ require("lazy").setup({
 				}
 			},
 
+			signature = { enabled = true },
+
 			fuzzy = { implementation = "prefer_rust_with_warning" }
 		},
 	},
@@ -294,6 +299,15 @@ require("lazy").setup({
 				vim.lsp.enable(lsp)
 			end
 
+			-- Disable snippets in C
+			local clangd_capabilities = require("blink.cmp").get_lsp_capabilities()
+			clangd_capabilities.textDocument.completion.completionItem.snippetSupport = false
+
+			vim.lsp.config("clangd", {
+				capabilities = clangd_capabilities,
+			})
+
+			-- Fix false errors in Neovim config files
 			vim.lsp.config("lua_ls", {
 				settings = { Lua = { diagnostics = { globals = { "vim" } } } }
 			})
