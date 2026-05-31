@@ -4,6 +4,12 @@ user_pref("svg.context-properties.content.enabled", true);
 
 user_pref("browser.tabs.tabClipWidth", 83);
 
+// Ask before closing multiple tabs
+user_pref("browser.tabs.warnOnClose", true);
+
+// Restore previous session on startup
+user_pref("browser.startup.page", 3);
+
 // Disable sponsored stuff
 user_pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false);
 user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
@@ -33,7 +39,6 @@ user_pref("browser.ml.chat.page", false);
 user_pref("browser.ml.linkPreview.enabled", false);
 user_pref("extensions.ml.enabled", false);
 user_pref("pdfjs.enableAltText", false);
-user_pref("browser.tabs.groups.smart.enabled", false);
 user_pref("browser.tabs.groups.smart.enabled", false);
 user_pref("browser.smartwindow.memories.generateFromConversation", false);
 user_pref("browser.smartwindow.memories.generateFromHistory", false);
