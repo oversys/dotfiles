@@ -2,6 +2,8 @@
 
 @import "fonts.css";
 
+@-moz-document url-prefix("chrome://") {
+
 :root {
 	/* Colors */
 	--bg-color: #111111;
@@ -879,3 +881,4 @@ checkbox#rememberChoice:not([checked]) .checkbox-check {
 
 /** End customize download popup **/
 
+}

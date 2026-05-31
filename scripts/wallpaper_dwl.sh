@@ -195,8 +195,11 @@ declare -A config_map=(
 	["$HOME/.config/rofi/theme.bak"]="$HOME/.config/rofi/theme.rasi"
 	["$HOME/.config/dunst/dunstrc.bak"]="$HOME/.config/dunst/dunstrc"
 	["$HOME/.config/gtklock/style.bak"]="$HOME/.config/gtklock/style.css"
-	["$FIREFOX_DIR/userChrome.bak"]="$FIREFOX_DIR/userChrome.css"
-	["$FIREFOX_DIR/userContent.bak"]="$FIREFOX_DIR/userContent.css"
+
+	# Change to userChrome.css and userContent.css if not using Firefox AutoConfig
+	# for hot reload. If using those file names, hot reload seems to be impossible.
+	["$FIREFOX_DIR/userChrome.bak"]="$FIREFOX_DIR/user-chrome.css"
+	["$FIREFOX_DIR/userContent.bak"]="$FIREFOX_DIR/user-content.css"
 )
 
 for template in "${!config_map[@]}"; do
@@ -245,6 +248,13 @@ pkill -SIGUSR2 dwl
 killall waybar
 waybar --config "$HOME/.config/waybar/config_dwl.jsonc" &
 
+# Select random dhikr for Firefox new tab page
+dhikr=$(jq -r '.[]' "$FIREFOX_DIR/dhikr.json" | shuf -n 1)
+sed -i "s/__DHIKR__/$dhikr/" "$FIREFOX_DIR/user-content.css"
+
+# Reload Firefox theme
+touch "$FIREFOX_DIR/reload-signal"
+
 # Change wallpaper
 OLD_SWAYBG=$(pidof swaybg)
 swaybg -i "$WALLPAPER" -m fill &
@@ -255,8 +265,4 @@ rm /tmp/lock.png
 # Kill dunst
 killall dunst
 dunst &
-
-# Select random dhikr for Firefox new tab page
-dhikr=$(jq -r '.[]' "$FIREFOX_DIR/dhikr.json" | shuf -n 1)
-sed -i "s/__DHIKR__/$dhikr/" "$FIREFOX_DIR/userContent.css"
 
