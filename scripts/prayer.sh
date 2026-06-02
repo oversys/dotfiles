@@ -249,7 +249,12 @@ CYCLE_SUNRISE=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Sunrise")"
 CYCLE_DHUHR=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Dhuhr")")
 CYCLE_ASR=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Asr")")
 CYCLE_MAGHRIB=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Maghrib")")
+
 CYCLE_ISHA=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Isha")")
+if (( CYCLE_ISHA < CYCLE_MAGHRIB )); then
+	CYCLE_ISHA=$(to_epoch "$NEXT_CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Isha")")
+fi
+
 NEXT_CYCLE_FAJR=$(to_epoch "$NEXT_CYCLE_DATE" "$(extract_time "$NEXT_CYCLE_DATE" "Fajr")")
 
 # Calculate or extract Midnight and Last Third times
@@ -267,7 +272,14 @@ if [ -z "$(grep 'Midnight' "$PRAYER_FILE")" ]; then
 	echo "Last Third: $LAST_THIRD_TIME" >> "$PRAYER_FILE"
 else
 	CYCLE_MIDNIGHT=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Midnight")")
+	if (( CYCLE_MIDNIGHT < CYCLE_MAGHRIB )); then
+		CYCLE_MIDNIGHT=$(to_epoch "$NEXT_CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Midnight")")
+	fi
+
 	CYCLE_LAST_THIRD=$(to_epoch "$CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Last Third")")
+	if (( CYCLE_LAST_THIRD < CYCLE_MAGHRIB )); then
+		CYCLE_LAST_THIRD=$(to_epoch "$NEXT_CYCLE_DATE" "$(extract_time "$CYCLE_DATE" "Last Third")")
+	fi
 fi
 
 # Determine current and next prayers

@@ -255,14 +255,14 @@ sed -i "s/__DHIKR__/$dhikr/" "$FIREFOX_DIR/user-content.css"
 # Reload Firefox theme
 touch "$FIREFOX_DIR/reload-signal"
 
+# Kill dunst
+killall dunst
+dunst &
+
 # Change wallpaper
 OLD_SWAYBG=$(pidof swaybg)
 swaybg -i "$WALLPAPER" -m fill &
 sleep 0.5
 kill $OLD_SWAYBG
 rm /tmp/lock.png
-
-# Kill dunst
-killall dunst
-dunst &
 
