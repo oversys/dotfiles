@@ -52,6 +52,11 @@
 		--newtab-wordmark-color: var(--fg-color) !important;
 	}
 
+	/* Remove unnecessary scrollbar */
+	body {
+		overflow: hidden !important;
+	}
+
 	/* Customize logo */
 	.logo-and-wordmark-wrapper, .logo-and-wordmark {
 		position: fixed !important;
