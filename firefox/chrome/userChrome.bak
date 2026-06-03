@@ -1,4 +1,4 @@
-/* Last working version: Mozilla Firefox 151.0.2 */
+/* Last working version: Mozilla Firefox 151.0.3 */
 
 @import "fonts.css";
 
@@ -364,13 +364,79 @@ toolbarbutton#downloads-button[open="true"] #downloads-indicator-icon {
 	fill: var(--accent-color) !important;
 }
 
+/* Change icon of Discord tab */
+.tabbrowser-tab[data-site="discord"] .tab-icon-image {
+	-moz-context-properties: fill !important;
+	fill: var(--fg-color) !important;
+	content: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 -28.5 256 256" xmlns="http://www.w3.org/2000/svg"><path d="M216.856339,16.5966031 C200.285002,8.84328665 182.566144,3.2084988 164.041564,0 C161.766523,4.11318106 159.108624,9.64549908 157.276099,14.0464379 C137.583995,11.0849896 118.072967,11.0849896 98.7430163,14.0464379 C96.9108417,9.64549908 94.1925838,4.11318106 91.8971895,0 C73.3526068,3.2084988 55.6133949,8.86399117 39.0420583,16.6376612 C5.61752293,67.146514 -3.4433191,116.400813 1.08711069,164.955721 C23.2560196,181.510915 44.7403634,191.567697 65.8621325,198.148576 C71.0772151,190.971126 75.7283628,183.341335 79.7352139,175.300261 C72.104019,172.400575 64.7949724,168.822202 57.8887866,164.667963 C59.7209612,163.310589 61.5131304,161.891452 63.2445898,160.431257 C105.36741,180.133187 151.134928,180.133187 192.754523,160.431257 C194.506336,161.891452 196.298154,163.310589 198.110326,164.667963 C191.183787,168.842556 183.854737,172.420929 176.223542,175.320965 C180.230393,183.341335 184.861538,190.991831 190.096624,198.16893 C211.238746,191.588051 232.743023,181.531619 254.911949,164.955721 C260.227747,108.668201 245.831087,59.8662432 216.856339,16.5966031 Z M85.4738752,135.09489 C72.8290281,135.09489 62.4592217,123.290155 62.4592217,108.914901 C62.4592217,94.5396472 72.607595,82.7145587 85.4738752,82.7145587 C98.3405064,82.7145587 108.709962,94.5189427 108.488529,108.914901 C108.508531,123.290155 98.3405064,135.09489 85.4738752,135.09489 Z M170.525237,135.09489 C157.88039,135.09489 147.510584,123.290155 147.510584,108.914901 C147.510584,94.5396472 157.658606,82.7145587 170.525237,82.7145587 C183.391518,82.7145587 193.761324,94.5189427 193.539891,108.914901 C193.539891,123.290155 183.391518,135.09489 170.525237,135.09489 Z" fill-rule="nonzero" /></svg>') !important;
+	width: 16px !important;
+	height: 16px !important;
+}
+
+.tabbrowser-tab[data-site="discord"][selected] .tab-icon-image {
+	fill: var(--accent-color) !important;
+}
+
+/* Change icon of Gmail tab */
+.tabbrowser-tab[data-site="gmail"] .tab-icon-image {
+	-moz-context-properties: fill !important;
+	fill: var(--fg-color) !important;
+	content: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" /></svg>') !important;
+	width: 16px !important;
+	height: 16px !important;
+}
+
+.tabbrowser-tab[data-site="gmail"][selected] .tab-icon-image {
+	fill: var(--accent-color) !important;
+}
+
+/* Change icon of YouTube tab */
+.tabbrowser-tab[data-site="youtube"] .tab-icon-image {
+	-moz-context-properties: fill !important;
+	fill: var(--fg-color) !important;
+	content: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 28.57 20" version="1.1" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 0 14.285 0 14.285 0C14.285 0 5.35042 0 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C0 5.35042 0 10 0 10C0 10 0 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324Z M11.4253 14.2854L18.8477 10.0004L11.4253 5.71533Z" /></svg>') !important;
+	width: 17px !important;
+	height: 17px !important;
+}
+
+.tabbrowser-tab[data-site="youtube"][selected] .tab-icon-image {
+	fill: var(--accent-color) !important;
+}
+
+/* Change icon of Canvas tab */
+.tabbrowser-tab[data-site="canvas"] .tab-icon-image {
+	-moz-context-properties: fill !important;
+	fill: var(--fg-color) !important;
+	content: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="-13.5 -19.5 74 74" version="1.1" xmlns="http://www.w3.org/2000/svg"><circle cx="22.5" cy="15.5" r="33.5" fill="none" stroke="context-fill" stroke-width="4" /><g><path d="m19.499 20.4730468c0 7.9926634-3.3054071 10.5289532-9.51827314 10.5289532-7.11840136 0-9.48172686-3.5374034-9.48172686-10.908686v-20.091314h4.68401368v19.7257959c0 2.6926503-.17664031 7.7550766 4.83222912 7.7550766 4.13785 0 4.8789271-3.007402 4.8789271-7.545919v-19.9349535h4.6048301z" /><path d="m34.3858108 3.70546667v27.29653333h-4.7736216v-27.29653333h-7.1131892v-3.70346667h19v3.70346667z" /><circle cx="42" cy="28.5" r="3.3" /></g></svg>') !important;
+	width: 20px !important;
+	height: 20px !important;
+}
+
+.tabbrowser-tab[data-site="canvas"][selected] .tab-icon-image {
+	fill: var(--accent-color) !important;
+}
+
+/* Change icon of Github tab */
+.tabbrowser-tab[data-site="github"] .tab-icon-image {
+	-moz-context-properties: fill !important;
+	fill: var(--fg-color) !important;
+	content: url('data:image/svg+xml;utf8,<svg style="width: 1em; height: 1em; fill: context-fill;" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M12,2A10,10,0,0,0,8.84,21.5c.5.08.66-.23.66-.5V19.31C6.73,19.91,6.14,18,6.14,18A2.69,2.69,0,0,0,5,16.5c-.91-.62.07-.6.07-.6a2.1,2.1,0,0,1,1.53,1,2.15,2.15,0,0,0,2.91.83,2.16,2.16,0,0,1,.63-1.34C8,16.17,5.62,15.31,5.62,11.5a3.87,3.87,0,0,1,1-2.71,3.58,3.58,0,0,1,.1-2.64s.84-.27,2.75,1a9.63,9.63,0,0,1,5,0c1.91-1.29,2.75-1,2.75-1a3.58,3.58,0,0,1,.1,2.64,3.87,3.87,0,0,1,1,2.71c0,3.82-2.34,4.66-4.57,4.91a2.39,2.39,0,0,1,.69,1.85V21c0,.27.16.59.67.5A10,10,0,0,0,12,2Z" /></svg>') !important;
+	width: 19px !important;
+	height: 19px !important;
+}
+
+.tabbrowser-tab[data-site="github"][selected] .tab-icon-image {
+	fill: var(--accent-color) !important;
+}
+
 /* Add more space between tab icon and label */
 .tab-icon-image, .tab-throbber {
 	margin-inline-end: 8px !important;
 }
 
 /* Improve tab icon vertical alignment */
-.tab-icon-image:not([src="chrome://branding/content/icon32.png"]) {
+.tab-icon-image:not([src="chrome://branding/content/icon32.png"]),
+button#main-button[aria-label="Mute tab"] {
 	margin-block-end: -1px !important;
 }
 
@@ -882,3 +948,4 @@ checkbox#rememberChoice:not([checked]) .checkbox-check {
 /** End customize download popup **/
 
 }
+
