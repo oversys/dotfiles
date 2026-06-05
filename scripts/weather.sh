@@ -1,16 +1,36 @@
 #!/bin/bash
 
-# Rounding options
+## LOCATION - If country and/or city are not entered then location will be fetched automatically based on IP
+
+# Two-letter country code (ISO 3166-1 alpha-2)
+COUNTRY="__COUNTRY__"
+
+# City name (from GeoNames cities1000 DB)
+# If city has less than 1000 inhabitants, enter closest city with a population of 1000+
+# Run "fzf < ./cities1000_slim.csv" to search available cities (169,192 places in DB)
+#
+# NOTE: If multiple cities share the same name in the same country, the script will just
+#       pick the first city location. Consider automatic location detection in this case.
+CITY="__CITY__"
+
+## Rounding options
 ROUND_TEMP=1
 ROUND_WIND=1
 
-# Automatically detect location
-while [[ -z "$LOC" ]]; do
-	LOC=$(curl -s https://ipinfo.io | jq -r '.loc')
-done
+# Location local lookup
+if [[ "$COUNTRY" != "__COUNTRY__" && -n "$COUNTRY" && "$CITY" != "__CITY__" && -n "$CITY" ]]; then
+	source ./get_location.sh "$COUNTRY" "$CITY"
+fi
 
-LAT=$(echo $LOC | awk -F ',' '{print $1}')
-LON=$(echo $LOC | awk -F ',' '{print $2}')
+# Automatically detect location if local lookup failed
+if [[ -z "$LAT" || -z "$LON" ]]; then
+	while [[ -z "$LOC" ]]; do
+		LOC=$(curl -s https://ipinfo.io | jq -r '.loc')
+	done
+
+	LAT=$(echo $LOC | awk -F ',' '{print $1}')
+	LON=$(echo $LOC | awk -F ',' '{print $2}')
+fi
 
 # Get weather info: weather code, temperature, wind direction and speed
 while [[ -z "$weather_info" ]]; do
