@@ -6,7 +6,7 @@ MASJID_ID="__MASJID_ID__"
 # Set to 1 to enable caching of mawaqit.net calendar
 USE_CACHE=1
 
-## LOCATION - If country or city are not entered then location will be fetched automatically
+## LOCATION - If country and/or city are not entered then location will be fetched automatically based on IP
 
 # Country name or ISO 3166 code (ex: The Netherlands, Netherlands, NL, or NLD)
 COUNTRY="__COUNTRY__"
@@ -348,6 +348,7 @@ fi
 # -n: Current prayer time (_N_ow)
 # -h: _H_ijri date
 # -t: _T_ime module text (infinite loop)
+# -r: _R_ofi menu
 
 if [[ "$1" == "-p" ]]; then
 	CURRENT_PRAYER_ARABIC=$(arabic_prayer_name "$CURRENT_PRAYER")
@@ -388,6 +389,61 @@ elif [[ "$1" == "-t" ]]; then
 
 		sleep $(echo "60 - $(date +%S.%N) % 60" | bc)
 	done
+elif [[ "$1" == "-r" ]]; then
+	FAJR_TIME=$(extract_time "$CYCLE_DATE" "Fajr")
+	SUNRISE_TIME=$(extract_time "$CYCLE_DATE" "Sunrise")
+	DHUHR_TIME=$(extract_time "$CYCLE_DATE" "Dhuhr")
+	ASR_TIME=$(extract_time "$CYCLE_DATE" "Asr")
+	MAGHRIB_TIME=$(extract_time "$CYCLE_DATE" "Maghrib")
+	ISHA_TIME=$(extract_time "$CYCLE_DATE" "Isha")
+	MIDNIGHT_TIME=$(extract_time "$CYCLE_DATE" "Midnight")
+	LAST_THIRD_TIME=$(extract_time "$CYCLE_DATE" "Last Third")
+
+	ROFI_THEME="
+		window { height: 660px; }
+		mainbox { children: [ message, listview ]; }
+		message {
+			margin: 16px 8px 3px 8px;
+			padding: 12px;
+			border-radius: 8px;
+			border-color: @dimcol1;
+			border: 0px 0px 8px 0px;
+			background-color: @col1;
+			text-color: @fgcol1;
+		}
+		textbox {
+			background-color: transparent;
+			vertical-align: 0.5;
+			horizontal-align: 0.5;
+			font: 'JetBrainsMono NF Bold 15';
+			text-color: @fgcol1;
+		}
+	"
+
+	case "$CURRENT_PRAYER" in
+		"Fajr") PRAYER_INDEX=0;;
+		"Sunrise") PRAYER_INDEX=1;;
+		"Dhuhr") PRAYER_INDEX=2;;
+		"Asr") PRAYER_INDEX=3;;
+		"Maghrib") PRAYER_INDEX=4;;
+		"Isha") PRAYER_INDEX=5;;
+		"Midnight") PRAYER_INDEX=6;;
+		"Last Third") PRAYER_INDEX=7;;
+	esac
+
+	# Left-to-Right mark for Arabic
+	LRM=$'\u200E'
+
+	{
+		echo "Fajr:       $FAJR_TIME ———————————————————— $(echo $FAJR_TIME | to_arabic_num)      :$LRMالفجر$LRM"
+		echo "Sunrise:    $SUNRISE_TIME ———————————————————— $(echo $SUNRISE_TIME | to_arabic_num)     :$LRMالشروق$LRM"
+		echo "Dhuhr:      $DHUHR_TIME ———————————————————— $(echo $DHUHR_TIME | to_arabic_num)      :$LRMالظهر$LRM"
+		echo "Asr:        $ASR_TIME ———————————————————— $(echo $ASR_TIME | to_arabic_num)      :$LRMالعصر$LRM"
+		echo "Maghrib:    $MAGHRIB_TIME ———————————————————— $(echo $MAGHRIB_TIME | to_arabic_num)     :$LRMالمغرب$LRM"
+		echo "Isha:       $ISHA_TIME ———————————————————— $(echo $ISHA_TIME | to_arabic_num)     :$LRMالعشاء$LRM"
+		echo "Midnight:   $MIDNIGHT_TIME ———————————————————— $(echo $MIDNIGHT_TIME | to_arabic_num) :$LRMمنتصف الليل$LRM"
+		echo "Last Third: $LAST_THIRD_TIME ———————————————————— $(echo $LAST_THIRD_TIME | to_arabic_num)  :$LRMالثلث الأخير$LRM"
+	} | rofi -dmenu -mesg "󰥹 Prayer times" -theme-str "$ROFI_THEME" -selected-row $PRAYER_INDEX
 else
 	FAJR_TIME=$(extract_time "$CYCLE_DATE" "Fajr")
 	SUNRISE_TIME=$(extract_time "$CYCLE_DATE" "Sunrise")
