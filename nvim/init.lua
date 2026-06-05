@@ -13,6 +13,10 @@ vim.opt.smartcase = true
 vim.opt.cursorline = true
 vim.opt.scrolloff = 8
 
+-- Fix appearance with Neo-tree (1 status bar, remove vertical separator)
+vim.opt.laststatus = 3
+vim.opt.fillchars = { vert = " " }
+
 --[[
 -- Remove terminal padding on entry
 vim.api.nvim_create_autocmd("VimEnter", {
@@ -282,18 +286,16 @@ require("lazy").setup({
 		"neovim/nvim-lspconfig",
 		dependencies = { "saghen/blink.cmp" },
 		config = function()
-			--                 Python,    JS/TS,       Rust,        C/C++,    HTML,    CSS,      Lua
-			local servers = { "pyright", "ts_ls", "rust_analyzer", "clangd", "html", "cssls", "lua_ls" }
-
-			-- Add Verible to servers only if installed (LSP for Verilog, only in AUR)
-			-- if vim.fn.executable("verible-verilog-ls") then
-			-- 	table.insert(servers, "verible")
-			-- end
-
-			-- Add Haskell Language Server only if installed (available in official Arch repo)
-			-- if vim.fn.executable("haskell-language-server") then
-			-- 	table.insert(servers, "hls")
-			-- end
+			local servers = {
+				"clangd",        -- C/C++
+				"pyright",       -- Python
+				"rust_analyzer", -- Rust
+				"ts_ls",         -- TS/JS
+				"html",          -- HTML
+				"cssls",         -- CSS
+				"lua_ls",        -- Lua
+				"bashls",        -- Bash
+			}
 
 			for _, lsp in ipairs(servers) do
 				vim.lsp.enable(lsp)
