@@ -7,7 +7,9 @@ COUNTRY="__COUNTRY__"
 
 # City name (from GeoNames cities1000 DB)
 # If city has less than 1000 inhabitants, enter closest city with a population of 1000+
-# Run "fzf < ./cities1000_slim.csv" to search available cities (169,192 places in DB)
+#
+# To search available cities (169,192 places in DB), run:
+# 	fzf --delimiter="," --with-nth=1,2 < cities1000_slim.csv
 #
 # NOTE: If multiple cities share the same name in the same country, the script will just
 #       pick the first city location. Consider automatic location detection in this case.
@@ -68,11 +70,11 @@ get_moon_illumination() {
 	#    φ = 2π * age/M
 	#    illum = (1 - cos φ)/2 * 100
 	local illumination=$(echo "scale=4
-	pi=4*a(1)
-	phi = 2*pi*$moon_age/29.53059
-	illum = (1 - c(phi))/2 * 100
-	print illum
-	" | bc -l)
+		pi=4*a(1)
+		phi = 2*pi*$moon_age/29.53059
+		illum = (1 - c(phi))/2 * 100
+		print illum
+		" | bc -l)
 
 	printf "%.1f" "$illumination"
 }
@@ -129,7 +131,6 @@ get_moon_tooltip() {
 # Reference: https://gist.github.com/stellasphere/9490c195ed2b53c707087c8c2db4ec0c
 get_weather_icon() {
 	case $1 in
-		# 0) [[ $TIME_OF_DAY == "Night" ]] && echo "󰖔" || echo "󰖨" ;; # sunny/clear
 		0) [[ $TIME_OF_DAY == "Night" ]] && echo $(get_moon_icon) || echo "󰖨" ;; # sunny/clear
 		1 | 2) [[ $TIME_OF_DAY == "Night" ]] && echo "" || echo "" ;; # partly sunny/cloudy
 		3) echo "󰅟" ;; # cloudy
@@ -202,8 +203,7 @@ if [[ "$ROUND_WIND" -eq 1 ]]; then
 	wind_speed=$(printf "%.0f" "$wind_speed")
 fi
 
-
-## Print module json
+## Print module JSON
 
 tooltip="$wind_dir_icon $wind_speed $wind_speed_unit @ $wind_dir$wind_dir_unit"
 

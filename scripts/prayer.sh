@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Mawaqit.net masjid ID (gets prayer times directly from the masjid rather than from aladhan.com)
+# Mawaqit.net masjid ID (gets accurate prayer times directly from the masjid rather than computing locally)
 MASJID_ID="__MASJID_ID__"
 
 # Set to 1 to enable caching of mawaqit.net calendar
@@ -8,17 +8,56 @@ USE_CACHE=1
 
 ## LOCATION - If country and/or city are not entered then location will be fetched automatically based on IP
 
-# Country name or ISO 3166 code (ex: The Netherlands, Netherlands, NL, or NLD)
+# Two-letter country code (ISO 3166-1 alpha-2)
 COUNTRY="__COUNTRY__"
 
-# City name (ex: Makkah)
+# City name (from GeoNames cities1000 DB)
+# If city has less than 1000 inhabitants, enter closest city with a population of 1000+
+#
+# To search available cities (169,192 places in DB), run:
+# 	fzf --delimiter="," --with-nth=1,2 < cities1000_slim.csv
+#
+# NOTE: If multiple cities share the same name in the same country, the script will just
+#       pick the first city location. Consider automatic location detection in this case.
 CITY="__CITY__"
 
-# 3 - Muslim World League
-# 4 - Umm Al-Qura University, Makkah
-# 8 - Gulf Region
-# 16 - Dubai (unofficial)
-# DEFAULT: 3 - Muslim World League
+## METHOD - Used in local calculations for Fajr and Isha times
+#
+# 1 - Umm Al-Qura University, Makkah (جامعة أم القرى)
+# 	Region: The Arabian Peninsula
+#
+# 2 - Muslim World League
+# 	Region: Europe, The Far East, parts of the USA
+#
+# 3 - Egyptian General Authority of Survey (الهيئة المصرية العامة للمساحة)
+# 	Region: Africa, Syria, Lebanon, Iraq, Malaysia
+#
+# 4 - University of Islamic Studies, Karachi
+# 	Region: Pakistan, Afghanistan, Bangladesh, India
+#
+# 5 - Fiqh Council of North America, USA (aka Islamic Society of North America)
+# 	Region: United States of America
+#
+# 6 - Fiqh Council of North America, Canada
+# 	Region: Canada
+#
+# 7 - Muslims of France (Musulmans de France)
+# 	Formerly: Union of Islamic Organisations of France (Union des organisations islamiques de France)
+# 	Region: France
+#
+# 8 - Islamic Religious Council of Singapore (Majlis Ugama Islam Singapura)
+# 	Region: Singapore
+#
+# 9 - Dubai (unofficial)
+# 	Region: United Arab Emirates
+#
+# 10 - Qatar (Modified version of the Umm Al-Qura method)
+# 	Region: Qatar
+#
+# 11 - Kuwait
+# 	Region: Kuwait
+#
+# DEFAULT: 2 - Muslim World League
 METHOD="__METHOD__"
 
 # Dates & Times
@@ -34,7 +73,7 @@ HIJRI_FILE="$PRAYER_DIR/hijri.txt"
 
 # Default method
 if [[ "$METHOD" == "__METHOD__" || -z "$METHOD" ]]; then
-	METHOD=3
+	METHOD=2
 fi
 
 # Helper Functions
@@ -132,6 +171,283 @@ fetch_mawaqit() {
 	fi
 }
 
+# Calculate prayer times locally for date $1
+# NOTE: May produce incorrect results at (very) high latitudes, especially where the sun does not rise/set
+calculate_timings() {
+	local REQ_DATE="$1"
+
+	## METHOD REFERENCES:
+	#    https://fiqhcouncil.org/the-suggested-calculation-method-for-fajr-and-isha/
+	#    https://praytimes.org/docs/methods
+	#    https://aladhan.com/calculation-methods
+	#    https://github.com/batoulapps/adhan-kotlin
+	#    https://github.com/hablullah/go-prayer
+	#    https://radhifadlillah.com/blog/2020-09-06-calculating-prayer-times
+	case "$METHOD" in
+		# Umm Al-Qura University, Makkah
+		1)
+			fajr_angle="18.5"
+			isha_angle=0 # Isha time based on interval, not angle
+			isha_interval="90" # NOTE: 120 minutes after Maghrib during Ramadan
+			;;
+
+		# Muslim World League
+		2)
+			fajr_angle=18
+			isha_angle=17
+			;;
+
+		# Egyptian General Authority of Survey
+		3)
+			fajr_angle="19.5"
+			isha_angle="17.5"
+			;;
+
+		# University of Islamic Studies, Karachi
+		4)
+			fajr_angle=18
+			isha_angle=18
+			;;
+
+		# Fiqh Council of North America, USA (aka Islamic Society of North America)
+		5)
+			fajr_angle=15
+			isha_angle=15
+			;;
+
+		# Fiqh Council of North America, Canada
+		6)
+			fajr_angle=13
+			isha_angle=13
+			;;
+
+		# Muslims of France
+		7)
+			fajr_angle=12
+			isha_angle=12
+			;;
+
+		# Islamic Religious Council of Singapore
+		8)
+			fajr_angle=20
+			isha_angle=18
+			;;
+
+		# Dubai (unofficial)
+		9)
+			fajr_angle="18.2"
+			isha_angle="18.2"
+			;;
+
+		# Qatar
+		10)
+			fajr_angle=18
+			isha_angle=0 # Isha time based on interval, not angle
+			isha_interval="90"
+			;;
+
+		# Kuwait
+		11)
+			fajr_angle=18
+			isha_angle="17.5"
+			;;
+	esac
+
+	## REFERENCES:
+	#    https://aa.usno.navy.mil/faq/sun_approx
+	#    https://praytimes.org/docs/calculation
+	#    https://radhifadlillah.com/blog/2020-09-06-calculating-prayer-times
+
+	local formatted_date=$(echo "$REQ_DATE" | awk -F'-' '{print $3"-"$2"-"$1}')
+	local req_epoch=$(date -u -d "$formatted_date 12:00" +"%s")
+
+	local julian_date=$(bc -l <<< "($req_epoch / 86400) + 2440587.5")
+	local days_since_jepoch=$(bc -l <<< "$julian_date - 2451545.0")
+
+	# π = 4 * arctan(1)
+	local pi=$(bc -l <<< "4 * a(1)")
+
+	to_rad() {
+		bc -l <<< "$1 * ($pi / 180)"
+	}
+
+	to_deg() {
+		bc -l <<< "$1 * (180 / $pi)"
+	}
+
+	# Mean anomaly of the Sun, g, in degrees
+	local sun_mean_anomaly=$(bc -l <<< "357.529 + 0.98560028 * $days_since_jepoch")
+	sun_mean_anomaly=$(awk -v sun_mean_anomaly="$sun_mean_anomaly" 'BEGIN { print sun_mean_anomaly % 360 }')
+
+	local sun_mean_anomaly_rad=$(to_rad "$sun_mean_anomaly")
+
+	# Mean longitude of the Sun, q, in degrees
+	local sun_mean_longitude=$(bc -l <<< "280.459 + 0.98564736 * $days_since_jepoch")
+	sun_mean_longitude=$(awk -v sun_mean_longitude="$sun_mean_longitude" 'BEGIN { print sun_mean_longitude % 360 }')
+
+	local sun_mean_longitude_rad=$(to_rad "$sun_mean_longitude")
+
+	# Geocentric apparent ecliptic longitude of the Sun (adjusted for aberration), L, in degrees
+	local sun_geocen_app_ecliptic_lon=$(bc -l <<< "$sun_mean_longitude + 1.915 * s($sun_mean_anomaly_rad) + 0.020 * s(2 * $sun_mean_anomaly_rad)")
+
+	local sun_geocen_app_ecliptic_lon_rad=$(to_rad "$sun_geocen_app_ecliptic_lon")
+
+	# Mean obliquity of the ecliptic, e, in degrees
+	local ecliptic_mean_obliquity=$(bc -l <<< "23.439 - 0.00000036 * $days_since_jepoch")
+
+	local ecliptic_mean_obliquity_rad=$(to_rad "$ecliptic_mean_obliquity")
+
+	# Right ascension of the Sun, RA, in radians
+	local sun_right_ascension_rad=$(awk -v ecliptic_mean_obliquity_rad="$ecliptic_mean_obliquity_rad" \
+		-v sun_geocen_app_ecliptic_lon_rad="$sun_geocen_app_ecliptic_lon_rad" \
+		'BEGIN { print atan2(cos(ecliptic_mean_obliquity_rad) * sin(sun_geocen_app_ecliptic_lon_rad), cos(sun_geocen_app_ecliptic_lon_rad)) }')
+
+	local sun_right_ascension=$(to_deg "$sun_right_ascension_rad")
+
+	if (( $(bc -l <<< "$sun_right_ascension < 0") )); then
+		sun_right_ascension=$(bc -l <<< "$sun_right_ascension + 360")
+	fi
+
+	local sun_right_ascension_hours=$(bc -l <<< "$sun_right_ascension / 15")
+
+	# Declination of the Sun
+	local sun_declination_rad=$(awk -v ecliptic_mean_obliquity_rad="$ecliptic_mean_obliquity_rad" \
+		-v sun_geocen_app_ecliptic_lon_rad="$sun_geocen_app_ecliptic_lon_rad" \
+		'function asin(x) { return atan2(x, sqrt(1-x*x)) }
+		BEGIN { print asin(sin(ecliptic_mean_obliquity_rad) * sin(sun_geocen_app_ecliptic_lon_rad)) }')
+
+	# Equation of Time (discrepancy between time measured by a sundial and a standard clock)
+	local equation_of_time=$(bc -l <<< "$sun_mean_longitude / 15 - $sun_right_ascension_hours")
+
+	if (( $(bc -l <<< "$equation_of_time > 12") )); then
+		equation_of_time=$(bc -l <<< "$equation_of_time - 24")
+	elif (( $(bc -l <<< "$equation_of_time < -12") )); then
+		equation_of_time=$(bc -l <<< "$equation_of_time + 24")
+	fi
+
+	local timezone_offset=$(TZ="$TIMEZONE" date -d "$formatted_date" +%z | sed -E 's/^([+-])(..)(..)/scale=2;0\1(\2 + \3\/60)/' | bc)
+
+	DHUHR_HOURS=$(bc -l <<< "12 + $timezone_offset - ($LON / 15) - $equation_of_time")
+
+	local lat_rad=$(to_rad "$LAT")
+
+	calculate_hour_angle() {
+		local angle_below_horizon="$1"
+		local angle_below_horizon_rad=$(to_rad "$angle_below_horizon")
+
+		local numerator=$(bc -l <<< "s($angle_below_horizon_rad) - s($lat_rad) * s($sun_declination_rad)")
+
+		local denominator=$(bc -l <<< "c($lat_rad) * c($sun_declination_rad)")
+
+		local result_rad=$(awk -v numerator="$numerator" -v denominator="$denominator" \
+			'function acos(x) {
+				if (x > 1 || x < -1)
+					return "ERROR"
+				return atan2(sqrt(1-x*x), x)
+			}
+			BEGIN { print acos(numerator / denominator) }')
+
+		if [[ "$result_rad" == "ERROR" ]]; then
+			echo "ERROR"
+		else
+			local result=$(to_deg "$result_rad")
+			bc -l <<< "(1 / 15) * $result"
+		fi
+	}
+
+	local horizon_hour_angle=$(calculate_hour_angle "-0.833")
+	SUNRISE_HOURS=$(bc -l <<< "$DHUHR_HOURS - $horizon_hour_angle")
+	MAGHRIB_HOURS=$(bc -l <<< "$DHUHR_HOURS + $horizon_hour_angle")
+
+	local diff=$(bc -l <<< "$lat_rad - $sun_declination_rad")
+	local diff="${diff#-}"
+	local asr_altitude_rad_inner=$(bc -l <<< "1 + (s($diff) / c($diff))")
+
+	# arccot(x) = arctan2(1, x)
+	local asr_altitude_rad=$(awk -v inner="$asr_altitude_rad_inner" 'BEGIN { print atan2(1, inner) }')
+	local asr_altitude_deg=$(to_deg "$asr_altitude_rad")
+
+	ASR_HOURS=$(bc -l <<< "$DHUHR_HOURS + $(calculate_hour_angle $asr_altitude_deg)")
+
+	## REFERENCE: https://praytimes.org/docs/calculation#higher_latitudes)
+	#    Special handling for higher latitudes (Angle-Based Method)
+
+	local night_hours=$(bc -l <<< "24 - $MAGHRIB_HOURS + $SUNRISE_HOURS")
+
+	local fajr_diff=$(bc -l <<< "($fajr_angle / 60) * $night_hours")
+	local fallback_fajr_hours=$(bc -l <<< "$SUNRISE_HOURS - $fajr_diff")
+
+	# Normal Fajr calculation
+	local fajr_hour_angle=$(calculate_hour_angle "-$fajr_angle")
+
+	if [[ "$fajr_hour_angle" == "ERROR" ]]; then
+		FAJR_HOURS="$fallback_fajr_hours"
+	else
+		local normal_fajr_hours=$(bc -l <<< "$DHUHR_HOURS - $fajr_hour_angle")
+
+		if (( $(bc -l <<< "$normal_fajr_hours < $fallback_fajr_hours") )); then
+			FAJR_HOURS="$fallback_fajr_hours"
+		else
+			FAJR_HOURS="$normal_fajr_hours"
+		fi
+	fi
+
+	if [[ "$isha_angle" == 0 ]]; then
+		ISHA_HOURS=$(bc -l <<< "$MAGHRIB_HOURS + ($isha_interval / 60)")
+
+		# Special handling for Umm Al-Qura method
+		hijri_month=$(node -e "console.log(new Date('$formatted_date').toLocaleDateString('en-u-ca-islamic', { month: 'numeric' }))")
+
+		if [[ "$METHOD" -eq 1 && "$hijri_month" -eq 9 ]]; then
+			ISHA_HOURS=$(bc -l <<< "$ISHA_HOURS + 0.5")
+		fi
+	else
+		local isha_diff=$(bc -l <<< "($isha_angle / 60) * $night_hours")
+		local fallback_isha_hours=$(bc -l <<< "$MAGHRIB_HOURS + $isha_diff")
+
+		local isha_hour_angle=$(calculate_hour_angle "-$isha_angle")
+
+		if [[ "$isha_hour_angle" == "ERROR" ]]; then
+			ISHA_HOURS="$fallback_isha_hours"
+		else
+			local normal_isha_hours=$(bc -l <<< "$DHUHR_HOURS + $isha_hour_angle")
+
+			if (( $(bc -l <<< "$normal_isha_hours > $fallback_isha_hours") )); then
+				ISHA_HOURS="$fallback_isha_hours"
+			else
+				ISHA_HOURS="$normal_isha_hours"
+			fi
+		fi
+	fi
+
+	format_hours() {
+		local decimal_hours="$1"
+
+		local hours=$(echo "$decimal_hours" | cut -d'.' -f1)
+		local minutes=$(echo "$decimal_hours" | awk -F. '{print int( ("0."$2) * 60 + 0.5 )}')
+
+		if [ "$minutes" -eq 60 ]; then
+			hours=$((hours + 1))
+			minutes=0
+		fi
+
+		if (( $(echo "$hours >= 24" | bc -l) )); then
+			hours=$(echo "$hours - 24" | bc -l)
+		fi
+
+		printf "%02d:%02d\n" "$hours" "$minutes"
+	}
+
+	echo "[
+	\"$(format_hours $FAJR_HOURS)\",
+	\"$(format_hours $SUNRISE_HOURS)\",
+	\"$(format_hours $DHUHR_HOURS)\",
+	\"$(format_hours $ASR_HOURS)\",
+	\"$(format_hours $MAGHRIB_HOURS)\",
+	\"$(format_hours $ISHA_HOURS)\"
+]"
+}
+
 get_timings() {
 	local REQ_DATE="$1"
 	local PRAYER_FILE="$PRAYER_DIR/$REQ_DATE.txt"
@@ -143,20 +459,31 @@ get_timings() {
 	local TIMES=""
 	local SOURCE_COMMENT=""
 
+	# Calculate prayer times locally if masjid ID was not given
 	if [[ "$MASJID_ID" == "__MASJID_ID__" || -z "$MASJID_ID" ]]; then
+		# Lookup location locally (latitude, longitude, timezone)
 		if [[ "$COUNTRY" != "__COUNTRY__" && -n "$COUNTRY" && "$CITY" != "__CITY__" && -n "$CITY" ]]; then
-			SOURCE_COMMENT="# Fetched prayer times from api.aladhan.com with given location: $CITY, $COUNTRY"
-		else
-			# Automatically detect location if neither masjid ID nor location are provided
-			local LOCATION=$(curl -s https://ipinfo.io)
-			COUNTRY="$(echo $LOCATION | jq -r '.country')"
-			CITY="$(echo $LOCATION | jq -r '.city')"
-
-			SOURCE_COMMENT="# Fetched prayer times from api.aladhan.com with automatically detected location: $CITY, $COUNTRY"
+			source ./get_location.sh "$COUNTRY" "$CITY"
+			SOURCE_COMMENT="# Calculated prayer times locally for $CITY_MATCH, $COUNTRY (timezone: $TIMEZONE)"
 		fi
 
-		# Fetch times from api.aladhan.com
-		TIMES=$(curl -Ls "http://api.aladhan.com/v1/timingsByCity/$REQ_DATE?country=$COUNTRY&city=$CITY&method=$METHOD" | jq -r '[.data.timings.Fajr, .data.timings.Sunrise, .data.timings.Dhuhr, .data.timings.Asr, .data.timings.Maghrib, .data.timings.Isha]')
+		# Automatically detect location if local lookup failed
+		if [[ -z "$LAT" || -z "$LON" || -z "$TIMEZONE" ]]; then
+			IPINFO=$(curl -s https://ipinfo.io)
+
+			COUNTRY="$(echo $IPINFO | jq -r '.country')"
+			CITY="$(echo $IPINFO | jq -r '.city')"
+
+			LOCATION=$(echo "$IPINFO" | jq -r '.loc')
+			LAT=$(echo $LOCATION | awk -F ',' '{print $1}')
+			LON=$(echo $LOCATION | awk -F ',' '{print $2}')
+
+			TIMEZONE="$(echo $IPINFO | jq -r '.timezone')"
+
+			SOURCE_COMMENT="# Calculated prayer times locally for automatically detected location $CITY, $COUNTRY (timezone: $TIMEZONE)"
+		fi
+
+		TIMES=$(calculate_timings "$REQ_DATE")
 	else
 		# Fetch times from mawaqit.net
 		local DAY=$(echo "$REQ_DATE" | awk -F'-' '{print $1 + 0}')
@@ -202,28 +529,16 @@ get_hijri() {
 	read -r LAST_DATE LAST_HIJRI < "$HIJRI_FILE"
 
 	if [ "$LAST_DATE" != "$NOW_DATE" ]; then
-		local new_hijri=""
+		local hijri_date=$(node -e "console.log(new Date().toLocaleDateString('ar-SA-u-ca-islamic', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))" | sed "s/ هـ//")
 
-		if command -v node >/dev/null 2>&1; then
-			new_hijri=$(node -e "console.log(new Date().toLocaleDateString('ar-SA-u-ca-islamic', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))" | sed "s/ هـ//")
-		else
-			today=$(curl -Ls "https://api.aladhan.com/v1/gToH/$NOW_DATE" | jq .data.hijri)
-			day=$(echo $today | jq -r .day)
-			month=$(echo $today | jq -r .month.en)
-			year=$(echo $today | jq -r .year)
-
-			new_hijri="$(date +%a), $day $month $year"
-		fi
-
-		if [ -n "$new_hijri" ]; then
-			echo "$NOW_DATE $new_hijri" > "$HIJRI_FILE"
-			echo "$new_hijri"
-		else
-			echo "$LAST_HIJRI"
+		if [ -n "$hijri_date" ]; then
+			echo "$NOW_DATE $hijri_date" > "$HIJRI_FILE"
 		fi
 	else
-		echo "$LAST_HIJRI"
+		local hijri_date=$LAST_HIJRI
 	fi
+
+	echo "$hijri_date"
 }
 
 # Determine cycle (from Fajr to Fajr)
