@@ -76,10 +76,11 @@ dimlightcol() {
 	printf "#%s" "$new_color"
 }
 
-# Lighten color $1 to perceived brightness $2
+# Lighten color $1 to perceived brightness $2, with minimum increase of $3
 lighten_to_threshold() {
 	local color="$1"
 	local target_brightness="$2"
+	local min_increase="$3"
 	local new_color=""
 
 	local r=$((16#${color:1:2}))
@@ -90,6 +91,10 @@ lighten_to_threshold() {
 	local current_brightness=$(( (r * 299 + g * 587 + b * 114) / 1000 ))
 
 	local brightness_diff=$(( target_brightness - current_brightness ))
+
+	if (( brightness_diff < min_increase )); then
+		brightness_diff=$min_increase
+	fi
 
 	for val in "$r" "$g" "$b"; do
 		local new_val=$(( val + brightness_diff ))
@@ -239,8 +244,8 @@ for template in "${!config_map[@]}"; do
 done
 
 # Dimmed/lightened versions of BG and FG
-LIGHTBG=$(lighten_to_threshold "$BG" 30)
-LIGHTERBG=$(lighten_to_threshold "$BG" 45)
+LIGHTBG=$(lighten_to_threshold "$BG" 30 15)
+LIGHTERBG=$(lighten_to_threshold "$BG" 45 30)
 
 DIMFG=$(dimlightcol $FG 0.55)
 
